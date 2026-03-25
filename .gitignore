@@ -1,0 +1,129 @@
+# =========================
+# OS / System Files
+# =========================
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# =========================
+# Logs
+# =========================
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# =========================
+# Environment Variables (Secrets)
+# =========================
+.env
+.env.*
+!.env.example
+
+# =========================
+# Node.js / JavaScript
+# =========================
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+
+# Keep lockfiles for reproducibility (RECOMMENDED)
+# package-lock.json
+# yarn.lock
+# pnpm-lock.yaml
+
+# =========================
+# Python
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Packaging / builds
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Testing
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# =========================
+# IDEs / Editors
+# =========================
+.vscode/
+.idea/
+*.iml
+
+# =========================
+# OpenCode / Agents (KEEP CORE)
+# =========================
+
+# Ensure folder is tracked
+!.opencode/
+
+# Ignore ephemeral / runtime data only
+.opencode/cache/
+.opencode/tmp/
+.opencode/temp/
+.opencode/logs/
+.opencode/*.log
+.opencode/session/
+.opencode/local/
+
+# =========================
+# Spec Driven Development (SDD)
+# =========================
+
+# Keep source of truth (DO NOT IGNORE):
+# specs/
+# design/
+# tasks/
+
+# Ignore only generated artifacts
+specs/generated/
+design/generated/
+tasks/generated/
+
+# =========================
+# Docker
+# =========================
+docker-compose.override.yml
+
+# =========================
+# Build Outputs / Binaries
+# =========================
+*.out
+*.exe
+*.dll
+*.so
+*.dylib
+
+# =========================
+# Misc
+# =========================
+*.tmp
+*.bak
+*.old
+temp/
+tmp/
+.cache/
