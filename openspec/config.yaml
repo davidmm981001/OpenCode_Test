@@ -1,0 +1,14 @@
+schema: spec-driven
+
+context: |
+  Idioma: Español
+  Todos los artefactos deben escribirse en español (proposal.md, specs, design.md, tasks.md, etc.).
+
+  Tech stack: [Java Springboot, React + Vite, PostgreSQL, Docker]
+
+  Estilo de código:
+  Se aplicarán excelentes prácticas de software y programación, priorizando siempre la simplicidad y claridad sobre la complejidad innecesaria.
+  Se evitará sobreingeniería y soluciones que no aporten valor directo al proyecto.
+  El diseño y la implementación buscarán ser lo más atómicos y modulares posible, facilitando la reutilización, el mantenimiento y la escalabilidad.
+  Cada componente, función o módulo debe tener una única responsabilidad bien definida.
+  Se favorecerá código legible, consistente y fácil de entender para otros desarrolladores.
