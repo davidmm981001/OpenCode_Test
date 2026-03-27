@@ -1,0 +1,8 @@
+fastapi==0.115.12
+uvicorn[standard]==0.34.0
+psycopg[binary]==3.2.6
+redis==5.2.1
+pydantic-settings==2.8.1
+celery==5.4.0
+python-multipart==0.0.20
+antlr4-python3-runtime==4.13.2

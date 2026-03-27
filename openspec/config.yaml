@@ -4,7 +4,18 @@ context: |
   Idioma: Español
   Todos los artefactos deben escribirse en español (proposal.md, specs, design.md, tasks.md, etc.).
 
-  Tech stack: [Java Springboot, React + Vite, PostgreSQL, Docker]
+  Stack base V1 de plataforma (HU-01): [FastAPI, React + Vite, PostgreSQL, Redis, Docker Compose]
+
+  Flujo SDD estricto obligatorio:
+  1) Crear/actualizar artefactos del cambio en orden de dependencias (proposal -> specs/design -> tasks).
+  2) Ejecutar `openspec validate --type change --strict <change-name>` antes de implementar.
+  3) Implementar solo tareas marcadas en tasks.md usando `openspec instructions apply --change <change-name> --json`.
+  4) Al terminar, ejecutar nuevamente validación estricta.
+  5) Archivar solo cuando artefactos y tareas estén completos.
+
+  Regla de alcance por sub-HU:
+  - No mezclar alcance de HUs futuras dentro de la HU activa.
+  - No iniciar la siguiente sub-HU sin cerrar aceptación + DoD de la actual.
 
   Estilo de código:
   Se aplicarán excelentes prácticas de software y programación, priorizando siempre la simplicidad y claridad sobre la complejidad innecesaria.

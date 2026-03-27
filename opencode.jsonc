@@ -1,13 +1,38 @@
 {
   "$schema": "https://opencode.ai/config.json",
 
-  "model": "openai/gpt-4.1",
+  "model": "openai/gpt-5.3-codex",
+  "small_model": "openai/gpt-4.1",
+  "default_agent": "build",
 
   "provider": {
     "openai": {
       "models": {
+        "gpt-5.3-codex": {},
+        "o3": {},
         "gpt-4.1": {}
       }
+    }
+  },
+
+  "instructions": [
+    "docs/sdd-estricto.md",
+    "docs/openspec-paso-a-paso.md"
+  ],
+
+  "agent": {
+    "build": {
+      "description": "Implementacion principal con SDD estricto",
+      "model": "openai/gpt-5.3-codex"
+    },
+    "plan": {
+      "description": "Planificacion y razonamiento previo a cambios",
+      "model": "openai/o3"
+    },
+    "general": {
+      "description": "Subagente general auxiliar",
+      "mode": "subagent",
+      "model": "openai/gpt-4.1"
     }
   }
 }

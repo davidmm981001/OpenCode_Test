@@ -1,0 +1,40 @@
+:root {
+  font-family: "IBM Plex Sans", "Source Sans 3", sans-serif;
+  line-height: 1.45;
+  font-weight: 400;
+  color: #1a2a31;
+  background: radial-gradient(circle at top left, #f8fbfc, #f2f6ee 45%, #eef2f3);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: "Sora", "IBM Plex Sans", sans-serif;
+  color: #15303b;
+}
+
+h1 {
+  font-size: clamp(1.9rem, 3.5vw, 2.8rem);
+}
+
+p {
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
