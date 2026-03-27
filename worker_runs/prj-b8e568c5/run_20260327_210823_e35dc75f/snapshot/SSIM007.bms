@@ -1,0 +1,161 @@
+****************************************************************
+**                        N E X T I                           **
+****************************************************************
+**                    SEGURIDAD TECNOLOGICA                   **
+****************************************************************
+**  MODULE NAME   : SEGURIDAD                                 **
+**  DATE GENERATED: 2003-06-24                                **
+**  TIME GENERATED: 17:52:00                                  **
+**  PROGRAMMER    : SMELO                                     **
+**  DESIGNER      : SMELO                                     **
+**                                                            **
+**  DESCRIPCION...: Operaciones funcionales a la tabla de     **
+**                  Usuarios                                  **
+**                                                            **
+****************************************************************
+*********************  MODIFICACIONES **************************
+****************************************************************
+*   AUTOR     FECHA                 MODIFICACION               *
+* -------- ---------- ---------------------------------------  *
+* NPORRAS  2005-12-01 SE AUMENTA CAMPO DE OBSERVACIONES PARA   *
+*                      AUDITORIA                               *
+* NPORRAS  2008-09-22 SE AUMENTA CAMPOS DE ENTORNO BANCS       *
+*                                                              *
+****************************************************************
+*
+SSIM007  DFHMSD TYPE=&SYSPARM,MODE=INOUT,LANG=COBOL,TERM=3270,         X
+               CTRL=(FREEKB,ALARM,FRSET),STORAGE=AUTO,TIOAPFX=YES
+SSI0701  DFHMDI SIZE=(24,80),LINE=01,COLUMN=1
+         DFHMDF POS=(01,01),LENGTH=07,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='SSIM007'
+M15USER  DFHMDF POS=(01,10),LENGTH=08,ATTRB=(PROT,ASKIP),              X
+               INITIAL='        '
+         DFHMDF POS=(01,28),LENGTH=19,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='Modulo de Seguridad'
+         DFHMDF POS=(01,65),LENGTH=06,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='FECHA:'
+M15FECHA DFHMDF POS=(01,72),LENGTH=08,ATTRB=(PROT,NUM,FSET),           X
+               PICIN='99999999',PICOUT='99999999'
+         DFHMDF POS=(02,01),LENGTH=04,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='CICS'
+M15CICS  DFHMDF POS=(02,08),LENGTH=08,ATTRB=(PROT,ASKIP),              X
+               INITIAL='        '
+M15TERM  DFHMDF POS=(02,18),LENGTH=04,ATTRB=(PROT,ASKIP),              X
+               INITIAL='    '
+         DFHMDF POS=(02,24),LENGTH=29,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL=' Administracion de Usuarios  '
+         DFHMDF POS=(02,65),LENGTH=06,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL=' HORA:'
+M15HORA  DFHMDF POS=(02,72),LENGTH=08,ATTRB=(PROT,ASKIP),              X
+               INITIAL='        '
+         DFHMDF POS=(04,01),LENGTH=08,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='USUARIO:'
+M15USR   DFHMDF POS=(04,10),LENGTH=08,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(04,19),LENGTH=01
+         DFHMDF POS=(05,01),LENGTH=78,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='_______________________________________________X
+               _______________________________'
+         DFHMDF POS=(06,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Usuario Bancs......:'
+M15UBAN  DFHMDF POS=(06,22),LENGTH=08,ATTRB=(UNPROT,NUM,FSET)
+               PICIN='99999999',PICOUT='99999999'
+         DFHMDF POS=(06,31),LENGTH=01
+         DFHMDF POS=(07,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Terminal Bancs.....:'
+M15TBAN  DFHMDF POS=(07,22),LENGTH=05,ATTRB=(UNPROT,NUM,FSET)
+               PICIN='99999',PICOUT='99999'
+         DFHMDF POS=(07,28),LENGTH=01
+         DFHMDF POS=(08,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Nombres............:'
+M15NOMB  DFHMDF POS=(08,22),LENGTH=43,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(08,66),LENGTH=01
+         DFHMDF POS=(09,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Cedula Identidad...:'
+M15CID   DFHMDF POS=(09,22),LENGTH=10,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='9999999999',PICOUT='9999999999'
+         DFHMDF POS=(09,33),LENGTH=01
+         DFHMDF POS=(10,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Codigo de Empresa..:'
+M15CEMP  DFHMDF POS=(10,22),LENGTH=04,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='9999',PICOUT='9999'
+         DFHMDF POS=(10,27),LENGTH=01
+M15DEMP  DFHMDF POS=(10,40),LENGTH=38,ATTRB=(PROT,ASKIP,BRT)
+         DFHMDF POS=(11,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Codigo de Centro...:'
+M15CCEN  DFHMDF POS=(11,22),LENGTH=04,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='9999',PICOUT='9999'
+         DFHMDF POS=(11,27),LENGTH=01
+M15DCEN  DFHMDF POS=(11,40),LENGTH=38,ATTRB=(PROT,ASKIP,BRT)
+         DFHMDF POS=(12,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Cargo Actual.......:'
+M15CARG  DFHMDF POS=(12,22),LENGTH=18,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(12,41),LENGTH=01
+         DFHMDF POS=(13,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Perfil de Usuario..:'
+M15SPVM  DFHMDF POS=(13,22),LENGTH=08,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(13,31),LENGTH=01
+M15DPVM  DFHMDF POS=(13,40),LENGTH=38,ATTRB=(PROT,ASKIP,BRT)
+         DFHMDF POS=(13,79),LENGTH=01
+         DFHMDF POS=(14,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Dominio............:'
+M15DOMI  DFHMDF POS=(14,22),LENGTH=04,ATTRB=(PROT,NUM,FSET),           X
+               PICIN='9999',PICOUT='9999'
+         DFHMDF POS=(14,27),LENGTH=01
+         DFHMDF POS=(15,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Nodo...............:'
+M15NODO  DFHMDF POS=(15,22),LENGTH=04,ATTRB=(PROT,NUM,FSET)
+         DFHMDF POS=(15,27),LENGTH=01
+         DFHMDF POS=(16,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Autorizador........:'
+M15SAUT  DFHMDF POS=(16,22),LENGTH=01,ATTRB=(UNPROT,FSET),             XX
+               PICIN='9',PICOUT='9'
+         DFHMDF POS=(16,24),LENGTH=01
+         DFHMDF POS=(16,40),LENGTH=39,ATTRB=(PROT,ASKIP,BRT),          XX
+               INITIAL='<== (0) No Autorizador  (1) Autorizador'
+         DFHMDF POS=(17,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Oficina Swift......:'
+M15SWIFT DFHMDF POS=(17,22),LENGTH=12,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(17,35),LENGTH=01
+         DFHMDF POS=(17,40),LENGTH=39,ATTRB=(PROT,ASKIP,BRT),          XX
+               INITIAL='<== Solo para informacion Turbo Swift  '
+         DFHMDF POS=(18,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Observaciones......:'
+M15SOLIC DFHMDF POS=(18,22),LENGTH=50,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(18,73),LENGTH=01,ATTRB=(PROT,ASKIP)
+         DFHMDF POS=(19,01),LENGTH=78,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='_______________________________________________X
+               _______________________________'
+         DFHMDF POS=(20,01),LENGTH=22,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Ultima actualizacion.: '
+         DFHMDF POS=(20,25),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Fch:'
+M15UFCH  DFHMDF POS=(20,30),LENGTH=08,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(20,39),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Hrs:'
+M15UHRS  DFHMDF POS=(20,44),LENGTH=06,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(20,51),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Usr:'
+M15UUSR  DFHMDF POS=(20,56),LENGTH=08,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(20,65),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Ter:'
+M15UTER  DFHMDF POS=(20,70),LENGTH=04,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(21,01),LENGTH=22,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Ultimo SIGNON usuario:'
+         DFHMDF POS=(21,24),LENGTH=01,ATTRB=(PROT,ASKIP)
+         DFHMDF POS=(21,25),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Fch:'
+M15FCHL  DFHMDF POS=(21,30),LENGTH=08,ATTRB=(PROT,ASKIP)
+         DFHMDF POS=(21,39),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Hrs:'
+M15HRSL  DFHMDF POS=(21,44),LENGTH=06,ATTRB=(PROT,ASKIP)
+         DFHMDF POS=(21,51),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='IP.:'
+M15LTER  DFHMDF POS=(21,56),LENGTH=15,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(22,01),LENGTH=78,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='_______________________________________________X
+               _______________________________'
+M15TEC1  DFHMDF POS=(23,32),LENGTH=40,ATTRB=(PROT,ASKIP,FSET)
+M15DET1  DFHMDF POS=(24,01),LENGTH=30,ATTRB=(PROT,ASKIP,FSET)
+M15TEC2  DFHMDF POS=(24,32),LENGTH=40,ATTRB=(PROT,ASKIP,FSET)
+         DFHMSD TYPE=FINAL
+         END

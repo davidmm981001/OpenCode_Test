@@ -1,0 +1,8 @@
+{
+  "source_ref": [
+    "demo.CBL"
+  ],
+  "context_ref": "contexto_unificado.json",
+  "story_ref": "historias_usuario.md",
+  "target_ref": "generated/"
+}

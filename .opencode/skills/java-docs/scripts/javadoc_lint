@@ -1,0 +1,383 @@
+#!/usr/bin/env python3
+"""Lightweight Javadoc lint for java-docs skill."""
+
+from __future__ import annotations
+
+import argparse
+import re
+import sys
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Iterable, List, Tuple
+
+TAG_RE = re.compile(r"^\s*\*\s*@([A-Za-z][A-Za-z0-9_-]*)\b(.*)$")
+TYPE_RE = re.compile(r"\b(class|interface|enum|record)\s+([A-Za-z_][A-Za-z0-9_]*)\b")
+IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+VERSION_RE = re.compile(r"^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9_.-]+)?$")
+ANNOTATION_RE = re.compile(r"@\w+(?:\.\w+)*(?:\([^)]*\))?\s*")
+
+METHOD_ORDER = ["param", "return", "throws", "deprecated", "see"]
+CTOR_ORDER = ["param", "throws", "deprecated", "see"]
+TYPE_ORDER = ["author", "version", "since", "deprecated", "see"]
+FIELD_ORDER = ["deprecated", "see"]
+
+
+@dataclass
+class Tag:
+    name: str
+    body: str
+    line: int
+
+
+@dataclass
+class Issue:
+    path: Path
+    line: int
+    code: str
+    message: str
+
+
+def split_top_level(text: str) -> List[str]:
+    items: List[str] = []
+    current: List[str] = []
+    angle = 0
+    paren = 0
+    bracket = 0
+
+    for ch in text:
+        if ch == "<":
+            angle += 1
+        elif ch == ">" and angle > 0:
+            angle -= 1
+        elif ch == "(":
+            paren += 1
+        elif ch == ")" and paren > 0:
+            paren -= 1
+        elif ch == "[":
+            bracket += 1
+        elif ch == "]" and bracket > 0:
+            bracket -= 1
+        elif ch == "," and angle == 0 and paren == 0 and bracket == 0:
+            item = "".join(current).strip()
+            if item:
+                items.append(item)
+            current = []
+            continue
+        current.append(ch)
+
+    tail = "".join(current).strip()
+    if tail:
+        items.append(tail)
+    return items
+
+
+def strip_annotations(text: str) -> str:
+    previous = None
+    result = text
+    while previous != result:
+        previous = result
+        result = ANNOTATION_RE.sub("", result)
+    return result
+
+
+def extract_tags(lines: List[str], start: int, end: int) -> List[Tag]:
+    tags: List[Tag] = []
+    for idx in range(start, end + 1):
+        match = TAG_RE.match(lines[idx])
+        if match:
+            tags.append(Tag(match.group(1), match.group(2).strip(), idx + 1))
+    return tags
+
+
+def find_next_declaration(lines: List[str], start: int) -> Tuple[int | None, str]:
+    idx = start
+    while idx < len(lines):
+        stripped = lines[idx].strip()
+        if not stripped or stripped.startswith("//"):
+            idx += 1
+            continue
+        if stripped.startswith("@"):
+            idx += 1
+            continue
+        break
+
+    if idx >= len(lines):
+        return None, ""
+
+    begin = idx
+    chunks: List[str] = []
+    paren_balance = 0
+    while idx < len(lines):
+        line = lines[idx].strip()
+        chunks.append(line)
+        paren_balance += line.count("(") - line.count(")")
+        if ("{" in line or ";" in line) and paren_balance <= 0:
+            break
+        idx += 1
+
+    return begin, " ".join(chunks)
+
+
+def parse_method_name(signature: str) -> str | None:
+    left = signature.split("(", 1)[0]
+    matches = IDENT_RE.findall(left)
+    if not matches:
+        return None
+    return matches[-1]
+
+
+def parse_param_names(signature: str) -> List[str]:
+    if "(" not in signature or ")" not in signature:
+        return []
+    inside = signature.split("(", 1)[1].rsplit(")", 1)[0].strip()
+    if not inside:
+        return []
+
+    params: List[str] = []
+    for item in split_top_level(inside):
+        cleaned = strip_annotations(item)
+        cleaned = re.sub(r"\bfinal\b", " ", cleaned)
+        names = IDENT_RE.findall(cleaned)
+        if names:
+            params.append(names[-1])
+    return params
+
+
+def parse_declared_throws(signature: str) -> List[str]:
+    if "throws" not in signature:
+        return []
+    tail = signature.split("throws", 1)[1]
+    tail = re.split(r"[;{]", tail, maxsplit=1)[0]
+    names: List[str] = []
+    for item in split_top_level(tail):
+        token = item.strip()
+        if not token:
+            continue
+        type_name = token.split()[-1]
+        names.append(type_name.split(".")[-1])
+    return names
+
+
+def tag_first_token(tag_body: str) -> str:
+    token = tag_body.split(" ", 1)[0].strip()
+    return token.split(".")[-1] if token else ""
+
+
+def classify_declaration(signature: str, file_stem: str) -> Tuple[str, dict]:
+    type_match = TYPE_RE.search(signature)
+    if type_match:
+        return "type", {"type_name": type_match.group(2)}
+
+    if "(" in signature and ")" in signature:
+        method_name = parse_method_name(signature)
+        if not method_name:
+            return "unknown", {}
+
+        is_constructor = method_name == file_stem
+        returns_void = bool(re.search(r"\bvoid\b", signature.split("(", 1)[0])) and not is_constructor
+
+        kind = "ctor" if is_constructor else "method"
+        return kind, {
+            "name": method_name,
+            "params": parse_param_names(signature),
+            "throws": parse_declared_throws(signature),
+            "returns_void": returns_void,
+            "requires_return": (not is_constructor and not returns_void),
+        }
+
+    if ";" in signature:
+        return "field", {}
+
+    return "unknown", {}
+
+
+def check_order(tags: List[Tag], expected: List[str], issues: List[Issue], path: Path) -> None:
+    order_map = {name: idx for idx, name in enumerate(expected)}
+    last = -1
+    for tag in tags:
+        if tag.name not in order_map:
+            continue
+        idx = order_map[tag.name]
+        if idx < last:
+            issues.append(
+                Issue(
+                    path,
+                    tag.line,
+                    "QG07",
+                    f"Tag order violation near @{tag.name}. Expected order: {' -> '.join(expected)}",
+                )
+            )
+        else:
+            last = idx
+
+
+def check_since(tags: List[Tag], issues: List[Issue], path: Path) -> None:
+    for tag in tags:
+        if tag.name != "since":
+            continue
+        version = tag.body.split(" ", 1)[0] if tag.body else ""
+        if not VERSION_RE.match(version):
+            issues.append(
+                Issue(path, tag.line, "QG06", f"@since must be version-like (e.g. 1.0.0), got '{version}'.")
+            )
+
+
+def check_type(tags: List[Tag], profile: str, issues: List[Issue], path: Path, decl_line: int) -> None:
+    if profile != "strict":
+        return
+    present = {tag.name for tag in tags}
+    for required in ("author", "version", "since"):
+        if required not in present:
+            issues.append(
+                Issue(path, decl_line + 1, "PROFILE", f"strict profile requires @{required} on type declarations.")
+            )
+
+
+def check_method_like(
+    tags: List[Tag],
+    meta: dict,
+    issues: List[Issue],
+    path: Path,
+    decl_line: int,
+    kind: str,
+) -> None:
+    expected_params: List[str] = meta.get("params", [])
+    declared_throws: List[str] = meta.get("throws", [])
+
+    param_tags = [tag for tag in tags if tag.name == "param"]
+    actual_params = [tag_first_token(tag.body) for tag in param_tags if tag_first_token(tag.body)]
+
+    if expected_params != actual_params:
+        issues.append(
+            Issue(
+                path,
+                param_tags[0].line if param_tags else decl_line + 1,
+                "QG02",
+                f"@param mismatch. signature={expected_params}, javadoc={actual_params}",
+            )
+        )
+
+    has_return = any(tag.name == "return" for tag in tags)
+    if meta.get("returns_void") and has_return:
+        line = next(tag.line for tag in tags if tag.name == "return")
+        issues.append(Issue(path, line, "QG03", "void method must not declare @return."))
+    if meta.get("requires_return") and not has_return:
+        issues.append(Issue(path, decl_line + 1, "QG04", "non-void method must declare @return."))
+
+    throws_tags = [tag_first_token(tag.body) for tag in tags if tag.name == "throws"]
+    missing_throws = [name for name in declared_throws if name not in throws_tags]
+    if missing_throws:
+        issues.append(
+            Issue(
+                path,
+                decl_line + 1,
+                "QG05",
+                f"missing @throws for declared exceptions: {missing_throws}",
+            )
+        )
+
+    if kind == "ctor":
+        check_order(tags, CTOR_ORDER, issues, path)
+    else:
+        check_order(tags, METHOD_ORDER, issues, path)
+
+
+def check_field(tags: List[Tag], issues: List[Issue], path: Path) -> None:
+    invalid = [tag for tag in tags if tag.name in {"param", "return", "throws"}]
+    for tag in invalid:
+        issues.append(Issue(path, tag.line, "QG08", f"field javadoc must not contain @{tag.name}."))
+    check_order(tags, FIELD_ORDER, issues, path)
+
+
+def lint_file(path: Path, profile: str) -> List[Issue]:
+    issues: List[Issue] = []
+    try:
+        text = path.read_text(encoding="utf-8", errors="replace")
+    except OSError as exc:
+        return [Issue(path, 1, "IO", f"failed to read file: {exc}")]
+
+    lines = text.splitlines()
+    idx = 0
+    while idx < len(lines):
+        if not lines[idx].lstrip().startswith("/**"):
+            idx += 1
+            continue
+
+        start = idx
+        end = idx
+        while end < len(lines) and "*/" not in lines[end]:
+            end += 1
+        if end >= len(lines):
+            issues.append(Issue(path, start + 1, "FORMAT", "unterminated javadoc block."))
+            break
+
+        tags = extract_tags(lines, start, end)
+        decl_line, signature = find_next_declaration(lines, end + 1)
+        if decl_line is None:
+            idx = end + 1
+            continue
+
+        kind, meta = classify_declaration(signature, path.stem)
+        check_since(tags, issues, path)
+
+        if kind == "type":
+            check_type(tags, profile, issues, path, decl_line)
+            check_order(tags, TYPE_ORDER, issues, path)
+        elif kind in {"method", "ctor"}:
+            check_method_like(tags, meta, issues, path, decl_line, kind)
+        elif kind == "field":
+            check_field(tags, issues, path)
+
+        idx = end + 1
+
+    return issues
+
+
+def iter_java_files(inputs: Iterable[str]) -> List[Path]:
+    files: List[Path] = []
+    for raw in inputs:
+        path = Path(raw)
+        if path.is_file() and path.suffix == ".java":
+            files.append(path)
+        elif path.is_dir():
+            files.extend(path.rglob("*.java"))
+    unique = sorted({file.resolve() for file in files})
+    return [Path(item) for item in unique]
+
+
+def main(argv: List[str]) -> int:
+    parser = argparse.ArgumentParser(description="Lint Javadoc style and tag consistency.")
+    parser.add_argument("paths", nargs="+", help="Java files or directories")
+    parser.add_argument(
+        "--profile",
+        choices=["strict", "compatible"],
+        default="strict",
+        help="Validation strictness profile",
+    )
+
+    args = parser.parse_args(argv)
+    java_files = iter_java_files(args.paths)
+
+    if not java_files:
+        print("No Java files found.")
+        return 0
+
+    all_issues: List[Issue] = []
+    for java_file in java_files:
+        all_issues.extend(lint_file(java_file, args.profile))
+
+    all_issues.sort(key=lambda item: (str(item.path), item.line, item.code, item.message))
+
+    for issue in all_issues:
+        print(f"{issue.path}:{issue.line}: {issue.code} {issue.message}")
+
+    if all_issues:
+        print(f"Found {len(all_issues)} issue(s) in {len(java_files)} file(s).")
+        return 1
+
+    print(f"Javadoc lint passed for {len(java_files)} file(s).")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

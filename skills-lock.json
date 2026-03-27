@@ -12,14 +12,19 @@
       "computedHash": "fb9dc620c198b7631548fe78570072963c3fde44d85024a08bc2faade0253f8f"
     },
     "java-docs": {
-      "source": "github/awesome-copilot",
+      "source": "yeluod/java-doc",
       "sourceType": "github",
-      "computedHash": "76cf49efcd6e99d95031c78e56615dbaf641a756e852acf7e87f9197dfab43e0"
+      "computedHash": "8141c602f675366209e35a6a1aabcbf4bdca77350b600aa97542a9b3443d0313"
     },
     "java-junit": {
       "source": "github/awesome-copilot",
       "sourceType": "github",
       "computedHash": "fbf3cb0d47ffb44bdb6e1ebcc4d89dd7083208efdfc5b88f316c8bc2b58250b5"
+    },
+    "java-spring-boot": {
+      "source": "pluginagentmarketplace/custom-plugin-java",
+      "sourceType": "github",
+      "computedHash": "c1d1523ec6ead1de3c7efd73e7a6041af983ef0dc38ae2050f75c6375ba6b7ae"
     },
     "java-springboot": {
       "source": "github/awesome-copilot",
@@ -36,10 +41,25 @@
       "sourceType": "github",
       "computedHash": "0073d19ab0275eb6a8200aced6789a53744667bd717b5d1f44ce708a1740e5d4"
     },
+    "junit": {
+      "source": "teachingai/full-stack-skills",
+      "sourceType": "github",
+      "computedHash": "bf6a8ed74e22c1a7b2bd9db59db8c9eb1579b03a315f3b4ef53bb009bb1ae9d9"
+    },
+    "neon-postgres": {
+      "source": "neondatabase/agent-skills",
+      "sourceType": "github",
+      "computedHash": "574cf4b7c901ebc7d88d34e2c3e3d08fdec127bd0047f888de148ff0af787d4e"
+    },
     "react": {
       "source": "vercel-labs/json-render",
       "sourceType": "github",
       "computedHash": "ba1686f464e4da1e44da6ce2eb38ea56c2af2790f5c911d8cee2a8f2dd93ceb7"
+    },
+    "supabase-postgres-best-practices": {
+      "source": "supabase/agent-skills",
+      "sourceType": "github",
+      "computedHash": "e3ba3d760c5f4cc43b02a91fb8924f726c7818f95cc35d79d0a606ca622b72f5"
     },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
@@ -50,6 +70,11 @@
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
       "computedHash": "a804b4e848059822638c390359976f7021380bcefb1469d473aa4e9202c15ecb"
+    },
+    "vite": {
+      "source": "antfu/skills",
+      "sourceType": "github",
+      "computedHash": "1cdc4bbecaa89544e6ef92566b015db989994bf90c4472683ac64f7a114dc3af"
     }
   }
 }

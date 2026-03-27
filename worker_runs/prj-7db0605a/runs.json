@@ -1,0 +1,120 @@
+[
+  {
+    "run_id": "run_20260327_185444_f6cf474d",
+    "project_id": "prj-7db0605a",
+    "state": "READY",
+    "source_snapshot_version": "snapshot_run_20260327_185444_f6cf474d",
+    "created_at": "2026-03-27T18:54:44.004249+00:00",
+    "updated_at": "2026-03-27T18:54:44.823163+00:00",
+    "comment": null,
+    "previous_run_id": null,
+    "warnings": [
+      "backend_build_simulated_in_local_preview_mode"
+    ],
+    "errors": [],
+    "stages": {
+      "INGEST": {
+        "name": "INGEST",
+        "status": "success",
+        "started_at": "2026-03-27T18:54:44.006249+00:00",
+        "ended_at": "2026-03-27T18:54:44.007249+00:00",
+        "duration_ms": null,
+        "details": {
+          "files": 2,
+          "warnings": 0,
+          "estimated_cost_usd": 0.0002
+        }
+      },
+      "ANALYZE": {
+        "name": "ANALYZE",
+        "status": "success",
+        "started_at": "2026-03-27T18:54:44.007249+00:00",
+        "ended_at": "2026-03-27T18:54:44.361753+00:00",
+        "duration_ms": null,
+        "details": {
+          "programs": 1,
+          "screens": 1,
+          "low_confidence": true
+        }
+      },
+      "STORIES": {
+        "name": "STORIES",
+        "status": "success",
+        "started_at": "2026-03-27T18:54:44.361753+00:00",
+        "ended_at": "2026-03-27T18:54:44.365753+00:00",
+        "duration_ms": null,
+        "details": {
+          "stories": 2
+        }
+      },
+      "CODEGEN": {
+        "name": "CODEGEN",
+        "status": "success",
+        "started_at": "2026-03-27T18:54:44.365753+00:00",
+        "ended_at": "2026-03-27T18:54:44.372761+00:00",
+        "duration_ms": null,
+        "details": {
+          "backend": "worker_runs\\prj-7db0605a\\run_20260327_185444_f6cf474d\\generated\\backend",
+          "frontend": "worker_runs\\prj-7db0605a\\run_20260327_185444_f6cf474d\\generated\\frontend",
+          "db": "worker_runs\\prj-7db0605a\\run_20260327_185444_f6cf474d\\generated\\db"
+        }
+      },
+      "TEST_GATE": {
+        "name": "TEST_GATE",
+        "status": "success",
+        "started_at": "2026-03-27T18:54:44.372761+00:00",
+        "ended_at": "2026-03-27T18:54:44.821725+00:00",
+        "duration_ms": null,
+        "details": {
+          "backend_build": "success",
+          "frontend_build": "success",
+          "db_migrations": "success",
+          "health_check": "success"
+        }
+      },
+      "PUBLISH_GITHUB": {
+        "name": "PUBLISH_GITHUB",
+        "status": "skipped",
+        "started_at": null,
+        "ended_at": "2026-03-27T18:54:44.823163+00:00",
+        "duration_ms": null,
+        "details": {
+          "reason": "preview local mode"
+        }
+      },
+      "DEPLOY_RAILWAY": {
+        "name": "DEPLOY_RAILWAY",
+        "status": "skipped",
+        "started_at": null,
+        "ended_at": "2026-03-27T18:54:44.823163+00:00",
+        "duration_ms": null,
+        "details": {
+          "reason": "preview local mode"
+        }
+      },
+      "PREVIEW_READY": {
+        "name": "PREVIEW_READY",
+        "status": "success",
+        "started_at": null,
+        "ended_at": "2026-03-27T18:54:44.823163+00:00",
+        "duration_ms": null,
+        "details": {
+          "preview_mode": "local",
+          "preview_url_public": "http://127.0.0.1:8000/preview/local/prj-7db0605a/run_20260327_185444_f6cf474d",
+          "fallback": true
+        }
+      }
+    },
+    "artifacts": {
+      "contexto_unificado.json": "worker_runs\\prj-7db0605a\\run_20260327_185444_f6cf474d\\contexto_unificado.json",
+      "historias_usuario.md": "worker_runs\\prj-7db0605a\\run_20260327_185444_f6cf474d\\historias_usuario.md",
+      "criterios_aceptacion.md": "worker_runs\\prj-7db0605a\\run_20260327_185444_f6cf474d\\criterios_aceptacion.md",
+      "run_report.json": "worker_runs\\prj-7db0605a\\run_20260327_185444_f6cf474d\\run_report.json"
+    },
+    "metadata": {
+      "estimated_cost_usd": 0.0002,
+      "preview_mode": "local",
+      "preview_url_public": "http://127.0.0.1:8000/preview/local/prj-7db0605a/run_20260327_185444_f6cf474d"
+    }
+  }
+]

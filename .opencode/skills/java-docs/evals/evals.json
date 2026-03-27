@@ -1,0 +1,65 @@
+{
+  "skill_name": "java-docs",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "请为这个 service 类补全类注释和字段注释，说明用途并补上版本信息。",
+      "expected_output": "类型注释符合 strict 标签顺序，字段注释仅描述用途。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "修复这个方法注释：参数顺序写错了，另外这是 void 方法却写了 @return。",
+      "expected_output": "@param 顺序与签名一致，且移除 void 方法的 @return。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "为带泛型参数 List<UserDTO> 和 Map<String, Object> 的方法补注释。",
+      "expected_output": "泛型类型在标签中使用 {@code ...}，解释语义清晰。",
+      "files": []
+    },
+    {
+      "id": 4,
+      "prompt": "这个构造器声明了 throws IllegalArgumentException，请补齐注释。",
+      "expected_output": "构造器包含 @param 和 @throws，标签顺序正确。",
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "把方法注释里的 @since 2024-01-01 改成规范格式。",
+      "expected_output": "@since 使用版本语义（例如 1.0.0），不使用日期。",
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "这个 record 的 Javadoc 太口语化了，改成规范风格并补标签。",
+      "expected_output": "record 注释结构化，strict 下包含 author/version/since。",
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "修复 deprecated 方法注释，给出替代 API。",
+      "expected_output": "@deprecated 包含替代方案或迁移建议。",
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "这个方法声明 throws IOException, SQLException，但只写了一个 @throws，请修复。",
+      "expected_output": "每个声明异常都有对应 @throws。",
+      "files": []
+    },
+    {
+      "id": 9,
+      "prompt": "按 compatible profile 对历史代码做最小注释修复，不要新增无关标签。",
+      "expected_output": "只修复错误标签，不强制新增 author/version/since。",
+      "files": []
+    },
+    {
+      "id": 10,
+      "prompt": "为包含 primitive 参数 int 和 boolean 的方法补充注释。",
+      "expected_output": "primitive 在标签中映射到包装类型并使用 {@link ...}。",
+      "files": []
+    }
+  ]
+}

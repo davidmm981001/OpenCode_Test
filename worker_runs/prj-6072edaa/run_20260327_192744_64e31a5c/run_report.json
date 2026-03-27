@@ -1,0 +1,117 @@
+{
+  "run_id": "run_20260327_192744_64e31a5c",
+  "state": "READY",
+  "stages": {
+    "INGEST": {
+      "name": "INGEST",
+      "status": "success",
+      "started_at": "2026-03-27T19:27:44.668232+00:00",
+      "ended_at": "2026-03-27T19:27:44.675379+00:00",
+      "duration_ms": null,
+      "details": {
+        "files": 6,
+        "warnings": 0,
+        "estimated_cost_usd": 0.2395
+      }
+    },
+    "ANALYZE": {
+      "name": "ANALYZE",
+      "status": "success",
+      "started_at": "2026-03-27T19:27:44.675379+00:00",
+      "ended_at": "2026-03-27T19:27:44.991517+00:00",
+      "duration_ms": null,
+      "details": {
+        "programs": 3,
+        "screens": 3,
+        "low_confidence": true
+      }
+    },
+    "STORIES": {
+      "name": "STORIES",
+      "status": "success",
+      "started_at": "2026-03-27T19:27:44.991517+00:00",
+      "ended_at": "2026-03-27T19:27:44.991517+00:00",
+      "duration_ms": null,
+      "details": {
+        "stories": 4
+      }
+    },
+    "CODEGEN": {
+      "name": "CODEGEN",
+      "status": "success",
+      "started_at": "2026-03-27T19:27:44.991517+00:00",
+      "ended_at": "2026-03-27T19:27:44.991517+00:00",
+      "duration_ms": null,
+      "details": {
+        "backend": "worker_runs\\prj-6072edaa\\run_20260327_192744_64e31a5c\\generated\\backend",
+        "frontend": "worker_runs\\prj-6072edaa\\run_20260327_192744_64e31a5c\\generated\\frontend",
+        "db": "worker_runs\\prj-6072edaa\\run_20260327_192744_64e31a5c\\generated\\db"
+      }
+    },
+    "TEST_GATE": {
+      "name": "TEST_GATE",
+      "status": "success",
+      "started_at": "2026-03-27T19:27:44.991517+00:00",
+      "ended_at": "2026-03-27T19:27:45.344001+00:00",
+      "duration_ms": null,
+      "details": {
+        "backend_build": "success",
+        "frontend_build": "success",
+        "db_migrations": "success",
+        "health_check": "success"
+      }
+    },
+    "PUBLISH_GITHUB": {
+      "name": "PUBLISH_GITHUB",
+      "status": "skipped",
+      "started_at": null,
+      "ended_at": "2026-03-27T19:27:45.344001+00:00",
+      "duration_ms": null,
+      "details": {
+        "reason": "preview local mode"
+      }
+    },
+    "DEPLOY_RAILWAY": {
+      "name": "DEPLOY_RAILWAY",
+      "status": "skipped",
+      "started_at": null,
+      "ended_at": "2026-03-27T19:27:45.344001+00:00",
+      "duration_ms": null,
+      "details": {
+        "reason": "preview local mode"
+      }
+    },
+    "PREVIEW_READY": {
+      "name": "PREVIEW_READY",
+      "status": "success",
+      "started_at": null,
+      "ended_at": "2026-03-27T19:27:45.344001+00:00",
+      "duration_ms": null,
+      "details": {
+        "preview_mode": "local",
+        "preview_url_public": "http://127.0.0.1:8000/preview/local/prj-6072edaa/run_20260327_192744_64e31a5c",
+        "fallback": true
+      }
+    }
+  },
+  "warnings": [
+    "backend_build_simulated_in_local_preview_mode"
+  ],
+  "errors": [],
+  "metadata": {
+    "remodernize_comment_normalized": {
+      "funcional": "Remoderniza",
+      "tecnico": "Ajustar implementacion y trazabilidad segun comentario.",
+      "prioridades": "fidelidad-funcional, estabilidad-pipeline, trazabilidad",
+      "exclusiones": "no-cambiar-snapshot-original"
+    },
+    "estimated_cost_usd": 0.2395,
+    "preview_mode": "local",
+    "preview_url_public": "http://127.0.0.1:8000/preview/local/prj-6072edaa/run_20260327_192744_64e31a5c"
+  },
+  "artifacts": {
+    "contexto_unificado.json": "worker_runs\\prj-6072edaa\\run_20260327_192744_64e31a5c\\contexto_unificado.json",
+    "historias_usuario.md": "worker_runs\\prj-6072edaa\\run_20260327_192744_64e31a5c\\historias_usuario.md",
+    "criterios_aceptacion.md": "worker_runs\\prj-6072edaa\\run_20260327_192744_64e31a5c\\criterios_aceptacion.md"
+  }
+}

@@ -1,0 +1,90 @@
+****************************************************************
+**                        N E X T I                           **
+****************************************************************
+**                    SEGURIDAD TECNOLOGICA                   **
+****************************************************************
+**  MODULE NAME   : SEGURIDAD                                 **
+**  DATE GENERATED: 2003-06-24                                **
+**  TIME GENERATED: 17:52:00                                  **
+**  PROGRAMMER    : SMELO                                     **
+**  DESIGNER      : SMELO                                     **
+**                                                            **
+**  DESCRIPCION...: Gestiona el men� principal de Seguridad   **
+**                                                            **
+****************************************************************
+*********************  MODIFICACIONES **************************
+****************************************************************
+*   AUTOR     FECHA                 MODIFICACION               *
+* --------- ---------- --------------------------------------- *
+* NPORRAS   2006-01-20 Recompilaci�n para igualar versiones    *
+* NARGUELLO 2006-03-10 Permitir modificar dominio y nodo por la*
+*                      opcion 9                                *
+**                                                            **
+****************************************************************
+*
+PRG00M   DFHMSD TYPE=&SYSPARM,DATA=FIELD,CTRL=FREEKB,STORAGE=AUTO,     X
+               LANG=COBOL,TIOAPFX=YES,TERM=3270,MODE=INOUT
+PRG00M1  DFHMDI SIZE=(24,80),LINE=01,COLUMN=01
+         DFHMDF POS=(01,01),LENGTH=07,ATTRB=(ASKIP,BRT),               X
+               INITIAL='PRG00M1'
+M1OPID   DFHMDF POS=(01,09),LENGTH=08,ATTRB=(ASKIP,NORM,FSET)
+         DFHMDF POS=(01,31),LENGTH=19,ATTRB=(ASKIP,BRT),               X
+               INITIAL='Modulo de Seguridad'
+M1FECHA  DFHMDF POS=(01,69),LENGTH=11,ATTRB=(ASKIP,NORM)
+         DFHMDF POS=(02,01),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='CICS'
+M1APPLD  DFHMDF POS=(02,09),LENGTH=08,ATTRB=(ASKIP,NORM)
+M1TERM   DFHMDF POS=(02,18),LENGTH=04,ATTRB=(ASKIP,NORM)
+         DFHMDF POS=(02,33),LENGTH=14,ATTRB=(ASKIP,BRT),               X
+               INITIAL='Menu principal'
+M1HORA   DFHMDF POS=(02,69),LENGTH=08,ATTRB=(ASKIP,NORM)
+         DFHMDF POS=(04,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(01)'
+         DFHMDF POS=(04,26),LENGTH=26,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion de Usuarios'
+         DFHMDF POS=(05,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(02)'
+         DFHMDF POS=(05,26),LENGTH=23,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion de Menus'
+         DFHMDF POS=(06,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(03)'
+         DFHMDF POS=(06,26),LENGTH=31,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion Tabla Parametros'
+         DFHMDF POS=(07,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(04)'
+         DFHMDF POS=(07,26),LENGTH=38,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion de Perfiles de recursos'
+         DFHMDF POS=(08,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(05)'
+         DFHMDF POS=(08,26),LENGTH=34,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion de Recursos de Host'
+         DFHMDF POS=(09,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(06)'
+         DFHMDF POS=(09,26),LENGTH=37,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Consulta de Perfiles de ventana marco'
+         DFHMDF POS=(10,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(07)'
+         DFHMDF POS=(10,26),LENGTH=32,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Consulta de Perfiles de recursos'
+         DFHMDF POS=(11,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(08)'
+         DFHMDF POS=(11,26),LENGTH=28,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Consulta de Recursos de Host'
+         DFHMDF POS=(12,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(09)'
+         DFHMDF POS=(12,26),LENGTH=42,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Reseteo de Claves/Modificar Dominio y Nodo'
+         DFHMDF POS=(14,21),LENGTH=01,ATTRB=(ASKIP,BRT),               X
+               INITIAL='('
+M1OPCIO  DFHMDF POS=(14,23),LENGTH=02,ATTRB=(UNPROT,BRT,NUM,FSET),     X
+               PICIN='9(02)'
+         DFHMDF POS=(14,26),LENGTH=01,ATTRB=(ASKIP,BRT),               X
+               INITIAL=')'
+M1MSG1   DFHMDF POS=(23,01),LENGTH=30,ATTRB=(ASKIP,BRT)
+         DFHMDF POS=(23,59),LENGTH=21,ATTRB=(ASKIP,BRT),               X
+               INITIAL='CLEAR PF5 PROCESO ENT'
+M1MSG2   DFHMDF POS=(24,01),LENGTH=30,ATTRB=(ASKIP,BRT)
+         DFHMDF POS=(24,73),LENGTH=07,ATTRB=(ASKIP,BRT),               X
+               INITIAL='FIN CLR'
+         DFHMSD TYPE=FINAL
+         END

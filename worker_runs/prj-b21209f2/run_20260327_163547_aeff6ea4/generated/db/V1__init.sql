@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS modernization_runs (run_id VARCHAR(64) PRIMARY KEY);

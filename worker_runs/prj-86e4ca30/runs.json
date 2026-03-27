@@ -1,0 +1,281 @@
+[
+  {
+    "run_id": "run_20260327_163118_bf27b881",
+    "project_id": "prj-86e4ca30",
+    "state": "PARTIAL",
+    "source_snapshot_version": "snapshot_run_20260327_163118_bf27b881",
+    "created_at": "2026-03-27T16:31:18.783722+00:00",
+    "updated_at": "2026-03-27T16:31:19.375698+00:00",
+    "comment": null,
+    "previous_run_id": null,
+    "warnings": [
+      "java_or_maven_not_available_for_backend_build"
+    ],
+    "errors": [],
+    "stages": {
+      "INGEST": {
+        "name": "INGEST",
+        "status": "success",
+        "started_at": "2026-03-27T16:31:18.786724+00:00",
+        "ended_at": "2026-03-27T16:31:18.788748+00:00",
+        "duration_ms": null,
+        "details": {
+          "files": 2,
+          "warnings": 0
+        }
+      },
+      "ANALYZE": {
+        "name": "ANALYZE",
+        "status": "success",
+        "started_at": "2026-03-27T16:31:18.788748+00:00",
+        "ended_at": "2026-03-27T16:31:18.793160+00:00",
+        "duration_ms": null,
+        "details": {
+          "programs": 1,
+          "screens": 1,
+          "low_confidence": false
+        }
+      },
+      "STORIES": {
+        "name": "STORIES",
+        "status": "success",
+        "started_at": "2026-03-27T16:31:18.793160+00:00",
+        "ended_at": "2026-03-27T16:31:18.796100+00:00",
+        "duration_ms": null,
+        "details": {
+          "stories": 2
+        }
+      },
+      "CODEGEN": {
+        "name": "CODEGEN",
+        "status": "success",
+        "started_at": "2026-03-27T16:31:18.796100+00:00",
+        "ended_at": "2026-03-27T16:31:18.804188+00:00",
+        "duration_ms": null,
+        "details": {
+          "backend": "worker_runs\\prj-86e4ca30\\run_20260327_163118_bf27b881\\generated\\backend",
+          "frontend": "worker_runs\\prj-86e4ca30\\run_20260327_163118_bf27b881\\generated\\frontend",
+          "db": "worker_runs\\prj-86e4ca30\\run_20260327_163118_bf27b881\\generated\\db"
+        }
+      },
+      "TEST_GATE": {
+        "name": "TEST_GATE",
+        "status": "failed",
+        "started_at": "2026-03-27T16:31:18.804188+00:00",
+        "ended_at": "2026-03-27T16:31:19.375698+00:00",
+        "duration_ms": null,
+        "details": {
+          "backend_build": "failed",
+          "frontend_build": "success",
+          "db_migrations": "success",
+          "health_check": "success"
+        }
+      },
+      "PUBLISH_GITHUB": {
+        "name": "PUBLISH_GITHUB",
+        "status": "skipped",
+        "started_at": null,
+        "ended_at": "2026-03-27T16:31:19.375698+00:00",
+        "duration_ms": null,
+        "details": {
+          "reason": "TEST_GATE failed"
+        }
+      },
+      "DEPLOY_RAILWAY": {
+        "name": "DEPLOY_RAILWAY",
+        "status": "skipped",
+        "started_at": null,
+        "ended_at": "2026-03-27T16:31:19.375698+00:00",
+        "duration_ms": null,
+        "details": {
+          "reason": "TEST_GATE failed"
+        }
+      },
+      "PREVIEW_READY": {
+        "name": "PREVIEW_READY",
+        "status": "skipped",
+        "started_at": null,
+        "ended_at": "2026-03-27T16:31:19.375698+00:00",
+        "duration_ms": null,
+        "details": {
+          "reason": "TEST_GATE failed"
+        }
+      }
+    },
+    "artifacts": {
+      "contexto_unificado.json": "worker_runs\\prj-86e4ca30\\run_20260327_163118_bf27b881\\contexto_unificado.json",
+      "historias_usuario.md": "worker_runs\\prj-86e4ca30\\run_20260327_163118_bf27b881\\historias_usuario.md",
+      "criterios_aceptacion.md": "worker_runs\\prj-86e4ca30\\run_20260327_163118_bf27b881\\criterios_aceptacion.md",
+      "run_report.json": "worker_runs\\prj-86e4ca30\\run_20260327_163118_bf27b881\\run_report.json"
+    },
+    "metadata": {}
+  },
+  {
+    "run_id": "run_20260327_190640_4c113288",
+    "project_id": "prj-86e4ca30",
+    "state": "FAILED",
+    "source_snapshot_version": "snapshot_run_20260327_190640_4c113288",
+    "created_at": "2026-03-27T19:06:40.985525+00:00",
+    "updated_at": "2026-03-27T19:06:40.995241+00:00",
+    "comment": null,
+    "previous_run_id": null,
+    "warnings": [],
+    "errors": [
+      "La corrida requiere minimo 1 archivo COBOL y 1 archivo BMS."
+    ],
+    "stages": {
+      "INGEST": {
+        "name": "INGEST",
+        "status": "failed",
+        "started_at": "2026-03-27T19:06:40.988733+00:00",
+        "ended_at": "2026-03-27T19:06:40.995241+00:00",
+        "duration_ms": null,
+        "details": {
+          "error": "La corrida requiere minimo 1 archivo COBOL y 1 archivo BMS."
+        }
+      },
+      "ANALYZE": {
+        "name": "ANALYZE",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "STORIES": {
+        "name": "STORIES",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "CODEGEN": {
+        "name": "CODEGEN",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "TEST_GATE": {
+        "name": "TEST_GATE",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "PUBLISH_GITHUB": {
+        "name": "PUBLISH_GITHUB",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "DEPLOY_RAILWAY": {
+        "name": "DEPLOY_RAILWAY",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "PREVIEW_READY": {
+        "name": "PREVIEW_READY",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      }
+    },
+    "artifacts": {},
+    "metadata": {}
+  },
+  {
+    "run_id": "run_20260327_190803_eaf6b7c2",
+    "project_id": "prj-86e4ca30",
+    "state": "FAILED",
+    "source_snapshot_version": "snapshot_run_20260327_190803_eaf6b7c2",
+    "created_at": "2026-03-27T19:08:03.919798+00:00",
+    "updated_at": "2026-03-27T19:08:03.935384+00:00",
+    "comment": null,
+    "previous_run_id": null,
+    "warnings": [],
+    "errors": [
+      "La corrida requiere minimo 1 archivo COBOL y 1 archivo BMS."
+    ],
+    "stages": {
+      "INGEST": {
+        "name": "INGEST",
+        "status": "failed",
+        "started_at": "2026-03-27T19:08:03.923229+00:00",
+        "ended_at": "2026-03-27T19:08:03.934876+00:00",
+        "duration_ms": null,
+        "details": {
+          "error": "La corrida requiere minimo 1 archivo COBOL y 1 archivo BMS."
+        }
+      },
+      "ANALYZE": {
+        "name": "ANALYZE",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "STORIES": {
+        "name": "STORIES",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "CODEGEN": {
+        "name": "CODEGEN",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "TEST_GATE": {
+        "name": "TEST_GATE",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "PUBLISH_GITHUB": {
+        "name": "PUBLISH_GITHUB",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "DEPLOY_RAILWAY": {
+        "name": "DEPLOY_RAILWAY",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      },
+      "PREVIEW_READY": {
+        "name": "PREVIEW_READY",
+        "status": "pending",
+        "started_at": null,
+        "ended_at": null,
+        "duration_ms": null,
+        "details": {}
+      }
+    },
+    "artifacts": {},
+    "metadata": {}
+  }
+]

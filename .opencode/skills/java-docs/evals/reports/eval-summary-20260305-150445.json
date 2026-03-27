@@ -1,0 +1,27 @@
+{
+  "eval_file": "/Users/wang/workspace/code_work/personal/java-doc/evals/evals.json",
+  "skill_name": "java-docs",
+  "total_evals": 10,
+  "ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "duplicate_ids": [],
+  "non_object_items": 0,
+  "missing_prompt": 0,
+  "missing_expected_output": 0,
+  "invalid_files_field": 0,
+  "evals_with_files": 0,
+  "max_prompt_length": 59,
+  "avg_prompt_length": 41.4,
+  "status": "PASS",
+  "errors": []
+}

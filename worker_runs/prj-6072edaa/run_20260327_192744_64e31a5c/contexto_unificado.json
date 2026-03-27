@@ -1,0 +1,1671 @@
+{
+  "meta": {
+    "run_id": "run_20260327_192744_64e31a5c",
+    "project_id": "prj-6072edaa",
+    "rag_top_k": 8,
+    "low_confidence": true
+  },
+  "sources": [
+    {
+      "name": "SSITP007.cbl",
+      "checksum": "194e7d6f9b050ddff24ce49e97f5464f5eb2db4de11b9af7ab2d1d5476f1268d"
+    },
+    {
+      "name": "SSITP002.cbl",
+      "checksum": "65a06d59e462ee005d66c4e7e56cff672af786615a7db2d993155defe59d3a09"
+    },
+    {
+      "name": "SSIM000.cbl",
+      "checksum": "5035f39c6eca8f681525004881d1829f8622bfd1841c36b7ec231cadca37e4f5"
+    },
+    {
+      "name": "SSIM007.bms",
+      "checksum": "ead17261a7bca7d0dff173364298adc7375070d2c39a9008893a86894cf55051"
+    },
+    {
+      "name": "SSIM002.bms",
+      "checksum": "37896d30d5a9c81a25b659e63b96357119a9bcc657fe3934d2d26ad075f9ad54"
+    },
+    {
+      "name": "SSIM000.bms",
+      "checksum": "142b9b119db4d673b0875c61ea2a9270fa2943065b6041602bf3f0bd79d47e51"
+    }
+  ],
+  "programs": [
+    {
+      "program_id": "SSITP007",
+      "source_ref": "SSITP007.cbl"
+    },
+    {
+      "program_id": "SSITP002",
+      "source_ref": "SSITP002.cbl"
+    },
+    {
+      "program_id": "PRG000",
+      "source_ref": "SSIM000.cbl"
+    }
+  ],
+  "screens": [
+    {
+      "screen_id": "SSI0701",
+      "source_ref": "SSIM007.bms"
+    },
+    {
+      "screen_id": "SSI0201",
+      "source_ref": "SSIM002.bms"
+    },
+    {
+      "screen_id": "PRG00M1",
+      "source_ref": "SSIM000.bms"
+    }
+  ],
+  "relations": [],
+  "transactions": [],
+  "business_rules": [
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP007.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSITP002.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "EVALUATE"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "EVALUATE"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "PERFORM"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    },
+    {
+      "source_ref": "SSIM000.cbl",
+      "rule": "IF"
+    }
+  ],
+  "traceability": {
+    "source_ref": "snapshot/*",
+    "context_ref": "contexto_unificado.json",
+    "story_ref": "historias_usuario.md",
+    "target_ref": "generated/"
+  },
+  "confidence": {
+    "low_confidence": true,
+    "rag_chunks": []
+  },
+  "unsupported_or_uncertain": [
+    {
+      "file": "*",
+      "line": 0,
+      "reason": "No se encontro evidencia RAG suficiente."
+    }
+  ]
+}

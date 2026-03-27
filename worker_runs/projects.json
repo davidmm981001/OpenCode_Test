@@ -1,0 +1,26 @@
+[
+  {
+    "project_id": "prj-56d7bde2",
+    "slug": "proyecto-chromadb-rag-complete",
+    "name": "Proyecto ChromaDB RAG Complete",
+    "created_at": "2026-03-27T18:56:24.128109+00:00"
+  },
+  {
+    "project_id": "prj-71d3f512",
+    "slug": "proyecto-plataforma-local-final",
+    "name": "Proyecto Plataforma Local Final",
+    "created_at": "2026-03-27T17:38:07.680271+00:00"
+  },
+  {
+    "project_id": "prj-b8e568c5",
+    "slug": "testing-david",
+    "name": "Testing David",
+    "created_at": "2026-03-27T21:07:48.269230+00:00"
+  },
+  {
+    "project_id": "prj-e0879e77",
+    "slug": "test-david",
+    "name": "Test David",
+    "created_at": "2026-03-27T21:15:55.332496+00:00"
+  }
+]

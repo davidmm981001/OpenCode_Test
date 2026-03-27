@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "chunks": [
+    {
+      "chunk_id": "chunk-1",
+      "source": "ibm-cobol-divisions",
+      "text": "COBOL define IDENTIFICATION DIVISION, ENVIRONMENT DIVISION, DATA DIVISION y PROCEDURE DIVISION.",
+      "tokens": [
+        "cobol",
+        "data",
+        "define",
+        "division",
+        "environment",
+        "identification",
+        "procedure",
+        "y"
+      ]
+    },
+    {
+      "chunk_id": "chunk-2",
+      "source": "ibm-cics-bms",
+      "text": "BMS usa DFHMSD, DFHMDI y DFHMDF para mapsets. CICS usa SEND MAP y RECEIVE MAP con AID keys.",
+      "tokens": [
+        "aid",
+        "bms",
+        "cics",
+        "con",
+        "dfhmdf",
+        "dfhmdi",
+        "dfhmsd",
+        "keys",
+        "map",
+        "mapsets",
+        "para",
+        "receive",
+        "send",
+        "usa",
+        "y"
+      ]
+    },
+    {
+      "chunk_id": "chunk-3",
+      "source": "legacy-patterns",
+      "text": "Patrones legacy incluyen CALL y XCTL para navegacion entre programas, validaciones de negocio y SQL embebido.",
+      "tokens": [
+        "call",
+        "de",
+        "embebido",
+        "entre",
+        "incluyen",
+        "legacy",
+        "navegacion",
+        "negocio",
+        "para",
+        "patrones",
+        "programas",
+        "sql",
+        "validaciones",
+        "xctl",
+        "y"
+      ]
+    }
+  ]
+}

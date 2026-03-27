@@ -1,12 +1,18 @@
 {
   "$schema": "https://opencode.ai/config.json",
 
-  "model": "openai/gpt-4.1",
+  "model": "openai/default",
+
+  "instructions": [
+    ".opencode/instructions/openspec-sdd.md"
+  ],
 
   "provider": {
     "openai": {
       "models": {
-        "gpt-4.1": {}
+        "default": {
+          "model": "gpt-4.1"
+        }
       }
     }
   }

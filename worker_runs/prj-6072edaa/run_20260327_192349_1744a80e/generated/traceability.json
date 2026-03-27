@@ -1,0 +1,10 @@
+{
+  "source_ref": [
+    "SSITP007.cbl",
+    "SSITP002.cbl",
+    "SSIM000.cbl"
+  ],
+  "context_ref": "contexto_unificado.json",
+  "story_ref": "historias_usuario.md",
+  "target_ref": "generated/"
+}

@@ -1,0 +1,1 @@
+Backend Spring Boot generado. Incluye pom.xml base y requiere Java/Maven para build.

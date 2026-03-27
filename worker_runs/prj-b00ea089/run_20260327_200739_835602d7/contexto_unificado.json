@@ -1,0 +1,81 @@
+{
+  "meta": {
+    "run_id": "run_20260327_200739_835602d7",
+    "project_id": "prj-b00ea089",
+    "rag_top_k": 8,
+    "low_confidence": false
+  },
+  "sources": [
+    {
+      "name": "demo.CBL",
+      "checksum": "abe9b0515378795ba2832b07ea2dcd8a2bbfdc9bcfcbb9ac68e4a1f82317d37b"
+    },
+    {
+      "name": "screen.BMS",
+      "checksum": "0ac5debb9c9f61254cef8cf3fb831f4f14738904e2b60e41f551ac5286fa0c9c"
+    }
+  ],
+  "programs": [
+    {
+      "program_id": "DEMO01",
+      "source_ref": "demo.CBL"
+    }
+  ],
+  "screens": [
+    {
+      "screen_id": "MAPA",
+      "source_ref": "screen.BMS"
+    }
+  ],
+  "relations": [
+    {
+      "type": "call",
+      "from": "demo.CBL",
+      "to": "PROG2"
+    }
+  ],
+  "transactions": [
+    {
+      "action": "SEND",
+      "map": "MAPA",
+      "source_ref": "screen.BMS"
+    }
+  ],
+  "business_rules": [],
+  "traceability": {
+    "source_ref": "snapshot/*",
+    "context_ref": "contexto_unificado.json",
+    "story_ref": "historias_usuario.md",
+    "target_ref": "generated/"
+  },
+  "confidence": {
+    "low_confidence": false,
+    "rag_chunks": [
+      {
+        "chunk_id": "ibm-cics-bms-3f2a1013dd40369c",
+        "text": "BMS usa DFHMSD DFHMDI y DFHMDF para mapsets CICS usa SEND MAP y RECEIVE MAP con AID keys",
+        "score": 0.7276,
+        "source": "ibm-cics-bms",
+        "version": "BMS-IBM",
+        "start_token": 0
+      },
+      {
+        "chunk_id": "ibm-cobol-divisions-f50f40a0e397298e",
+        "text": "COBOL define IDENTIFICATION DIVISION ENVIRONMENT DIVISION DATA DIVISION y PROCEDURE DIVISION",
+        "score": 0.7049,
+        "source": "ibm-cobol-divisions",
+        "version": "ANSI-85",
+        "start_token": 0
+      },
+      {
+        "chunk_id": "legacy-patterns-1019565b1ab2efa2",
+        "text": "Patrones legacy incluyen CALL y XCTL validaciones transaccionales y SQL embebido",
+        "score": 0.6003,
+        "source": "legacy-patterns",
+        "version": "Patterns",
+        "start_token": 0
+      }
+    ]
+  },
+  "unsupported_or_uncertain": []
+}

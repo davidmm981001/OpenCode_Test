@@ -1,0 +1,2839 @@
+===== SSIM001.bms =====
+****************************************************************
+**                        N E X T I                           **
+****************************************************************
+**                    SEGURIDAD TECNOLOGICA                   **
+****************************************************************
+**  MODULE NAME   : SEGURIDAD                                 **
+**  DATE GENERATED: 2003-06-24                                **
+**  TIME GENERATED: 17:52:00                                  **
+**  PROGRAMMER    : SMELO                                     **
+**  DESIGNER      : SMELO                                     **
+**                                                            **
+**  DESCRIPCION...: Gestiona el men� principal de Seguridad   **
+**                                                            **
+****************************************************************
+*********************  MODIFICACIONES **************************
+****************************************************************
+*   AUTOR     FECHA                 MODIFICACION               *
+* --------- ---------- --------------------------------------- *
+* NPORRAS   2006-01-20 Recompilaci�n para igualar versiones    *
+* NARGUELLO 2006-03-10 Permitir modificar dominio y nodo por la*
+*                      opcion 9                                *
+**                                                            **
+****************************************************************
+*
+PRG00M   DFHMSD TYPE=&SYSPARM,DATA=FIELD,CTRL=FREEKB,STORAGE=AUTO,     X
+               LANG=COBOL,TIOAPFX=YES,TERM=3270,MODE=INOUT
+PRG00M1  DFHMDI SIZE=(24,80),LINE=01,COLUMN=01
+         DFHMDF POS=(01,01),LENGTH=07,ATTRB=(ASKIP,BRT),               X
+               INITIAL='PRG00M1'
+M1OPID   DFHMDF POS=(01,09),LENGTH=08,ATTRB=(ASKIP,NORM,FSET)
+         DFHMDF POS=(01,31),LENGTH=19,ATTRB=(ASKIP,BRT),               X
+               INITIAL='Modulo de Seguridad'
+M1FECHA  DFHMDF POS=(01,69),LENGTH=11,ATTRB=(ASKIP,NORM)
+         DFHMDF POS=(02,01),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='CICS'
+M1APPLD  DFHMDF POS=(02,09),LENGTH=08,ATTRB=(ASKIP,NORM)
+M1TERM   DFHMDF POS=(02,18),LENGTH=04,ATTRB=(ASKIP,NORM)
+         DFHMDF POS=(02,33),LENGTH=14,ATTRB=(ASKIP,BRT),               X
+               INITIAL='Menu principal'
+M1HORA   DFHMDF POS=(02,69),LENGTH=08,ATTRB=(ASKIP,NORM)
+         DFHMDF POS=(04,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(01)'
+         DFHMDF POS=(04,26),LENGTH=26,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion de Usuarios'
+         DFHMDF POS=(05,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(02)'
+         DFHMDF POS=(05,26),LENGTH=23,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion de Menus'
+         DFHMDF POS=(06,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(03)'
+         DFHMDF POS=(06,26),LENGTH=31,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion Tabla Parametros'
+         DFHMDF POS=(07,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(04)'
+         DFHMDF POS=(07,26),LENGTH=38,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion de Perfiles de recursos'
+         DFHMDF POS=(08,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(05)'
+         DFHMDF POS=(08,26),LENGTH=34,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Administracion de Recursos de Host'
+         DFHMDF POS=(09,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(06)'
+         DFHMDF POS=(09,26),LENGTH=37,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Consulta de Perfiles de ventana marco'
+         DFHMDF POS=(10,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(07)'
+         DFHMDF POS=(10,26),LENGTH=32,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Consulta de Perfiles de recursos'
+         DFHMDF POS=(11,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(08)'
+         DFHMDF POS=(11,26),LENGTH=28,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Consulta de Recursos de Host'
+         DFHMDF POS=(12,21),LENGTH=04,ATTRB=(ASKIP,BRT),               X
+               INITIAL='(09)'
+         DFHMDF POS=(12,26),LENGTH=42,ATTRB=(ASKIP,NORM),              X
+               INITIAL='Reseteo de Claves/Modificar Dominio y Nodo'
+         DFHMDF POS=(14,21),LENGTH=01,ATTRB=(ASKIP,BRT),               X
+               INITIAL='('
+M1OPCIO  DFHMDF POS=(14,23),LENGTH=02,ATTRB=(UNPROT,BRT,NUM,FSET),     X
+               PICIN='9(02)'
+         DFHMDF POS=(14,26),LENGTH=01,ATTRB=(ASKIP,BRT),               X
+               INITIAL=')'
+M1MSG1   DFHMDF POS=(23,01),LENGTH=30,ATTRB=(ASKIP,BRT)
+         DFHMDF POS=(23,59),LENGTH=21,ATTRB=(ASKIP,BRT),               X
+               INITIAL='CLEAR PF5 PROCESO ENT'
+M1MSG2   DFHMDF POS=(24,01),LENGTH=30,ATTRB=(ASKIP,BRT)
+         DFHMDF POS=(24,73),LENGTH=07,ATTRB=(ASKIP,BRT),               X
+               INITIAL='FIN CLR'
+         DFHMSD TYPE=FINAL
+         END
+
+
+===== SSIM002.bms =====
+****************************************************************
+**                        N E X T I                           **
+****************************************************************
+**                    SEGURIDAD TECNOLOGICA                   **
+****************************************************************
+**  MODULE NAME   : SEGURIDAD                                 **
+**  DATE GENERATED: 2003-06-24                                **
+**  TIME GENERATED: 17:52:00                                  **
+**  PROGRAMMER    : SMELO                                     **
+**  DESIGNER      : SMELO                                     **
+**                                                            **
+**  DESCRIPCION...: Operaciones funcionales a la tabla de     **
+**                  Usuarios                                  **
+**                                                            **
+****************************************************************
+*********************  MODIFICACIONES **************************
+****************************************************************
+*   AUTOR     FECHA                 MODIFICACION               *
+* -------- ---------- ---------------------------------------  *
+* NPORRAS  2005-12-01 SE AUMENTA CAMPO DE OBSERVACIONES PARA   *
+**                    AUDITORIA Y SE GESTIONA MAS DATOS       **
+**                                                            **
+****************************************************************
+*
+SSIM002  DFHMSD TYPE=&SYSPARM,MODE=INOUT,LANG=COBOL,TERM=3270,         X
+               CTRL=(FREEKB,ALARM,FRSET),STORAGE=AUTO,TIOAPFX=YES
+SSI0201  DFHMDI SIZE=(24,80),LINE=01,COLUMN=1
+         DFHMDF POS=(01,01),LENGTH=08,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='SSITP002'
+P02USER  DFHMDF POS=(01,10),LENGTH=08,ATTRB=(PROT,ASKIP),              X
+               INITIAL='        '
+         DFHMDF POS=(01,28),LENGTH=19,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='Modulo de Seguridad'
+         DFHMDF POS=(01,65),LENGTH=06,ATTRB=(PROT,ASKIP),              X
+               INITIAL='FECHA:'
+P02FECHA DFHMDF POS=(01,72),LENGTH=08,ATTRB=(PROT,NUM,FSET,BRT),       X
+               PICIN='99999999',PICOUT='99999999'
+         DFHMDF POS=(02,01),LENGTH=04,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='CICS'
+P02CICS  DFHMDF POS=(02,08),LENGTH=08,ATTRB=(PROT,ASKIP),              X
+               INITIAL='        '
+P02TERM  DFHMDF POS=(02,18),LENGTH=04,ATTRB=(PROT,ASKIP),              X
+               INITIAL='    '
+         DFHMDF POS=(02,24),LENGTH=28,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='Consulta General de Usuarios'
+         DFHMDF POS=(02,65),LENGTH=06,ATTRB=(PROT,ASKIP),              X
+               INITIAL=' HORA:'
+P02HORA  DFHMDF POS=(02,72),LENGTH=08,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='        '
+         DFHMDF POS=(04,01),LENGTH=10,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='SELECCION:'
+P02SEL   DFHMDF POS=(04,12),LENGTH=02,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='99',PICOUT='99'
+         DFHMDF POS=(04,15),LENGTH=08,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='EMPRESA:'
+P02EMP   DFHMDF POS=(04,24),LENGTH=04,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='9999',PICOUT='9999'
+         DFHMDF POS=(04,29),LENGTH=07,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='CENTRO:'
+P02CEN   DFHMDF POS=(04,37),LENGTH=04,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='9999',PICOUT='9999'
+         DFHMDF POS=(04,42),LENGTH=08,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='USUARIO:'
+P02USR   DFHMDF POS=(04,51),LENGTH=08,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(04,60),LENGTH=07,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='PERFIL:'
+P02PER   DFHMDF POS=(04,68),LENGTH=08,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(04,77),LENGTH=1,ATTRB=(PROT,FSET)
+         DFHMDF POS=(05,01),LENGTH=05,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='REGS:'
+P02NRE   DFHMDF POS=(05,07),LENGTH=05,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='99999',PICOUT='99999'
+         DFHMDF POS=(05,13),LENGTH=1,ATTRB=(PROT,FSET)
+         DFHMDF POS=(05,15),LENGTH=07,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='NOMBRE:'
+P02NOM   DFHMDF POS=(05,23),LENGTH=40,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(05,64),LENGTH=1,ATTRB=(PROT,FSET)
+         DFHMDF POS=(06,01),LENGTH=79,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='_______________________________________________X
+               ________________________________'
+         DFHMDF POS=(07,01),LENGTH=79,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Sel  Usuario   Nombres                         X
+               Perfil    Empr Cent Domi Nodo A '
+         DFHMDF POS=(08,01),LENGTH=79,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='_______________________________________________X
+               ________________________________'
+P02DETA  DFHMDF POS=(09,01),LENGTH=79,ATTRB=ASKIP,OCCURS=14
+         DFHMDF POS=(23,01),LENGTH=79,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='_______________________________________________X
+               ________________________________'
+P02DET1  DFHMDF POS=(24,1),LENGTH=25,ATTRB=(PROT,BRT,FSET)
+P02TEC1  DFHMDF POS=(24,30),LENGTH=49,ATTRB=(PROT,BRT,FSET)
+         DFHMSD TYPE=FINAL
+         END
+
+
+===== SSIM007.bms =====
+****************************************************************
+**                        N E X T I                           **
+****************************************************************
+**                    SEGURIDAD TECNOLOGICA                   **
+****************************************************************
+**  MODULE NAME   : SEGURIDAD                                 **
+**  DATE GENERATED: 2003-06-24                                **
+**  TIME GENERATED: 17:52:00                                  **
+**  PROGRAMMER    : SMELO                                     **
+**  DESIGNER      : SMELO                                     **
+**                                                            **
+**  DESCRIPCION...: Operaciones funcionales a la tabla de     **
+**                  Usuarios                                  **
+**                                                            **
+****************************************************************
+*********************  MODIFICACIONES **************************
+****************************************************************
+*   AUTOR     FECHA                 MODIFICACION               *
+* -------- ---------- ---------------------------------------  *
+* NPORRAS  2005-12-01 SE AUMENTA CAMPO DE OBSERVACIONES PARA   *
+*                      AUDITORIA                               *
+* NPORRAS  2008-09-22 SE AUMENTA CAMPOS DE ENTORNO BANCS       *
+*                                                              *
+****************************************************************
+*
+SSIM007  DFHMSD TYPE=&SYSPARM,MODE=INOUT,LANG=COBOL,TERM=3270,         X
+               CTRL=(FREEKB,ALARM,FRSET),STORAGE=AUTO,TIOAPFX=YES
+SSI0701  DFHMDI SIZE=(24,80),LINE=01,COLUMN=1
+         DFHMDF POS=(01,01),LENGTH=07,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='SSIM007'
+M15USER  DFHMDF POS=(01,10),LENGTH=08,ATTRB=(PROT,ASKIP),              X
+               INITIAL='        '
+         DFHMDF POS=(01,28),LENGTH=19,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='Modulo de Seguridad'
+         DFHMDF POS=(01,65),LENGTH=06,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='FECHA:'
+M15FECHA DFHMDF POS=(01,72),LENGTH=08,ATTRB=(PROT,NUM,FSET),           X
+               PICIN='99999999',PICOUT='99999999'
+         DFHMDF POS=(02,01),LENGTH=04,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='CICS'
+M15CICS  DFHMDF POS=(02,08),LENGTH=08,ATTRB=(PROT,ASKIP),              X
+               INITIAL='        '
+M15TERM  DFHMDF POS=(02,18),LENGTH=04,ATTRB=(PROT,ASKIP),              X
+               INITIAL='    '
+         DFHMDF POS=(02,24),LENGTH=29,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL=' Administracion de Usuarios  '
+         DFHMDF POS=(02,65),LENGTH=06,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL=' HORA:'
+M15HORA  DFHMDF POS=(02,72),LENGTH=08,ATTRB=(PROT,ASKIP),              X
+               INITIAL='        '
+         DFHMDF POS=(04,01),LENGTH=08,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='USUARIO:'
+M15USR   DFHMDF POS=(04,10),LENGTH=08,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(04,19),LENGTH=01
+         DFHMDF POS=(05,01),LENGTH=78,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='_______________________________________________X
+               _______________________________'
+         DFHMDF POS=(06,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Usuario Bancs......:'
+M15UBAN  DFHMDF POS=(06,22),LENGTH=08,ATTRB=(UNPROT,NUM,FSET)
+               PICIN='99999999',PICOUT='99999999'
+         DFHMDF POS=(06,31),LENGTH=01
+         DFHMDF POS=(07,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Terminal Bancs.....:'
+M15TBAN  DFHMDF POS=(07,22),LENGTH=05,ATTRB=(UNPROT,NUM,FSET)
+               PICIN='99999',PICOUT='99999'
+         DFHMDF POS=(07,28),LENGTH=01
+         DFHMDF POS=(08,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Nombres............:'
+M15NOMB  DFHMDF POS=(08,22),LENGTH=43,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(08,66),LENGTH=01
+         DFHMDF POS=(09,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Cedula Identidad...:'
+M15CID   DFHMDF POS=(09,22),LENGTH=10,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='9999999999',PICOUT='9999999999'
+         DFHMDF POS=(09,33),LENGTH=01
+         DFHMDF POS=(10,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Codigo de Empresa..:'
+M15CEMP  DFHMDF POS=(10,22),LENGTH=04,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='9999',PICOUT='9999'
+         DFHMDF POS=(10,27),LENGTH=01
+M15DEMP  DFHMDF POS=(10,40),LENGTH=38,ATTRB=(PROT,ASKIP,BRT)
+         DFHMDF POS=(11,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Codigo de Centro...:'
+M15CCEN  DFHMDF POS=(11,22),LENGTH=04,ATTRB=(UNPROT,NUM,FSET),         X
+               PICIN='9999',PICOUT='9999'
+         DFHMDF POS=(11,27),LENGTH=01
+M15DCEN  DFHMDF POS=(11,40),LENGTH=38,ATTRB=(PROT,ASKIP,BRT)
+         DFHMDF POS=(12,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Cargo Actual.......:'
+M15CARG  DFHMDF POS=(12,22),LENGTH=18,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(12,41),LENGTH=01
+         DFHMDF POS=(13,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Perfil de Usuario..:'
+M15SPVM  DFHMDF POS=(13,22),LENGTH=08,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(13,31),LENGTH=01
+M15DPVM  DFHMDF POS=(13,40),LENGTH=38,ATTRB=(PROT,ASKIP,BRT)
+         DFHMDF POS=(13,79),LENGTH=01
+         DFHMDF POS=(14,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Dominio............:'
+M15DOMI  DFHMDF POS=(14,22),LENGTH=04,ATTRB=(PROT,NUM,FSET),           X
+               PICIN='9999',PICOUT='9999'
+         DFHMDF POS=(14,27),LENGTH=01
+         DFHMDF POS=(15,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Nodo...............:'
+M15NODO  DFHMDF POS=(15,22),LENGTH=04,ATTRB=(PROT,NUM,FSET)
+         DFHMDF POS=(15,27),LENGTH=01
+         DFHMDF POS=(16,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Autorizador........:'
+M15SAUT  DFHMDF POS=(16,22),LENGTH=01,ATTRB=(UNPROT,FSET),             XX
+               PICIN='9',PICOUT='9'
+         DFHMDF POS=(16,24),LENGTH=01
+         DFHMDF POS=(16,40),LENGTH=39,ATTRB=(PROT,ASKIP,BRT),          XX
+               INITIAL='<== (0) No Autorizador  (1) Autorizador'
+         DFHMDF POS=(17,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Oficina Swift......:'
+M15SWIFT DFHMDF POS=(17,22),LENGTH=12,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(17,35),LENGTH=01
+         DFHMDF POS=(17,40),LENGTH=39,ATTRB=(PROT,ASKIP,BRT),          XX
+               INITIAL='<== Solo para informacion Turbo Swift  '
+         DFHMDF POS=(18,01),LENGTH=20,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Observaciones......:'
+M15SOLIC DFHMDF POS=(18,22),LENGTH=50,ATTRB=(UNPROT,FSET)
+         DFHMDF POS=(18,73),LENGTH=01,ATTRB=(PROT,ASKIP)
+         DFHMDF POS=(19,01),LENGTH=78,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='_______________________________________________X
+               _______________________________'
+         DFHMDF POS=(20,01),LENGTH=22,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Ultima actualizacion.: '
+         DFHMDF POS=(20,25),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Fch:'
+M15UFCH  DFHMDF POS=(20,30),LENGTH=08,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(20,39),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Hrs:'
+M15UHRS  DFHMDF POS=(20,44),LENGTH=06,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(20,51),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Usr:'
+M15UUSR  DFHMDF POS=(20,56),LENGTH=08,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(20,65),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Ter:'
+M15UTER  DFHMDF POS=(20,70),LENGTH=04,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(21,01),LENGTH=22,ATTRB=(PROT,ASKIP),              X
+               INITIAL='Ultimo SIGNON usuario:'
+         DFHMDF POS=(21,24),LENGTH=01,ATTRB=(PROT,ASKIP)
+         DFHMDF POS=(21,25),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Fch:'
+M15FCHL  DFHMDF POS=(21,30),LENGTH=08,ATTRB=(PROT,ASKIP)
+         DFHMDF POS=(21,39),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='Hrs:'
+M15HRSL  DFHMDF POS=(21,44),LENGTH=06,ATTRB=(PROT,ASKIP)
+         DFHMDF POS=(21,51),LENGTH=04,ATTRB=(PROT,ASKIP,FSET),         X
+               INITIAL='IP.:'
+M15LTER  DFHMDF POS=(21,56),LENGTH=15,ATTRB=(PROT,ASKIP,FSET)
+         DFHMDF POS=(22,01),LENGTH=78,ATTRB=(PROT,ASKIP,BRT),          X
+               INITIAL='_______________________________________________X
+               _______________________________'
+M15TEC1  DFHMDF POS=(23,32),LENGTH=40,ATTRB=(PROT,ASKIP,FSET)
+M15DET1  DFHMDF POS=(24,01),LENGTH=30,ATTRB=(PROT,ASKIP,FSET)
+M15TEC2  DFHMDF POS=(24,32),LENGTH=40,ATTRB=(PROT,ASKIP,FSET)
+         DFHMSD TYPE=FINAL
+         END
+
+
+===== SSITP001.CBL =====
+      **  DESCRIPCION...: Gestiona el men� principal de Seguridad   **
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID. PRG000.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01  W-ABSTIME PIC S9(15) COMP-3.
+       01  W-DATE.
+           05 W-DAY PIC 99.
+           05 FILLER PIC X.
+           05 W-MONTH PIC 99.
+           05 FILLER PIC X.
+           05 W-YEAR PIC 9999.
+       01  W-FECHA.
+           05 W-DD PIC 99.
+           05 FILLER PIC X VALUE '/'.
+           05 W-MM PIC XXX.
+           05 FILLER PIC X VALUE '/'.
+           05 W-AA PIC 9999.
+       01  W-T PIC X(36) VALUE 'EneFebMarAbrMayJunJulAgoSepOctNovDic'.
+       01  FILLER REDEFINES W-T.
+           05 W-NMES OCCURS 12 PIC XXX.
+       01  W-HORA PIC X(8).
+       01  W-USERID PIC X(8).
+       01  W-OPID PIC XXX.
+       01  W-APPLID PIC X(8).
+       01  W-UNATTEND PIC X.
+       01  W-COMMAREA.
+           05 W-COMMFLAG PIC X.
+       01  W-ERROR PIC 999.
+       01  W-ERRORX REDEFINES W-ERROR PIC XXX.
+       01  W-PROGRAMA PIC X(8) VALUE SPACES.
+       01  FILLER REDEFINES W-PROGRAMA.
+           05 W-PGM   PIC X(8).
+       01  W-ERASE PIC X VALUE 'N'.
+       COPY DFHAID.
+       COPY PRG00M.
+       LINKAGE SECTION.
+       01  DFHCOMMAREA PIC X.
+       PROCEDURE DIVISION.
+           EXEC CICS ASSIGN USERID(W-USERID) APPLID(W-APPLID) END-EXEC.
+           IF W-USERID = SPACES
+                 PERFORM 1300-FINAL THRU 1400-FFINAL
+           END-IF.
+           IF EIBCALEN EQUAL ZEROS OR EIBAID EQUAL DFHPF5
+              MOVE LOW-VALUES TO PRG00M1O
+              MOVE 'S' TO W-ERASE
+              MOVE 'A' TO W-COMMFLAG
+           ELSE
+              IF EIBAID EQUAL DFHCLEAR
+                 PERFORM 1300-FINAL THRU 1400-FFINAL
+              ELSE
+                 MOVE DFHCOMMAREA TO W-COMMAREA
+                 IF EIBAID EQUAL DFHPA1 OR DFHPA2 OR DFHPA3
+                    MOVE LOW-VALUES TO PRG00M1O
+                    MOVE 'Tecla invalida' TO M1MSG1O
+                    MOVE SPACES TO M1MSG2O
+                 ELSE
+                    PERFORM 500-RECEIVE THRU 600-FRECEIVE
+                    IF EIBRESP EQUAL DFHRESP(NORMAL)
+                       PERFORM 100-INICIO THRU 200-FINICIO
+                    ELSE
+                       MOVE LOW-VALUES TO PRG00M1O
+                       MOVE 'Error en receive del mapa' TO M1MSG1O
+                       MOVE SPACES TO M1MSG2O
+                    END-IF
+                 END-IF
+              END-IF
+           END-IF.
+           EXEC CICS ASSIGN APPLID(W-APPLID) OPID(W-OPID)
+                     USERID(W-USERID) UNATTEND(W-UNATTEND) NOHANDLE
+           END-EXEC.
+           IF W-UNATTEND EQUAL LOW-VALUES
+              PERFORM 700-SEND THRU 800-FSEND
+              PERFORM 900-RETURN THRU 1000-FRETURN
+           ELSE
+              PERFORM 1300-FINAL THRU 1400-FFINAL
+           END-IF.
+           GOBACK.
+       100-INICIO.
+           MOVE SPACES TO M1MSG2O.
+           IF M1OPCIOI NOT NUMERIC
+              MOVE 'Ingrese un valor numerico' TO M1MSG1O
+           ELSE
+              IF NOT ( M1OPCIOI EQUAL 1 OR 2 OR 3 OR 4 OR 5
+                       OR 6 OR 7 OR 8 OR 9 OR 10 )
+                 MOVE 'Opcion invalida ' TO M1MSG1O
+              ELSE
+                 PERFORM 300-XCTL THRU 400-FXCTL
+              END-IF
+           END-IF.
+       200-FINICIO.
+           EXIT.
+       300-XCTL.
+           MOVE SPACES TO W-PROGRAMA.
+           EVALUATE M1OPCIOI
+               WHEN 1
+                  MOVE 'SSITP002' TO W-PGM
+               WHEN 2
+                  MOVE 'PRG004  ' TO W-PGM
+               WHEN 3
+                  MOVE 'PRG005  ' TO W-PGM
+               WHEN 4
+                  MOVE 'PRG012  ' TO W-PGM
+               WHEN 5
+                  MOVE 'PRG032  ' TO W-PGM
+               WHEN 6
+                  MOVE 'PRG009  ' TO W-PGM
+               WHEN 7
+                  MOVE 'PRG010  ' TO W-PGM
+               WHEN 8
+                  MOVE 'PRG033  ' TO W-PGM
+               WHEN 9
+                  MOVE 'SSITP009' TO W-PGM
+           END-EVALUATE.
+           EXEC CICS XCTL PROGRAM(W-PROGRAMA) NOHANDLE END-EXEC.
+           MOVE 'Error xxx XCTL ' TO M1MSG1O.
+           MOVE EIBRESP TO W-ERROR.
+           MOVE W-ERRORX TO M1MSG1O (7:3).
+           MOVE W-PROGRAMA TO M1MSG1O (16:8).
+       400-FXCTL.
+           EXIT.
+       500-RECEIVE.
+           EXEC CICS RECEIVE MAP('PRG00M1') MAPSET('PRG00M') NOHANDLE
+                END-EXEC.
+       600-FRECEIVE.
+           EXIT.
+       700-SEND.
+           PERFORM 1100-FECHA THRU 1200-FFECHA.
+           MOVE W-USERID TO M1OPIDO.
+           MOVE W-FECHA TO M1FECHAO.
+           MOVE W-APPLID TO M1APPLDO.
+           MOVE EIBTRMID TO M1TERMO.
+           MOVE W-HORA TO M1HORAO.
+           MOVE -1 TO M1OPCIOL.
+           IF W-ERASE EQUAL 'S'
+              EXEC CICS SEND MAP('PRG00M1') MAPSET('PRG00M') ERASE
+                        CURSOR
+              END-EXEC
+           ELSE
+              EXEC CICS SEND MAP('PRG00M1') MAPSET('PRG00M') CURSOR
+                        DATAONLY
+              END-EXEC
+           END-IF.
+       800-FSEND.
+           EXIT.
+       900-RETURN.
+           EXEC CICS RETURN TRANSID('PRG0') COMMAREA(W-COMMAREA)
+                     LENGTH(LENGTH OF W-COMMAREA)
+           END-EXEC.
+       1000-FRETURN.
+           EXIT.
+       1100-FECHA.
+           EXEC CICS ASKTIME ABSTIME(W-ABSTIME) END-EXEC.
+           EXEC CICS FORMATTIME ABSTIME(W-ABSTIME) DDMMYYYY(W-DATE)
+                     DATESEP('/') TIME(W-HORA) TIMESEP(':')
+           END-EXEC.
+           MOVE W-DAY TO W-DD.
+           MOVE W-NMES ( W-MONTH ) TO W-MM.
+           MOVE W-YEAR TO W-AA.
+       1200-FFECHA.
+           EXIT.
+       1300-FINAL.
+      *    EXEC CICS ISSUE ERASEAUP END-EXEC.
+           EXEC CICS RETURN END-EXEC.
+       1400-FFINAL.
+           EXIT.
+
+
+
+===== SSITP002.CBL =====
+      ****************************************************************
+      **                        N E X T I                           **
+      ****************************************************************
+      **                                                            **
+      **  DESCRIPCION...: Operaciones funcionales a la tabla de     **
+      **                  usuarios                                  **
+      **                                                            **
+      ****************************************************************
+
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.  SSITP002.
+       AUTHOR. STALYN MELO.
+      *****************************************************************
+      *  CONSULTA GENERAL DE USUARIOS TABLA T95USU03                 *
+      *****************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SOURCE-COMPUTER.     IBM-4381.				 --
+       OBJECT-COMPUTER.     IBM-4381.
+       SPECIAL-NAMES.      DECIMAL-POINT IS COMMA.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77  ITEMNUM                 PIC S9(4) COMP.
+       77  CONTAUSR                PIC 9(04) VALUE ZEROS.
+       77  WS-PAGINAR              PIC S9(05) VALUE ZEROS.
+       77  WS-ATRAS                PIC X VALUE 'N'.
+       77  S-CODIGO                PIC X(08) VALUES SPACES.
+       77  S-EMPRESA               PIC X(04) VALUES SPACES.
+       77  S-CENTRO                PIC X(04) VALUES SPACES.
+       77  S-PERFIL                PIC X(08) VALUES SPACES.
+       77  S-NOMBRE                PIC X(40) VALUES SPACES.
+       77  W-FLAG                  PIC X VALUE '0'.
+       77  W-CONTADOR              PIC 9(5) COMP-3.
+       77  FIN-ARC                 PIC X  VALUE 'N'.
+       77  AUTORIZA                PIC S9(10) COMP-3.
+       77  CIDELA                  PIC S9(10) COMP-3.
+       77  CIDUSR                  PIC S9(10) COMP-3.
+       77  W-INICIO                PIC  9(2) VALUE ZEROS.
+       77  W-USERID                PIC X(8) VALUE SPACES.
+       77  W-APPLID                PIC X(8) VALUE SPACES.
+       77  I                       PIC 9(03)   VALUE ZEROS.
+       77  INDICE                  PIC 9(02)   VALUE ZEROS.
+       77  W-LI                    PIC 9(02)   VALUE 8.
+       77  W-LF                    PIC 9(02)   VALUE 21.
+       77  W-X1                    PIC 9(04)   VALUE ZEROS.
+       77  W-X2                    PIC 9(04)   VALUE ZEROS.
+       77  ENTRO                   PIC X       VALUE SPACES.
+       01  W-CUOCIENTE             PIC 9(5) COMP-3.
+       01  W-RESIDUO               PIC 9(5) COMP-3.
+       01  EMPRESAIN               PIC X(04).
+       01  FILLER REDEFINES EMPRESAIN.
+           03 EMPIN OCCURS 4       PIC X.
+       01  CENTROIN                PIC X(04).
+       01  FILLER REDEFINES CENTROIN.
+           03 CENIN OCCURS 4       PIC X.
+       01  USUARIOIN               PIC X(08).
+       01  FILLER REDEFINES USUARIOIN.
+           03 USRIN OCCURS 8       PIC X.
+       01  PERFILIN               PIC X(08).
+       01  FILLER REDEFINES PERFILIN.
+           03 PERIN OCCURS 8       PIC X.
+       01  NOMBREIN               PIC X(40).
+       01  FILLER REDEFINES NOMBREIN.
+           03 NOMIN OCCURS 40      PIC X.
+       01  NOMBRE-AUX              PIC X(40).
+       01  FILLER REDEFINES NOMBRE-AUX.
+           03 NOMB OCCURS 40       PIC X.
+       01  CODIGO-AUX              PIC X(08).
+       01  FILLER REDEFINES CODIGO-AUX.
+           03 CODI OCCURS 8        PIC X.
+       01  PUNTERO USAGE IS POINTER.
+       01  PUNTERON REDEFINES PUNTERO PIC S9(8) COMP.
+       01  W-PDETALLE.
+           03 W-PSELECCION            PIC X(03).
+           03 FILLER                  PIC XX.
+           03 W-PCLAVE                PIC X(08).
+           03 FILLER                  PIC XX.
+           03 W-PNOMBRE               PIC X(30).
+           03 FILLER                  PIC XX.
+           03 W-PPERFIL               PIC X(08).
+           03 FILLER                  PIC XX.
+           03 W-PEMPRESA              PIC X(04).
+           03 FILLER                  PIC X.
+           03 W-PCENTRO               PIC X(04).
+           03 FILLER                  PIC X.
+           03 W-PDOMINIO              PIC X(04).
+           03 FILLER                  PIC X.
+           03 W-PNODO                 PIC X(04).
+           03 FILLER                  PIC X.
+           03 W-PAUTORIZA             PIC X.
+
+           COPY SSIM002.
+           COPY INSSI002.
+           COPY INPRG015.
+           COPY BFCHTIME.
+
+       01  T95USU03.
+           10 USR-SIGLO21          PIC X(8).
+           10 USR-NOMBRE           PIC X(40).
+           10 USR-STATUS           PIC X(1).
+           10 USR-CID              PIC X(10).
+           10 USR-OFFSET           PIC X(8).
+           10 USR-CARGO            PIC X(15).
+           10 USR-EMPRESA          PIC X(4).
+           10 USR-CENTRO           PIC X(4).
+           10 USR-PERS             PIC X(8).
+           10 USR-DOMINIO          PIC X(4).
+           10 USR-NODO             PIC X(4).
+           10 USR-AUTORIZA         PIC X(1).
+           10 USR-UPDFCH           PIC X(8).
+           10 USR-UPTIME           PIC X(6).
+           10 USR-UPUSR            PIC X(8).
+           10 USR-UPTERM           PIC X(4).
+           10 USR-FCHLOGON         PIC X(8).
+           10 USR-TIMELOGON        PIC X(6).
+           10 USR-TOKEN            PIC X(8).
+           10 USR-HISTORIA         PIC X(80).
+           10 USR-FCHNEWPASS       PIC X(8).
+           10 USR-FCHCAMBIO        PIC X(8).
+           EXEC SQL
+               INCLUDE SQLCA
+           END-EXEC.
+           EXEC SQL DECLARE T95USU03 TABLE
+           ( USR_SIGLO21                    CHAR(8) NOT NULL,
+             USR_NOMBRE                     CHAR(40) NOT NULL,
+             USR_STATUS                     CHAR(1) NOT NULL,
+             USR_CID                        CHAR(10) NOT NULL,
+             USR_OFFSET                     CHAR(8) NOT NULL,
+             USR_CARGO                      CHAR(15) NOT NULL,
+             USR_EMPRESA                    CHAR(4) NOT NULL,
+             USR_CENTRO                     CHAR(4) NOT NULL,
+             USR_PERS                       CHAR(8) NOT NULL,
+             USR_DOMINIO                    CHAR(4) NOT NULL,
+             USR_NODO                       CHAR(4) NOT NULL,
+             USR_AUTORIZA                   CHAR(1) NOT NULL,
+             USR_UPDFCH                     CHAR(8) NOT NULL,
+             USR_UPDTIME                    CHAR(6) NOT NULL,
+             USR_UPDUSR                     CHAR(8) NOT NULL,
+             USR_UPDTERM                    CHAR(4) NOT NULL,
+             USR_FCHLOGON                   CHAR(8) NOT NULL,
+             USR_TIMELOGON                  CHAR(6) NOT NULL,
+             USR_TOKEN                      CHAR(8) NOT NULL,
+             USR_HISTORIA                   CHAR(80) NOT NULL,
+             USR_FCHNEWPASS                 CHAR(8) NOT NULL,
+             USR_FCHCAMBIO                  CHAR(8) NOT NULL
+           ) END-EXEC.
+           EXEC SQL
+              DECLARE CCODIGO CURSOR FOR
+                 SELECT USR_SIGLO21, USR_NOMBRE, USR_PERS,
+                        USR_EMPRESA, USR_CENTRO, USR_NODO,
+                        USR_AUTORIZA, USR_DOMINIO
+                    FROM M2D.T95USU03
+                    WHERE USR_SIGLO21 LIKE :S-CODIGO
+           END-EXEC.
+           EXEC SQL
+              DECLARE CEMPRESA CURSOR FOR
+                 SELECT USR_SIGLO21, USR_NOMBRE, USR_PERS,
+                        USR_EMPRESA, USR_CENTRO, USR_NODO,
+                        USR_AUTORIZA, USR_DOMINIO
+                    FROM M2D.T95USU03
+                    WHERE USR_EMPRESA = :S-EMPRESA
+           END-EXEC.
+           EXEC SQL
+              DECLARE CCENTRO CURSOR FOR
+                 SELECT USR_SIGLO21, USR_NOMBRE, USR_PERS,
+                        USR_EMPRESA, USR_CENTRO, USR_NODO,
+                        USR_AUTORIZA, USR_DOMINIO
+                    FROM M2D.T95USU03
+                    WHERE USR_CENTRO = :S-CENTRO
+           END-EXEC.
+           EXEC SQL
+              DECLARE CPERFIL  CURSOR FOR
+                 SELECT USR_SIGLO21, USR_NOMBRE, USR_PERS,
+                        USR_EMPRESA, USR_CENTRO, USR_NODO,
+                        USR_AUTORIZA, USR_DOMINIO
+                    FROM M2D.T95USU03
+                    WHERE USR_PERS LIKE :S-CODIGO
+           END-EXEC.
+           EXEC SQL
+              DECLARE CNOMBRE  CURSOR FOR
+                 SELECT USR_SIGLO21, USR_NOMBRE, USR_PERS,
+                        USR_EMPRESA, USR_CENTRO, USR_NODO,
+                        USR_AUTORIZA, USR_DOMINIO
+                    FROM M2D.T95USU03
+                    WHERE USR_NOMBRE LIKE :S-NOMBRE
+           END-EXEC.
+       LINKAGE SECTION.
+1326   01  DFHCOMMAREA      PIC X(1332).
+       PROCEDURE DIVISION.
+           EXEC CICS ASKTIME ABSTIME(WS-TIEMPO)          END-EXEC.
+           EXEC CICS FORMATTIME  ABSTIME(WS-TIEMPO)
+                                  YYMMDD(FECHA-HOY)
+                                    TIME(HORA-ABS)
+                                 TIMESEP
+                                    YEAR(WS-ANIO-HOY)    END-EXEC.
+           MOVE WS-ANIO-HOY  TO FS-AA.
+           MOVE FH-MMDD      TO FS-MMDD.
+           MOVE SPACES       TO W-PDETALLE.
+           IF EIBCALEN = 0
+              MOVE LOW-VALUES     TO   SSI0201O
+              MOVE SPACES         TO   REG-INSSI02
+              MOVE ZEROS          TO   SSI02-COMMAREA
+              MOVE SPACES         TO   USR-SIGLO21
+              MOVE 'F2-ADICION '  TO P02TEC1O
+              PERFORM ENVIA-MAPA-01 THRU FENVIA-MAPA-01
+           ELSE
+              MOVE DFHCOMMAREA TO   REG-INSSI02
+              PERFORM RECIBE-PANTALLA THRU FRECIBE-PANTALLA
+              PERFORM ENVIA-MAPA-01 THRU FENVIA-MAPA-01
+           END-IF.
+
+       REGRESO.
+           EXEC CICS RETURN
+                     TRANSID ('I002')
+                     COMMAREA (REG-INSSI02)
+                     LENGTH (LENGTH OF REG-INSSI02)
+           END-EXEC.
+
+       ENVIA-MAPA-01.
+      *     MOVE 'ENTER-MAS DATOS  F2-ADICION  F4-EDITAR  ' TO P02TEC1O.
+           MOVE 'ENTER-MAS DATOS  F2-ADICION  F4-EDITAR  F7-PREVIO' 
+             TO P02TEC1O
+
+           MOVE 1             TO SSI02-COMMAREA.
+           MOVE FECHA-SISTEMA TO P02FECHAO.
+           MOVE HORA-ABS      TO P02HORAO.
+           MOVE EIBTRMID      TO P02TERMO.
+           EXEC CICS ASSIGN USERID(W-USERID) APPLID(W-APPLID) END-EXEC.
+           MOVE W-USERID      TO P02USERO.
+           MOVE W-APPLID      TO P02CICSO.
+           MOVE -1            TO P02EMPL.
+           EXEC CICS SEND
+                     MAP('SSI0201')
+                     MAPSET('SSIM002')
+                     ERASE
+                     CURSOR()
+           END-EXEC.
+       FENVIA-MAPA-01.
+           EXIT.
+
+
+       RECIBE-PANTALLA.
+           EXEC CICS HANDLE AID ANYKEY(TERMINA-PGM)
+                                CLEAR(TERMINA-PGM)
+                                ENTER(TECLA-ENTER)
+                                PF2(TECLA-PF2)
+                                PF4(TECLA-PF4)
+                                PF7(TECLA-PF7)
+      *                         PF8(TECLA-PF8)
+           END-EXEC.
+           EXEC CICS RECEIVE MAP('SSI0201') MAPSET('SSIM002') END-EXEC.
+       FRECIBE-PANTALLA.
+           EXIT.
+
+
+      *----------------------------------------------------------*
+      * El usuario digito enter, validar el tipo de consulta que *
+      * necesita, por usaurio, nombre, empresa, centro, perfil   *
+      *----------------------------------------------------------*
+       TECLA-ENTER.
+           MOVE 'N' TO ENTRO.
+           MOVE 1 TO I.
+           PERFORM ENCERA-SSI002 VARYING I FROM I BY 1
+                   UNTIL I GREATER 14.
+
+NEL        IF P02NREO EQUAL SPACES OR LOW-VALUES OR
+              P02NREI NOT NUMERIC
+              MOVE 0       TO WS-PAGINAR
+           ELSE 
+              MOVE    P02NREI TO WS-PAGINAR
+
+      *        DIVIDE WS-PAGINAR BY 14 GIVING W-CUOCIENTE
+      *                  REMAINDER W-RESIDUO
+
+      *       IF W-RESIDUO NOT EQUAL ZEROS AND WS-ATRAS EQUAL 'N'
+      *           PERFORM REGRESO
+      *        END-IF
+
+              IF WS-ATRAS EQUAL 'S'
+                 COMPUTE WS-PAGINAR = WS-PAGINAR - 28
+                 IF WS-PAGINAR < 0 
+                    MOVE 0       TO P02NREO WS-PAGINAR
+                    MOVE 'Inicio de los datos' TO P02DET1O
+                 END-IF
+              END-IF
+           END-IF.
+
+           DISPLAY 'SSITP002-PAG = ' WS-PAGINAR
+ 
+           IF P02EMPL > 0
+              MOVE P02EMPI TO EMPRESAIN
+              IF EMPIN(1) NOT = SPACES
+                 MOVE 'S' TO ENTRO
+                 PERFORM CONSUL-EMPRESA THRU FCONSUL-EMPRESA
+              END-IF
+           END-IF.
+           IF P02CENL > 0 AND ENTRO = 'N'
+              MOVE P02CENI TO CENTROIN
+              IF CENIN(1) NOT = SPACES
+                 MOVE 'S' TO ENTRO
+                 PERFORM CONSUL-CENTRO  THRU FCONSUL-CENTRO
+              END-IF
+           END-IF
+           IF P02USRL > 0 AND ENTRO = 'N'
+              MOVE P02USRI TO USUARIOIN
+              IF USRIN(1) NOT = SPACES
+                 MOVE 'S' TO ENTRO
+                 PERFORM CONSUL-USUARIO THRU FCONSUL-USUARIO
+              END-IF
+           END-IF.
+           IF P02PERL > 0 AND ENTRO = 'N'
+              MOVE P02PERI TO PERFILIN
+              IF PERIN(1) NOT = SPACES
+                 MOVE 'S' TO ENTRO
+                 PERFORM CONSUL-PERFIL  THRU FCONSUL-PERFIL
+              END-IF
+           END-IF.
+           IF P02NOML > 0 AND ENTRO = 'N'
+              MOVE P02NOMI TO NOMBREIN
+              IF NOMIN(1) NOT = SPACES
+                 MOVE 'S' TO ENTRO
+                 PERFORM CONSUL-NOMBRE  THRU FCONSUL-NOMBRE
+              END-IF
+           END-IF.
+           IF ENTRO = 'N'
+              MOVE 'Ingrese Criterio Consulta' TO P02DET1O
+           ELSE
+              MOVE 'ENTER-MAS DATOS  F2-ADICION  F4-EDITAR  F7-PREVIO' 
+                TO P02TEC1O
+           END-IF.
+           PERFORM ENVIA-MAPA-01 THRU FENVIA-MAPA-01.
+           GO TO REGRESO.
+
+
+      *----------------------------------------------------------*
+      * Termina el programa, regresa al menu principal           *
+      *----------------------------------------------------------*
+       TERMINA-PGM.
+           EXEC CICS XCTL PROGRAM('PRG000') END-EXEC.
+           GOBACK.
+
+
+      *----------------------------------------------------------*
+      * Consulta datos por empresa a la que pertenece el usuario *
+      *----------------------------------------------------------*
+       CONSUL-EMPRESA.
+           MOVE P02EMPI TO S-EMPRESA.
+           EXEC SQL
+              OPEN CEMPRESA
+           END-EXEC.
+           IF SQLCODE NOT LESS ZEROS AND SQLCODE NOT EQUAL 100
+              PERFORM EMPRESA-OKOPEN THRU EMPRESA-FOKOPEN
+           ELSE
+              MOVE 'Error open cursor Empresa' TO P02DET1O
+           END-IF.
+       FCONSUL-EMPRESA.
+           EXIT.
+       EMPRESA-OKOPEN.
+           MOVE ZEROS TO I W-CONTADOR.
+           MOVE '0' TO W-FLAG.
+           PERFORM EMPRESA-FETCH THRU EMPRESA-FFETCH
+                   UNTIL W-FLAG NOT EQUAL '0'.
+
+           IF W-FLAG EQUAL 1
+              MOVE 'Existen mas Datos         ' TO P02DET1O
+              COMPUTE W-CONTADOR = W-CONTADOR - 1
+           ELSE
+              MOVE 'No existen mas Datos      ' TO P02DET1O
+           END-IF.
+
+           MOVE W-CONTADOR TO P02NREO
+
+           EXEC SQL
+              CLOSE CEMPRESA
+           END-EXEC.
+       EMPRESA-FOKOPEN.
+           EXIT.
+       EMPRESA-FETCH.
+           EXEC SQL
+             FETCH CEMPRESA
+              INTO :USR-SIGLO21, :USR-NOMBRE, :USR-PERS, :USR-EMPRESA,
+                   :USR-CENTRO, :USR-NODO, :USR-DOMINIO, :USR-AUTORIZA
+           END-EXEC.
+           IF NOT ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              ADD 1 TO W-CONTADOR
+              IF W-CONTADOR > WS-PAGINAR 
+                 ADD 1 TO I
+                 IF I < 15
+                    PERFORM CONSUL-MOVE THRU CONSUL-FMOVE
+                 ELSE
+                    MOVE '1' TO W-FLAG
+                 END-IF
+              END-IF
+           ELSE
+              IF SQLCODE EQUAL 100
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Fin de Codigos' TO P02DET1O
+              ELSE
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Error grave tabla USUARIOS' TO P02DET1O
+           END-IF.
+       EMPRESA-FFETCH.
+           EXIT.
+
+
+      *----------------------------------------------------------*
+      * Consulta datos por centros al que pertenece el usuario   *
+      *----------------------------------------------------------*
+       CONSUL-CENTRO.
+           MOVE P02CENI TO S-CENTRO.
+           EXEC SQL
+              OPEN CCENTRO
+           END-EXEC.
+           IF SQLCODE NOT LESS ZEROS AND SQLCODE NOT EQUAL 100
+              PERFORM CENTRO-OKOPEN THRU CENTRO-FOKOPEN
+           ELSE
+              MOVE 'Error open cursor CENTRO' TO P02DET1O
+           END-IF.
+       FCONSUL-CENTRO.
+           EXIT.
+       CENTRO-OKOPEN.
+           MOVE ZEROS TO I W-CONTADOR.
+           MOVE '0' TO W-FLAG.
+           PERFORM CENTRO-FETCH THRU CENTRO-FFETCH
+                   UNTIL W-FLAG NOT EQUAL '0'.
+
+           IF W-FLAG EQUAL 1
+              MOVE 'Existen mas Datos         ' TO P02DET1O
+              COMPUTE W-CONTADOR = W-CONTADOR - 1
+           ELSE
+              MOVE 'No existen mas Datos      ' TO P02DET1O
+           END-IF.
+
+           MOVE W-CONTADOR TO P02NREO
+
+           EXEC SQL
+              CLOSE CCENTRO
+           END-EXEC.
+       CENTRO-FOKOPEN.
+           EXIT.
+       CENTRO-FETCH.
+           EXEC SQL
+             FETCH CCENTRO
+              INTO :USR-SIGLO21, :USR-NOMBRE, :USR-PERS, :USR-EMPRESA,
+                   :USR-CENTRO, :USR-NODO, :USR-DOMINIO, :USR-AUTORIZA
+           END-EXEC.
+           IF NOT ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              ADD 1 TO W-CONTADOR
+              IF W-CONTADOR > WS-PAGINAR 
+                 ADD 1 TO I
+                 IF I < 15
+                    PERFORM CONSUL-MOVE THRU CONSUL-FMOVE
+                 ELSE
+                    MOVE '1' TO W-FLAG
+                 END-IF
+              END-IF
+           ELSE
+              IF SQLCODE EQUAL 100
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Fin de Codigos' TO P02DET1O
+              ELSE
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Error grave tabla USUARIOS' TO P02DET1O
+           END-IF.
+       CENTRO-FFETCH.
+           EXIT.
+
+      *-------------------------------------------------------------*
+      *                                                             *
+      *-------------------------------------------------------------*
+       CONSUL-USUARIO.
+           MOVE P02USRI TO CODIGO-AUX.
+           MOVE 1 TO I.
+           PERFORM CONSUL-BUSCAB VARYING I FROM I BY 1
+                   UNTIL I GREATER 8.
+           MOVE CODIGO-AUX TO S-CODIGO.
+           EXEC SQL
+              OPEN CCODIGO
+           END-EXEC.
+           IF SQLCODE NOT LESS ZEROS AND SQLCODE NOT EQUAL 100
+              PERFORM CONSUL-OKOPEN THRU CONSUL-FOKOPEN
+           ELSE
+              MOVE 'Error open cursor Usuarios' TO P02DET1O
+           END-IF.
+       FCONSUL-USUARIO.
+           EXIT.
+       CONSUL-OKOPEN.
+           MOVE ZEROS TO I W-CONTADOR.
+           MOVE '0' TO W-FLAG.
+           PERFORM CONSUL-FETCH THRU CONSUL-FFETCH
+                   UNTIL W-FLAG NOT EQUAL '0'.
+
+           IF W-FLAG EQUAL 1
+              MOVE 'Existen mas Datos         ' TO P02DET1O
+              COMPUTE W-CONTADOR = W-CONTADOR - 1
+           ELSE
+              MOVE 'No existen mas Datos      ' TO P02DET1O
+           END-IF.
+
+           MOVE W-CONTADOR TO P02NREO
+
+           EXEC SQL
+              CLOSE CCODIGO
+           END-EXEC.
+       CONSUL-FOKOPEN.
+           EXIT.
+       CONSUL-FETCH.
+           EXEC SQL
+             FETCH CCODIGO
+              INTO :USR-SIGLO21, :USR-NOMBRE, :USR-PERS, :USR-EMPRESA,
+                   :USR-CENTRO, :USR-NODO, :USR-DOMINIO, :USR-AUTORIZA
+           END-EXEC.
+           IF NOT ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              ADD 1 TO W-CONTADOR
+              IF W-CONTADOR > WS-PAGINAR 
+                 ADD 1 TO I
+                 IF I < 15
+                    PERFORM CONSUL-MOVE THRU CONSUL-FMOVE
+                 ELSE
+                    MOVE '1' TO W-FLAG
+                 END-IF
+              END-IF
+           ELSE
+              IF SQLCODE EQUAL 100
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Fin de Codigos' TO P02DET1O
+              ELSE
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Error grave tabla USUARIOS' TO P02DET1O
+           END-IF.
+       CONSUL-FFETCH.
+           EXIT.
+       CONSUL-MOVE.
+           ADD 1 TO CONTAUSR.
+           MOVE USR-SIGLO21       TO SSI02-CLAVE(I).
+           MOVE USR-NOMBRE        TO SSI02-NOMBRE(I).
+           MOVE USR-PERS          TO SSI02-PERFIL(I).
+           MOVE USR-EMPRESA       TO SSI02-EMPRESA(I).
+           MOVE USR-CENTRO        TO SSI02-CENTRO(I).
+           MOVE USR-NODO          TO SSI02-NODO(I).
+           MOVE USR-DOMINIO       TO SSI02-DOMINIO(I).
+           MOVE USR-AUTORIZA      TO SSI02-AUTORIZA(I).
+           MOVE I                 TO W-PSELECCION.
+           MOVE SSI02-CLAVE(I)    TO W-PCLAVE.
+           MOVE SSI02-NOMBRE(I)   TO W-PNOMBRE.
+           MOVE SSI02-PERFIL(I)   TO W-PPERFIL.
+           MOVE SSI02-EMPRESA(I)  TO W-PEMPRESA.
+           MOVE SSI02-CENTRO(I)   TO W-PCENTRO.
+           MOVE SSI02-NODO(I)     TO W-PNODO.
+           MOVE SSI02-DOMINIO(I)  TO W-PDOMINIO.
+           MOVE SSI02-AUTORIZA(I) TO W-PAUTORIZA.
+           MOVE W-PDETALLE        TO P02DETAO(I).
+       CONSUL-FMOVE.
+           EXIT.
+       CONSUL-BUSCAB.
+           IF CODI(I) = ' '
+              MOVE '%' TO CODI(I)
+           END-IF.
+       CONSUL-BUSCANOMBRE.
+           IF NOMB(I) = ' '
+              MOVE '%' TO NOMB(I)
+           END-IF.
+
+
+      *-------------------------------------------------------------*
+      *  consulta datos por perfil de usuario                       *
+      *-------------------------------------------------------------*
+       CONSUL-PERFIL.
+           MOVE P02PERI TO CODIGO-AUX.
+           MOVE 1 TO I.
+           PERFORM CONSUL-BUSCAB VARYING I FROM I BY 1
+                   UNTIL I GREATER 8.
+           MOVE CODIGO-AUX TO S-CODIGO.
+           EXEC SQL
+              OPEN CPERFIL
+           END-EXEC.
+           IF SQLCODE NOT LESS ZEROS AND SQLCODE NOT EQUAL 100
+              PERFORM PERFIL-OKOPEN THRU PERFIL-FOKOPEN
+           ELSE
+              MOVE 'Error open cursor Usuarios' TO P02DET1O
+           END-IF.
+       FCONSUL-PERFIL.
+           EXIT.
+
+       PERFIL-OKOPEN.
+           MOVE ZEROS      TO I W-CONTADOR.
+           MOVE '0' TO W-FLAG.
+           PERFORM PERFIL-FETCH THRU PERFIL-FFETCH
+                   UNTIL W-FLAG NOT EQUAL '0'.
+NEL   *     IF CONTAUSR > 0
+      *        MOVE 'No existen Datos          ' TO P02DET1O
+      *     END-IF.
+           IF W-FLAG EQUAL 1
+              MOVE 'Existen mas Datos         ' TO P02DET1O
+              COMPUTE W-CONTADOR = W-CONTADOR - 1
+           ELSE
+              MOVE 'No existen mas Datos      ' TO P02DET1O
+           END-IF.
+
+           MOVE W-CONTADOR TO P02NREO
+
+           EXEC SQL
+              CLOSE CPERFIL
+           END-EXEC.
+       PERFIL-FOKOPEN.
+           EXIT.
+
+       PERFIL-FETCH.
+           EXEC SQL
+             FETCH CPERFIL
+              INTO :USR-SIGLO21, :USR-NOMBRE, :USR-PERS, :USR-EMPRESA,
+                   :USR-CENTRO, :USR-NODO, :USR-DOMINIO, :USR-AUTORIZA
+           END-EXEC.
+           IF NOT ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              ADD 1 TO W-CONTADOR
+NEL           IF W-CONTADOR > WS-PAGINAR 
+                 ADD 1 TO I
+                 IF I < 15
+                    PERFORM CONSUL-MOVE THRU CONSUL-FMOVE
+                 ELSE
+                    MOVE '1' TO W-FLAG
+                 END-IF
+              END-IF
+           ELSE
+              IF SQLCODE EQUAL 100
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Fin de Codigos' TO P02DET1O
+              ELSE
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Error grave tabla USUARIOS' TO P02DET1O
+           END-IF.
+       PERFIL-FFETCH.
+           EXIT.
+
+      *-------------------------------------------------------------*
+      *  Consulta de usuario por nombre                             *
+      *-------------------------------------------------------------*
+       CONSUL-NOMBRE.
+           MOVE P02NOMI TO NOMBRE-AUX.
+           MOVE 1 TO I.
+           PERFORM CONSUL-BUSCANOMBRE VARYING I FROM I BY 1
+                   UNTIL I GREATER 40.
+           MOVE NOMBRE-AUX TO S-NOMBRE.
+           EXEC SQL
+              OPEN CNOMBRE
+           END-EXEC.
+           IF SQLCODE NOT LESS ZEROS AND SQLCODE NOT EQUAL 100
+              PERFORM NOMBRE-OKOPEN THRU NOMBRE-FOKOPEN
+           ELSE
+              MOVE 'Error open cursor Usuarios' TO P02DET1O
+           END-IF.
+       FCONSUL-NOMBRE.
+           EXIT.
+       NOMBRE-OKOPEN.
+           MOVE ZEROS TO I W-CONTADOR.
+           MOVE '0' TO W-FLAG.
+           PERFORM NOMBRE-FETCH THRU NOMBRE-FFETCH
+                   UNTIL W-FLAG NOT EQUAL '0'.
+
+           IF W-FLAG EQUAL 1
+              MOVE 'Existen mas Datos         ' TO P02DET1O
+              COMPUTE W-CONTADOR = W-CONTADOR - 1
+           ELSE
+              MOVE 'No existen mas Datos      ' TO P02DET1O
+           END-IF.
+
+           MOVE W-CONTADOR TO P02NREO
+
+           EXEC SQL
+              CLOSE CNOMBRE
+           END-EXEC.
+       NOMBRE-FOKOPEN.
+           EXIT.
+       NOMBRE-FETCH.
+           EXEC SQL
+             FETCH CNOMBRE
+              INTO :USR-SIGLO21, :USR-NOMBRE, :USR-PERS, :USR-EMPRESA,
+                   :USR-CENTRO, :USR-NODO, :USR-DOMINIO, :USR-AUTORIZA
+           END-EXEC.
+           IF NOT ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              ADD 1 TO W-CONTADOR
+              IF W-CONTADOR > WS-PAGINAR 
+                 ADD 1 TO I
+                 IF I < 15
+                    PERFORM CONSUL-MOVE THRU CONSUL-FMOVE
+                 ELSE
+                    MOVE '1' TO W-FLAG
+                 END-IF
+              END-IF
+           ELSE
+              IF SQLCODE EQUAL 100
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Fin de Codigos' TO P02DET1O
+              ELSE
+                 MOVE '2' TO W-FLAG
+                 MOVE 'Error grave tabla USUARIOS' TO P02DET1O
+           END-IF.
+       NOMBRE-FFETCH.
+           EXIT.
+
+
+      *-------------------------------------------------------------*
+      *  Se encera el commarea que se utiliza para trabajar         *
+      *-------------------------------------------------------------*
+       ENCERA-SSI002.
+           MOVE SPACES TO SSI02-CLAVE(I).
+
+
+
+      *-------------------------------------------------------------*
+      *  Se edita un registro para eso se llama al programa SSITP007*
+      *-------------------------------------------------------------*
+       TECLA-PF2.
+           MOVE SPACES          TO REG-INTP015.
+           MOVE '0'             TO P015-COMMAREA.
+           MOVE 'C'             TO P015-TIPO.
+           EXEC CICS XCTL PROGRAM('SSITP007')
+                COMMAREA(REG-INTP015)
+                  LENGTH(LENGTH OF REG-INTP015)
+                NOHANDLE
+           END-EXEC.
+
+
+
+
+      *-------------------------------------------------------------*
+      *  Se edita un registro para eso se llama al programa SSITP007*
+      *-------------------------------------------------------------*
+       TECLA-PF4.
+           IF P02SELI > 0 AND P02SELI < 15
+              MOVE P02SELI  TO I
+              IF SSI02-CLAVE(I) NOT = SPACES
+                 MOVE SPACES          TO REG-INTP015
+                 MOVE '2'             TO P015-COMMAREA
+                 MOVE 'C'             TO P015-TIPO
+                 MOVE SSI02-CLAVE(I)  TO P015-SIGLO21
+                 EXEC CICS XCTL PROGRAM('SSITP007')
+                               COMMAREA(REG-INTP015)
+                                 LENGTH(LENGTH OF REG-INTP015)
+                               NOHANDLE
+                 END-EXEC
+              ELSE
+                 MOVE 'Seleccion Errada          ' TO P02DET1O
+                 PERFORM ENVIA-MAPA-01 THRU FENVIA-MAPA-01
+                 GO TO REGRESO
+           END-IF.
+	   GO TO REGRESO.
+
+      *-------------------------------------------------------------*
+      *  PAGINA LA CONSULTA HACIA ADELANTE                          *
+      *-------------------------------------------------------------*
+       TECLA-PF7.
+           MOVE 'S' TO WS-ATRAS.
+           PERFORM TECLA-ENTER.
+
+
+
+===== SSITP007.CBL =====
+      ****************************************************************
+      **                        N E X T I                           **
+      ****************************************************************
+      **                                                            **
+      **  DESCRIPCION...: Operaciones funcionales a la tabla de     **
+      **                  usuarios                                  **
+      **                                                            **
+      ****************************************************************
+       IDENTIFICATION DIVISION.
+       PROGRAM-ID.  SSITP007.
+       AUTHOR.      STALYN MELO.
+      *************************************************************
+      *    ADMINISTRACION DE USUARIOS                             *
+      *************************************************************
+       ENVIRONMENT DIVISION.
+       CONFIGURATION SECTION.
+       SOURCE-COMPUTER.  IBM-4331.
+       OBJECT-COMPUTER.  IBM-4331.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       77  ITEMNUM          PIC S9(4) COMP.
+       77  W-EMPWORK        PIC X(4)  VALUE SPACES.
+       77  W-CONEMPRESA     PIC X(4)  VALUE SPACES.
+       77  W-SOLICI         PIC X(50) VALUE SPACES.
+       77  BDK-TEXT         PIC X(08) VALUE SPACES.
+       77  W-RESPUESTA      PIC X(30) VALUE SPACES.
+       77  W-CODRES         PIC X(03) VALUE SPACES.
+       01  W-PASSWORD       PIC X(8).
+       01  W-TIPO           PIC X.
+       01  W-ESWT           PIC X VALUE '9'.
+       01  W-RESULTADO  PIC 9(02) VALUE ZEROS.
+       01  R-DATOS-INPUT.
+           03 INPUT-DATOS-ENTRADA.
+              05 INPUT-FUNCION          PIC X.
+              05 INPUT-DATA             PIC X(16).
+              05 FILLER REDEFINES INPUT-DATA.
+                 10 INPUT-DAT01         PIC X(08).
+                 10 INPUT-DAT02         PIC X(08).
+            03 INPUT-DATOS-SALIDA.
+              05 INPUT-SALIDA           PIC X(16).
+              05 FILLER REDEFINES INPUT-SALIDA.
+                 10 INPUT-SAL01         PIC X(08).
+                 10 INPUT-SAL02         PIC X(08).
+       01  W-DATKEY16          PIC X(16) VALUE SPACES.
+       01  W-REGI-006          PIC X(354) VALUE SPACES.
+       01  FILLER REDEFINES W-REGI-006.
+           02 R006-SIGLO21     PIC X(16).
+           02 R006-OFFSET      PIC X(16).
+           02 R006-NUMKEY      PIC X(02).
+           02 R006-HISTORIA    PIC X(320).
+           02 FILLER REDEFINES R006-HISTORIA.
+              04 R006-HKEY OCCURS 20 PIC X(16).
+       01  W-FCHCAMBIO         PIC 9(08) VALUE ZEROS.
+       01  FILLER REDEFINES W-FCHCAMBIO.
+           02 FCH-ANO          PIC 9(04).
+           02 FCH-MES          PIC 9(02).
+           02 FCH-DIA          PIC 9(02).
+       01  WS-HORA             PIC 9(06) VALUE ZEROS.
+       01  FILLER REDEFINES WS-HORA.
+           02 UDP-HOR          PIC 9(02).
+           02 UDP-MIN          PIC 9(02).
+           02 UDP-SEG          PIC 9(02).
+       01  WS-RESPUESTA        PIC X(30).                                                              
+       01  FILLER REDEFINES WS-RESPUESTA.
+           02 TXT-RESP         PIC X(24).
+           02 NUM-RESP         PIC 9(06).
+
+       01  W-QNAME.
+           05 W-QUSER              PIC X(8).
+       01  W-FLAG                  PIC X.
+       01  W-DETALLE               PIC X(40).
+       01  W-TERMINAL              PIC X(15).
+       01  W-CENTOFC               PIC X(04).
+       01  W-NUMROWS               PIC S9(5) COMP-3.
+       01  W-DEL                   PIC X VALUE ';'.
+       77  W-PERFIL                PIC X(08) VALUE SPACES.
+       77  W-BANDERA               PIC X    VALUE SPACES.
+       77  W-STATUS                PIC X(3) VALUE SPACES.
+       77  W-LEN                   PIC S9(4) BINARY.
+       77  W-USERID                PIC X(8) VALUE SPACES.
+       77  W-APPLID                PIC X(8) VALUE SPACES.
+       77  MENSAJE                 PIC X(14) VALUE SPACES.
+       77  GRABA-T001              PIC X     VALUE SPACE.
+       77  NO-AUTORIZADO           PIC X     VALUE SPACE.
+       77  RESPUESTA               PIC X(40) VALUE SPACES.
+       77  FUNCION                 PIC 9(04) VALUE ZEROS.
+       77  NUMERO-FORMULA          PIC 9(06) VALUE ZEROS.
+       77  W-USER PIC X(8).
+       77  W-RESP PIC S9(8) BINARY.
+       77  W-RESP2 PIC S9(8) BINARY.
+       01  W-LONG PIC S9(4) BINARY.
+       01  W-REGISTRO    PIC X(720) VALUE SPACES.
+       01  FILLER REDEFINES W-REGISTRO.
+           05 W-QUSRID OCCURS 40 PIC X(18).
+       01  W-ITEM PIC S9(4) BINARY.
+       01  W-INDICE  PIC 9(02).
+       01  W-DONDE   PIC 9(02).
+       01  W-I       PIC 9(02).
+       01  W-ESTA    PIC X.
+       01  LOG-PERS      PIC X(08)  VALUE SPACES.
+       01  LOG-CENTRO    PIC X(04)  VALUE SPACES.
+       01  LOG-AUTORIZA  PIC 9      VALUE ZEROS.
+       01  W-REGIS-AUX   PIC X(18) VALUE SPACES.
+       01  FILLER REDEFINES W-REGIS-AUX.
+           05 W-USRID-AUX PIC X(08).
+           05 W-CID-AUX PIC X(10).
+       01  W-QCENTRO.
+           05 W-EMPRESA PIC X(4).
+           05 W-CENTRO  PIC X(4).
+       01  PUNTERO USAGE IS POINTER.
+       01  PUNTERON REDEFINES PUNTERO PIC S9(8) COMP.
+       01  W-REGIS-PERF   PIC X(18) VALUE SPACES.
+       01  FILLER REDEFINES W-REGIS-PERF.
+           05 W-USRID-PERF PIC X(08).
+           05 W-CID-PERF PIC X(10).
+       01  W-QPERFIL    PIC X(16) VALUE SPACES.
+       01  FILLER REDEFINES W-QPERFIL.
+           05 W-PERNOM  PIC X(8).
+           05 W-PEREMP  PIC X(4).
+           05 W-PERCEN  PIC X(4).
+       01  W-REGIPERF    PIC X(720) VALUE SPACES.
+       01  FILLER REDEFINES W-REGIPERF.
+           05 W-PUSRID OCCURS 40 PIC X(18).
+       01  BDK-PUNTERO1            USAGE IS POINTER.
+       01  WS-A                    PIC X VALUE LOW-VALUE.
+           COPY INPRG015.
+           COPY INPRG008.
+           COPY INSSI011.
+           COPY BFCHTIME.
+           COPY SSIM007.
+           COPY DFHAID.
+       01  TERMINAL-BANCS               PIC X(05).
+       01  TERMNO-BANCS REDEFINES TERMINAL-BANCS PIC 9(5).
+       01  USR-HOM-BANCS                PIC X(08).
+       01  EST-HOM-PROC                 PIC X(08).
+       01  R-T95LOG01.
+           05 T95LOG01-NUM-PUESTO       PIC X(08).
+           05 T95LOG01-TRANSACCION      PIC X(10).
+           05 T95LOG01-OPERACION        PIC X(10).
+           05 T95LOG01-FECHA-INGRESO    PIC X(26).
+           05 T95LOG01-TERMINAL         PIC X(10).
+           05 T95LOG01-COD-USUARIO-MOD  PIC X(20).
+           05 T95LOG01-MENSAJERIA       PIC X(100).
+           05 T95LOG01-CMP-OBSERVACION  PIC X(100).
+       01  R-T01GRE20.
+           05 T01GRE20-COD-GRUPO-USUARIO    PIC X(08).
+           05 T01GRE20-COD-RECURSO          PIC X(12).
+           05 T01GRE20-COD-ACCESO           PIC S9(04) COMP-3.
+           05 T01GRE20-COD-USUARIO-MOD      PIC X(08).
+           05 T01GRE20-TIM-MODIFICACION     PIC X(26).
+       01  R-T95PAR02.
+           05 T95PAR02-COD-GRUPO-USUARIO    PIC X(12).
+           05 T95PAR02-COD-PARAMETRO        PIC X(04).
+           05 T95PAR02-DESCRIPCION          PIC X(100).
+       01  R-T06TC007.
+           10 T06-COD-EMPRESA          PIC X(4).
+           10 T06-COD-CENTRO           PIC X(4).
+           10 T06-NOMBRE               PIC X(40).
+           10 T06-COD-TIPO-VIA         PIC X(3).
+           10 T06-NOM-VIA              PIC X(40).
+           10 T06-NUM-VIA              PIC X(10).
+           10 T06-CODIGO-POSTAL        PIC S9(5)V USAGE COMP-3.
+           10 T06-COD-PUEBLO           PIC X(4).
+           10 T06-COD-MUNICIPIO        PIC X(3).
+           10 T06-COD-PROVINCIA        PIC X(2).
+           10 T06-COD-PAIS             PIC X(4).
+           10 T06-PREFIJO-TF           PIC S9(3)V USAGE COMP-3.
+           10 T06-NUM-TELEFONO         PIC S9(10)V USAGE COMP-3.
+           10 T06-NUM-FAX              PIC S9(10)V USAGE COMP-3.
+           10 T06-DEC-JUZGA-TRIBUNA    PIC X(20).
+           10 T06-IND-ACTIVIDAD        PIC X(1).
+           10 T06-FEC-INIC-VALIDEZ     PIC X(10).
+           10 T06-FEC-FINALVALIDEZ     PIC X(10).
+           10 T06-TIMESTAMP-SIGLO      PIC X(26).
+           10 T06-COD-USU-MODIF        PIC X(8).
+       01  T06TC005.
+           10 T0605-COD-EMPRESA          PIC X(4).
+           10 T0605-NOMBRE               PIC X(40).
+           10 T0605-COD-NUM-DOC-OFICIA   PIC X(14).
+           10 T0605-TIMESTAMP-SIGLO      PIC X(26).
+           10 T0605-COD-USU-MODIF        PIC X(8).
+      ******************************************************************
+      * COBOL DECLARATION FOR TABLE T06TC005                           *
+      ******************************************************************
+           EXEC SQL
+              INCLUDE SQLCA
+           END-EXEC.
+           EXEC SQL
+              INCLUDE T95OBS04
+           END-EXEC.
+           EXEC SQL
+              DECLARE M2D.T01GRE20 TABLE
+                 (COD_GRUPO_USUARIO CHAR(8) NOT NULL,
+                  COD_RECURSO CHAR(12) NOT NULL,
+                  COD_ACCESO DECIMAL(4,0) NOT NULL,
+                  COD_USUARIO_MOD CHAR(8) NOT NULL,
+                  TIM_MODIFICACION CHAR(26) NOT NULL)
+           END-EXEC.
+           EXEC SQL
+              DECLARE M2D.T95PAR02 TABLE
+                 (COD_GRUPO_USUARIO CHAR(12) NOT NULL,
+                  COD_PARAMETRO CHAR(4) NOT NULL,
+                  DESCRIPCION CHAR(100) NOT NULL)
+           END-EXEC.
+           EXEC SQL DECLARE M2D.T06TC007 TABLE
+           ( COD_EMPRESA                    CHAR(4) NOT NULL,
+             COD_CENTRO                     CHAR(4) NOT NULL,
+             NOMBRE                         CHAR(40) NOT NULL,
+             COD_TIPO_VIA                   CHAR(3) NOT NULL,
+             NOM_VIA                        CHAR(40) NOT NULL,
+             NUM_VIA                        CHAR(10) NOT NULL,
+             CODIGO_POSTAL                  DECIMAL(5, 0) NOT NULL,
+             COD_PUEBLO                     CHAR(4) NOT NULL,
+             COD_MUNICIPIO                  CHAR(3) NOT NULL,
+             COD_PROVINCIA                  CHAR(2) NOT NULL,
+             COD_PAIS                       CHAR(4) NOT NULL,
+             PREFIJO_TF                     DECIMAL(3, 0) NOT NULL,
+           NUM_TELEFONO                   DECIMAL(10, 0) NOT NULL,
+             NUM_FAX                        DECIMAL(10, 0) NOT NULL,
+             DEC_JUZGA_TRIBUNA              CHAR(20) NOT NULL,
+             IND_ACTIVIDAD                  CHAR(1) NOT NULL,
+             FEC_INIC_VALIDEZ               DATE NOT NULL,
+             FEC_FINALVALIDEZ               DATE NOT NULL,
+             TIMESTAMP_SIGLO                TIMESTAMP NOT NULL,
+             COD_USU_MODIF                  CHAR(8) NOT NULL
+           ) END-EXEC.
+           EXEC SQL DECLARE M2D.T06TC005 TABLE
+           ( COD_EMPRESA                    CHAR(4) NOT NULL,
+             NOMBRE                         CHAR(40) NOT NULL,
+             COD_NUM_DOC_OFICIA             CHAR(14) NOT NULL,
+             TIMESTAMP_SIGLO                TIMESTAMP NOT NULL,
+             COD_USU_MODIF                  CHAR(8) NOT NULL
+           ) END-EXEC.
+       01  T95BAN04.
+           10 USR-SIGLO21          PIC X(8).
+           10 USR-BANCS            PIC X(8).
+           10 USR-NOMBRE           PIC X(60).
+           10 BRANCH-NO            PIC X(4).
+           10 TERM-NO              PIC 9(5).
+           10 COD-EMPRESA          PIC X(4).
+           10 EST-PROCESO          PIC X(2).
+           10 OBSERVACION          PIC X(80).
+           10 FEC-ULT-CAMBIO       PIC X(26).
+           10 USR-ULT-CAMBIO       PIC X(8).
+           EXEC SQL DECLARE T95BAN04 TABLE
+           (
+                 USR_SIGLO21    CHAR(8) DEFAULT ' ' NOT NULL,
+                 USR_BANCS      CHAR(8) DEFAULT ' ' NOT NULL,
+                 USR_NOMBRE     CHAR(60) DEFAULT ' ' NOT NULL,
+                 BRANCH_NO      CHAR(4) DEFAULT ' ' NOT NULL,
+                 TERM_NO        NUMBER(5) DEFAULT 0 NOT NULL,
+                 COD_EMPRESA    CHAR(4) DEFAULT ' ' NOT NULL,
+                 EST_PROCESO    CHAR(2) DEFAULT ' ' NOT NULL,
+                 OBSERVACION    CHAR(80) DEFAULT ' ' NOT NULL,
+                 FEC_ULT_CAMBIO TIMESTAMP(8) DEFAULT SYSTIMESTAMP NOT NULL,
+                 USR_ULT_CAMBIO CHAR(8) DEFAULT ' ' NOT NULL
+	   ) END-EXEC.
+       01  T95CLB05.
+           10 USR-SIGLO21             PIC X(80).
+           10 USR-BANCS               PIC X(80).
+           10 BANCS-PASS              PIC X(80).
+           10 FEC-ULT-CAMBIO          PIC X(26).
+   
+           EXEC SQL DECLARE T95CLB05 TABLE
+           (
+                USR_SIGLO21    CHAR(80) DEFAULT ' ' NOT NULL,
+                USR_BANCS      CHAR(80) DEFAULT ' ' NOT NULL,
+                BANCS_PASS     CHAR(80) DEFAULT ' ' NOT NULL,
+                FEC_ULT_CAMBIO TIMESTAMP(8) DEFAULT SYSTIMESTAMP NOT NULL
+           ) END-EXEC.
+
+       LINKAGE SECTION.
+       01  DFHCOMMAREA      PIC X(291).
+           COPY INPRG016.
+           COPY INSSI006.
+
+       PROCEDURE DIVISION.
+           EXEC CICS ASKTIME ABSTIME(WS-TIEMPO)          END-EXEC.
+           EXEC CICS FORMATTIME  ABSTIME(WS-TIEMPO)
+                                  YYMMDD(FECHA-HOY)
+                                    TIME(HORA-ABS)
+                                 TIMESEP
+                                    YEAR(WS-ANIO-HOY)    END-EXEC.
+           MOVE WS-ANIO-HOY  TO FS-AA.
+           MOVE FH-MMDD      TO FS-MMDD.
+           MOVE DFHCOMMAREA  TO REG-INTP015.
+           IF  P015-COMMAREA = '0' OR EIBCALEN = 0
+               MOVE LOW-VALUES TO SSI0701O
+               MOVE SPACES     TO REG-INTP015
+               MOVE '1'        TO P015-COMMAREA
+               MOVE -1         TO M15USRL
+               PERFORM ENVIA-MAPA-01  THRU FENVIA-MAPA-01
+               MOVE '1'        TO P015-COMMAREA
+            ELSE
+               IF P015-COMMAREA = '1' OR P015-COMMAREA = '9'
+                  PERFORM RECIBE-MAPA-01 THRU RECIBE-MAPA-01
+               ELSE
+                  PERFORM RECIBE-SSITP002 THRU FRECIBE-SSITP002
+               END-IF
+               PERFORM ENVIA-MAPA-01  THRU FENVIA-MAPA-01
+            END-IF.
+       100-REGRESO.
+	   EXEC CICS RETURN
+		     TRANSID ('I007')
+		     COMMAREA (REG-INTP015)
+		     LENGTH (LENGTH OF REG-INTP015)
+	   END-EXEC.
+
+
+       RECIBE-MAPA-01.
+		   EXEC CICS HANDLE AID ANYKEY(TERMINA-PRG)
+					CLEAR (TERMINA-PRG)
+					ENTER (VALIDA-ENTER)
+					PF2   (VALIDA-INGRESO)
+					PF4   (VALIDA-MODIFICA)
+					PF5   (VALIDA-ELIMINA)
+		   END-EXEC.
+		   EXEC CICS RECEIVE MAP('SSI0701') MAPSET('SSIM007') END-EXEC.
+       FRECIBE-MAPA-01.
+           EXIT.
+
+
+      *-------------------------------------------------------------*
+      * Por alguna condicion de error el programa termina           *
+      *-------------------------------------------------------------*
+       ERROR-VALIDA-DATOS.
+           MOVE RESPUESTA TO M15DET1O.
+           PERFORM ENVIA-MAPA-01  THRU FENVIA-MAPA-01.
+           GO TO 100-REGRESO.
+
+
+      *-------------------------------------------------------------*
+      * El usuario desea consultar un registro, valido datos input  *
+      *-------------------------------------------------------------*
+       VALIDA-ENTER.
+           PERFORM VALIDA-DATOS THRU FVALIDA-DATOS.
+           IF RESPUESTA NOT = SPACES
+                MOVE RESPUESTA TO M15DET1O
+                MOVE -1        TO M15USRL
+                GO TO ERROR-VALIDA-DATOS.
+           IF M15USRI NOT = SPACES
+               MOVE SPACES      TO P015-SIGLO21
+               MOVE M15USRI     TO P015-SIGLO21
+		    USR-SIGLO21 OF T95BAN04
+           ELSE
+               MOVE -1                        TO M15USRL
+               MOVE 'Ingrese usuario        ' TO M15DET1O
+               GO TO ERROR-VALIDA-DATOS.
+
+           MOVE 'C' TO P015-TIPO INSSI011-TIPO.
+           PERFORM PROCESA-REQUERIMIENTO THRU FPROCESA-REQUERIMIENTO.
+           IF P015-CODRES = 'OK '
+                MOVE P015-CID          TO M15CIDO
+                MOVE P015-NOMBRE       TO M15NOMBO
+                MOVE P015-EMPRESA      TO M15CEMPO
+                MOVE P015-CENTRO       TO M15CCENO
+                MOVE P015-RESPUESTA    TO M15DET1O
+                MOVE P015-SIGLO21      TO M15USRO
+                MOVE P015-UPDFCH       TO M15UFCHO
+                MOVE P015-UPDTIME      TO M15UHRSO
+                MOVE P015-UPDUSR       TO M15UUSRO
+                MOVE P015-UPDTERM      TO M15UTERO
+                MOVE P015-DOMINIO      TO M15DOMIO
+                MOVE P015-NODO         TO M15NODOO
+                MOVE P015-CARGO        TO M15CARGO
+                MOVE P015-FCHLOGON     TO M15FCHLO
+                MOVE P015-TIMELOGON    TO M15HRSLO
+                MOVE P015-AUTORIZA     TO M15SAUTO
+                MOVE P015-OFCSWIFT     TO M15SWIFTO
+                MOVE P015-PERS         TO M15SPVMO
+                MOVE P015-LOGONSIGLO   TO M15LTERO
+                MOVE P015-PERS         TO W-PERFIL
+                PERFORM GETRECU THRU FGETRECU
+                MOVE W-DETALLE         TO M15DPVMO
+                MOVE P015-CENTRO       TO W-CENTOFC
+                MOVE P015-EMPRESA      TO W-EMPWORK
+                PERFORM GETCENTRO THRU FGETCENTRO
+                MOVE W-DETALLE         TO M15DCENO
+                PERFORM GETEMPRESA  THRU FGETEMPRESA
+                MOVE W-DETALLE         TO M15DEMPO
+                PERFORM GETRECU THRU FGETRECU
+                MOVE W-DETALLE         TO M15DPVMO
+                PERFORM GETOBSER THRU FGETOBSER
+                PERFORM CONSULTA-USR THRU FCONSULTA-USR
+      ******************************************************************
+      *         IF EST-PROCESO OF T95BAN04 EQUAL 'TE'
+      *            MOVE SPACES TO M15UBANO 
+      *            MOVE LOW-VALUES  TO M15TBANO 
+      *            MOVE SPACES TO INSSI011-UBANCS 
+      *            MOVE ZEROS  TO INSSI011-STERMNO
+      *            MOVE -1     TO M15UBANL
+      *            MOVE -1     TO M15TBANL
+      *         ELSE 
+                   MOVE USR-BANCS OF T95BAN04 TO M15UBANO
+                   MOVE TERMNO-BANCS          TO M15TBANO
+      *         END-IF
+            ELSE
+                MOVE LOW-VALUES     TO SSI0701O
+                MOVE P015-SIGLO21   TO M15USRO
+                MOVE P015-RESPUESTA TO M15DET1O
+           END-IF.
+           MOVE -1 TO M15USRL.
+           PERFORM ENVIA-MAPA-01  THRU FENVIA-MAPA-01.
+           GO TO 100-REGRESO.
+
+
+      *-------------------------------------------------------------*
+      * Validacion basica, que se digite el usuario a consultar     *
+      *-------------------------------------------------------------*
+       VALIDA-DATOS.
+	   INITIALIZE T95BAN04
+	   MOVE SPACES TO TERMINAL-BANCS
+           MOVE SPACES   TO RESPUESTA.
+           IF P015-COMMAREA = '1'
+              IF M15USRI IS EQUAL SPACES OR M15USRI = LOW-VALUES
+                 MOVE 'Ingrese Usuario         ' TO RESPUESTA
+                 MOVE -1 TO M15CIDL
+                 GO TO FVALIDA-DATOS.
+           IF P015-TIPO = 'I' OR P015-TIPO = 'M'
+              PERFORM VALIDA-CAMPOS THRU FVALIDA-CAMPOS
+              IF RESPUESTA NOT = SPACES
+                 GO TO ERROR-VALIDA-DATOS
+           END-IF.
+       FVALIDA-DATOS.
+           EXIT.
+
+      *-------------------------------------------------------------*
+      * Validacion para obligar ingresar datos bancs                *
+      *-------------------------------------------------------------*
+       VALIDA-DATOS-BANCS.
+           MOVE SPACES   TO RESPUESTA.
+           EXEC SQL
+                SELECT COUNT(*)
+                INTO   :W-NUMROWS
+                FROM   M2D.T01GRE20
+                WHERE  COD_GRUPO_USUARIO       = :W-PERFIL
+                AND    SUBSTR(COD_RECURSO,1,2) = 'WT'
+           END-EXEC
+           IF SQLCODE EQUAL 100 
+              MOVE '9' TO W-ESWT
+           ELSE
+              IF SQLCODE LESS ZEROS
+                 MOVE '9' TO W-ESWT
+                 MOVE -1 TO M15SPVML
+                 MOVE 'Error en tabla T01GRE20' TO RESPUESTA
+              END-IF
+           END-IF
+	   IF W-NUMROWS > 0
+              MOVE '0' TO W-ESWT
+           END-IF.
+       FVALIDA-DATOS-BANCS.
+           EXIT.
+      
+      *-------------------------------------------------------------*
+      * Validacion de ingreso o modificacion de datos de usuario    *
+      *-------------------------------------------------------------*
+       VALIDA-CAMPOS.
+           MOVE M15NOMBI  TO P015-NOMBRE INSSI011-NOMBRE.
+           MOVE M15USRI   TO P015-SIGLO21 INSSI011-USIGLO21
+                             USR-SIGLO21 OF T95BAN04.
+           MOVE M15UBANI  TO INSSI011-UBANCS.
+           MOVE M15TBANI  TO INSSI011-STERMNO TERMINAL-BANCS.
+           MOVE M15SPVMI  TO P015-PERS.
+           MOVE M15SOLICI TO W-SOLICI INSSI011-OBSERVACION.
+           MOVE M15CCENI  TO P015-CENTRO INSSI011-BRANCHNO.
+           MOVE 'N'       TO P015-STATUS.
+           MOVE M15CIDI   TO P015-CID.
+           MOVE M15CARGI  TO P015-CARGO.
+           MOVE M15CEMPI  TO P015-EMPRESA INSSI011-EMPRESA.
+           MOVE M15SWIFTI TO P015-OFCSWIFT
+           PERFORM CONSULTA-BANCS THRU FCONSULTA-BANCS
+           IF USR-HOM-BANCS NOT EQUAL SPACES
+	      MOVE 9 TO M15UBANA
+           END-IF
+           IF M15SAUTI NOT EQUAL TO 1
+              MOVE 0      TO P015-AUTORIZA
+           ELSE
+              MOVE 1      TO P015-AUTORIZA
+           END-IF.
+           IF P015-SIGLO21 = SPACES OR P015-SIGLO21 = LOW-VALUES
+              MOVE -1                        TO M15USRL
+              MOVE 'Ingrese Usuario        ' TO RESPUESTA
+              GO TO FVALIDA-CAMPOS.
+           IF P015-NOMBRE = SPACES OR P015-NOMBRE = LOW-VALUES
+              MOVE -1                        TO M15NOMBL
+              MOVE 'Ingrese Nombre de Usr. ' TO RESPUESTA
+              GO TO FVALIDA-CAMPOS.
+           IF M15SWIFTI NOT EQUAL SPACES AND 
+              M15SWIFTI NOT EQUAL LOW-VALUES
+              IF M15SWIFTI NOT EQUAL 'MSQUTODO'
+                 MOVE -1                   TO M15SWIFTL
+                 MOVE 'Of.Swift: MSQUTODO' TO RESPUESTA
+                 GO TO FVALIDA-CAMPOS
+              END-IF
+           END-IF.
+           IF M15SOLICI = SPACES OR M15SOLICI = LOW-VALUES
+              MOVE 'Ingrese Observaciones ' TO RESPUESTA
+              MOVE -1                       TO M15SOLICL
+              GO TO FVALIDA-CAMPOS.
+           IF P015-PERS NOT = SPACES AND P015-PERS NOT = LOW-VALUES
+              MOVE P015-PERS               TO W-PERFIL
+           ELSE
+              MOVE -1                      TO M15SPVML
+              MOVE 'Ingrese Perfil de VM ' TO RESPUESTA
+              GO TO FVALIDA-CAMPOS.
+      *    PERFORM VALIDA-DATOS-BANCS THRU FVALIDA-DATOS-BANCS
+      *    IF W-ESWT = '0'
+           IF M15UBANI NOT EQUAL SPACES AND 
+              M15UBANI NOT EQUAL ZEROS  AND 
+	      M15UBANI NOT EQUAL LOW-VALUES
+              IF M15TBANI IS EQUAL SPACES     OR 
+		 M15TBANI IS EQUAL LOW-VALUES OR
+		 M15TBANI IS EQUAL ZEROS
+                 MOVE -1                        TO M15TBANL
+                 MOVE 'Ingrese Terminal BANCS.' TO RESPUESTA
+                 IF USR-HOM-BANCS NOT EQUAL SPACES
+	            MOVE 9 TO M15UBANA
+                 END-IF
+                 GO TO FVALIDA-CAMPOS
+              END-IF
+           ELSE
+              IF M15TBANI NOT EQUAL SPACES AND 
+		 M15TBANI NOT EQUAL ZEROS  AND
+		 M15TBANI NOT EQUAL LOW-VALUES
+                 IF M15UBANI IS EQUAL SPACES OR 
+		    M15UBANI IS EQUAL ZEROS  OR
+		    M15UBANI IS EQUAL LOW-VALUES
+                    MOVE -1                        TO M15UBANL
+                    MOVE 'Ingrese Usuario BANCS. ' TO RESPUESTA
+                    GO TO FVALIDA-CAMPOS
+                 END-IF 
+              END-IF 
+           END-IF
+      *    END-IF.
+           MOVE ZEROS    TO W-NUMROWS.
+           EXEC SQL
+                 SELECT COUNT(*)
+                    INTO :W-NUMROWS
+                    FROM M2D.T95PAR02
+                    WHERE COD_GRUPO_USUARIO = :W-PERFIL
+                    AND COD_PARAMETRO = 'GR'
+           END-EXEC
+           IF SQLCODE EQUAL 100 OR W-NUMROWS EQUAL ZEROS
+                 MOVE -1 TO M15SPVML
+                 MOVE 'Perfil NO definido en T95PAR02' TO RESPUESTA
+              ELSE
+                 IF SQLCODE LESS ZEROS
+                    MOVE -1 TO M15SPVML
+                    MOVE 'Error en tabla T95PAR02' TO RESPUESTA
+                 END-IF
+           END-IF.
+           IF RESPUESTA NOT = SPACES
+              GO TO FVALIDA-CAMPOS
+           ELSE
+              MOVE W-PERFIL TO P015-PERS
+           END-IF.
+           MOVE ZEROS     TO W-NUMROWS.
+           EXEC SQL
+                 SELECT COUNT(*)
+                    INTO :W-NUMROWS
+                    FROM M2D.T01GRE20
+                    WHERE COD_GRUPO_USUARIO = :W-PERFIL
+           END-EXEC
+           IF SQLCODE EQUAL 100 OR W-NUMROWS EQUAL ZEROS
+                 MOVE -1 TO M15SPVML
+                 MOVE 'Perfil RE no definido en T01GRE20' TO RESPUESTA
+              ELSE
+                 IF SQLCODE LESS ZEROS
+                    MOVE -1 TO M15SPVML
+                    MOVE 'Error en tabla T01GRE20' TO RESPUESTA
+                 END-IF
+           END-IF.
+           IF RESPUESTA NOT = SPACES
+              GO TO FVALIDA-CAMPOS.
+
+           MOVE ZEROS        TO W-NUMROWS.
+           MOVE P015-EMPRESA TO W-CONEMPRESA.
+           EXEC SQL
+                 SELECT COUNT(*)
+                    INTO :W-NUMROWS
+                    FROM M2D.T06TC005
+                    WHERE COD_EMPRESA = :W-CONEMPRESA
+           END-EXEC
+           IF SQLCODE EQUAL 100 OR W-NUMROWS EQUAL ZEROS
+                 MOVE -1 TO M15CEMPL
+                 MOVE 'Empresa no definida T06TC005' TO RESPUESTA
+              ELSE
+                 IF SQLCODE LESS ZEROS
+                    MOVE -1 TO M15CEMPL
+                    MOVE 'Error en tabla T06TC005' TO RESPUESTA
+                 END-IF
+           END-IF.
+           IF RESPUESTA NOT = SPACES
+              MOVE ZEROS    TO P015-EMPRESA
+              GO TO FVALIDA-CAMPOS.
+
+           IF P015-CENTRO > 0
+              MOVE P015-CENTRO TO W-CENTOFC
+           ELSE
+              MOVE 'Ingrese Codigo de Centro ' TO RESPUESTA
+              MOVE ZEROS       TO P015-CENTRO
+              GO TO FVALIDA-CAMPOS.
+           MOVE ZEROS        TO W-NUMROWS.
+           EXEC SQL
+                 SELECT COUNT(*)
+                    INTO :W-NUMROWS
+                    FROM M2D.T06TC007
+                    WHERE COD_EMPRESA = :W-CONEMPRESA
+                    AND   COD_CENTRO  = :W-CENTOFC
+           END-EXEC
+           IF SQLCODE EQUAL 100 OR W-NUMROWS EQUAL ZEROS
+                 MOVE -1 TO M15CCENL
+                 MOVE 'Centro no definido T06TC007' TO RESPUESTA
+              ELSE
+                 IF SQLCODE LESS ZEROS
+                    MOVE -1 TO M15CCENL
+                    MOVE 'Error en tabla T06TC007' TO RESPUESTA
+                 END-IF
+           END-IF.
+           IF RESPUESTA NOT = SPACES
+              GO TO FVALIDA-CAMPOS.
+           MOVE 'N'      TO  P015-STATUS.
+           IF P015-CID = ZEROS OR P015-CID = LOW-VALUES
+              MOVE ZEROS  TO P015-CID
+           END-IF.
+           IF P015-CARGO = SPACES OR P015-CARGO = LOW-VALUES
+              MOVE SPACES  TO P015-CARGO
+           END-IF.
+           IF P015-TIPO = 'I'
+      *        MOVE '0001'   TO P015-DOMINIO
+              MOVE ZEROS    TO P015-FCHLOGON
+              MOVE ZEROS    TO P015-TIMELOGON
+              MOVE SPACES   TO P015-FCHNOSIGLO
+                               P015-TIMENOSIGLO
+                               P015-TERMNOSIGLO
+                               P015-LOGONSIGLO
+           END-IF.
+       FVALIDA-CAMPOS.
+           EXIT.
+
+
+      *-------------------------------------------------------------*
+      * Se valida el ingreso de un nuevo usuario                    *
+      *-------------------------------------------------------------*
+       VALIDA-INGRESO.
+           MOVE 'I' TO P015-TIPO INSSI011-TIPO.
+           PERFORM VALIDA-DATOS THRU FVALIDA-DATOS.
+           IF RESPUESTA NOT = SPACES
+                MOVE RESPUESTA TO M15DET1O
+                MOVE -1        TO M15USRL
+                GO TO ERROR-VALIDA-DATOS.
+
+           PERFORM PROCESA-REQUERIMIENTO THRU FPROCESA-REQUERIMIENTO.
+           IF P015-CODRES = 'OK '
+                MOVE P015-CID         TO M15CIDO
+                MOVE P015-NOMBRE      TO M15NOMBO
+                MOVE P015-EMPRESA     TO M15CEMPO
+                MOVE P015-CENTRO      TO M15CCENO
+                MOVE P015-RESPUESTA   TO M15DET1O
+                MOVE P015-SIGLO21     TO M15USRO
+                MOVE P015-UPDFCH      TO M15UFCHO
+                MOVE P015-UPDTIME     TO M15UHRSO
+                MOVE P015-UPDUSR      TO M15UUSRO
+                MOVE P015-UPDTERM     TO M15UTERO
+                MOVE P015-DOMINIO     TO M15DOMIO
+                MOVE P015-NODO        TO M15NODOO
+                MOVE P015-CARGO       TO M15CARGO
+                MOVE P015-FCHLOGON    TO M15FCHLO
+                MOVE P015-TIMELOGON   TO M15HRSLO
+                MOVE P015-AUTORIZA    TO M15SAUTO
+                MOVE P015-OFCSWIFT    TO M15SWIFTO
+                MOVE P015-PERS        TO M15SPVMO
+                MOVE P015-LOGONSIGLO  TO M15LTERO
+                MOVE P015-PERS        TO W-PERFIL
+                PERFORM GETRECU THRU FGETRECU
+                MOVE W-DETALLE        TO M15DPVMO
+                MOVE P015-CENTRO      TO W-CENTOFC
+                MOVE P015-EMPRESA     TO W-EMPWORK
+                PERFORM GETCENTRO THRU FGETCENTRO
+                MOVE W-DETALLE        TO M15DCENO
+                PERFORM GETEMPRESA  THRU FGETEMPRESA
+                MOVE W-DETALLE        TO M15DEMPO
+                PERFORM GETRECU THRU FGETRECU
+                MOVE W-DETALLE        TO M15DPVMO
+		IF M15UBANI NOT EQUAL SPACES AND 
+	           M15UBANI <> LOW-VALUES
+		   IF M15TBANI NOT EQUAL SPACES AND 
+		      M15TBANI <> LOW-VALUES
+                       MOVE 'TC'    TO INSSI011-ESTPROCESO
+		                    EST-PROCESO OF T95BAN04
+                      PERFORM INGRESA-USR THRU FINGRESA-USR
+                   END-IF
+                END-IF
+                PERFORM MODIFICA-OBSER THRU FMODIFICA-OBSER
+            ELSE
+                MOVE P015-RESPUESTA   TO M15DET1O
+           END-IF.
+           MOVE -1             TO M15USRL.
+           PERFORM WRITELOG  THRU FWRITELOG.
+           PERFORM ENVIA-MAPA-01  THRU FENVIA-MAPA-01.
+           GO TO 100-REGRESO.
+
+
+
+
+      *-------------------------------------------------------------*
+      * Modificacion de un usuario ya existente                     *
+      *-------------------------------------------------------------*
+       VALIDA-MODIFICA.
+           MOVE 'M'            TO P015-TIPO INSSI011-TIPO.
+           MOVE P015-PERS      TO LOG-PERS.
+           MOVE P015-CENTRO    TO LOG-CENTRO.
+           MOVE P015-AUTORIZA  TO LOG-AUTORIZA.
+           PERFORM VALIDA-DATOS THRU FVALIDA-DATOS.
+           IF RESPUESTA NOT = SPACES
+                MOVE RESPUESTA TO M15DET1O
+                MOVE -1        TO M15USRL
+                GO TO ERROR-VALIDA-DATOS.
+           MOVE 'M' TO P015-TIPO INSSI011-TIPO.
+
+           PERFORM PROCESA-REQUERIMIENTO THRU FPROCESA-REQUERIMIENTO.
+           IF P015-CODRES = 'OK '
+                MOVE P015-CID       TO M15CIDO
+                MOVE P015-NOMBRE    TO M15NOMBO
+                MOVE P015-EMPRESA   TO M15CEMPO
+                MOVE P015-CENTRO    TO M15CCENO
+                MOVE P015-RESPUESTA TO M15DET1O
+                MOVE P015-SIGLO21   TO M15USRO
+                MOVE P015-UPDFCH    TO M15UFCHO
+                MOVE P015-UPDTIME   TO M15UHRSO
+                MOVE P015-UPDUSR    TO M15UUSRO
+                MOVE P015-UPDTERM   TO M15UTERO
+                MOVE P015-DOMINIO   TO M15DOMIO
+                MOVE P015-NODO      TO M15NODOO
+                MOVE P015-CARGO     TO M15CARGO
+                MOVE P015-FCHLOGON  TO M15FCHLO
+                MOVE P015-TIMELOGON TO M15HRSLO
+                MOVE P015-AUTORIZA  TO M15SAUTO
+                MOVE P015-OFCSWIFT  TO M15SWIFTO
+                MOVE P015-PERS      TO M15SPVMO
+                MOVE P015-LOGONSIGLO TO M15LTERO
+                MOVE P015-PERS      TO W-PERFIL
+                PERFORM GETRECU THRU FGETRECU
+                MOVE W-DETALLE      TO M15DPVMO
+                MOVE P015-CENTRO    TO W-CENTOFC
+                MOVE P015-EMPRESA   TO W-EMPWORK
+                PERFORM GETCENTRO THRU FGETCENTRO
+                MOVE W-DETALLE      TO M15DCENO
+                PERFORM GETEMPRESA  THRU FGETEMPRESA
+                MOVE W-DETALLE         TO M15DEMPO
+                PERFORM GETRECU THRU FGETRECU
+                MOVE W-DETALLE      TO M15DPVMO
+                MOVE P015-SIGLO21 TO USR-SIGLO21 OF T95BAN04 
+                PERFORM CONSULTA-BANCS THRU FCONSULTA-BANCS
+                IF USR-HOM-BANCS NOT EQUAL SPACES
+                   MOVE EST-HOM-PROC TO INSSI011-ESTPROCESO
+                                       EST-PROCESO OF T95BAN04
+		   IF EST-HOM-PROC = 'TE'
+                      MOVE 'TC'        TO INSSI011-ESTPROCESO
+		                       EST-PROCESO OF T95BAN04
+                   END-IF
+                ELSE
+                   MOVE 'TC'        TO INSSI011-ESTPROCESO
+		                    EST-PROCESO OF T95BAN04
+                END-IF
+		   
+		IF M15UBANI    EQUAL SPACES 
+		   OR M15TBANI EQUAL SPACES  
+		   OR M15TBANI EQUAL LOW-VALUES  
+		   IF USR-HOM-BANCS NOT EQUAL SPACES
+                      MOVE USR-HOM-BANCS TO INSSI011-UBANCS
+                      MOVE TERMNO-BANCS  TO INSSI011-STERMNO
+		      MOVE SPACES     TO M15UBANO
+		      MOVE LOW-VALUES TO M15TBANO
+                   END-IF
+                ELSE
+nel                IF USR-HOM-BANCS     NOT EQUAL SPACES
+	     	      AND M15UBANI      NOT EQUAL SPACES 
+                      AND USR-HOM-BANCS NOT EQUAL M15UBANI 
+                      MOVE M15UBANI     TO INSSI011-UBANCS
+                      MOVE M15TBANI     TO TERMNO-BANCS 
+				           INSSI011-STERMNO
+		   END-IF
+                END-IF
+                PERFORM MODIFICA-USR THRU FMODIFICA-USR
+                PERFORM MODIFICA-OBSER THRU FMODIFICA-OBSER
+           ELSE
+                MOVE P015-RESPUESTA TO M15DET1O
+           END-IF.
+           PERFORM WRITELOG  THRU FWRITELOG.
+           MOVE -1             TO M15USRL.
+           PERFORM ENVIA-MAPA-01  THRU FENVIA-MAPA-01.
+           GO TO 100-REGRESO.
+
+
+      *-------------------------------------------------------------*
+      * Se eliminara un usuario de la base de datos                 *
+      *-------------------------------------------------------------*
+       VALIDA-ELIMINA.
+           PERFORM VALIDA-DATOS THRU FVALIDA-DATOS.
+           IF RESPUESTA NOT = SPACES
+                MOVE RESPUESTA TO M15DET1O
+                MOVE -1        TO M15USRL
+                GO TO ERROR-VALIDA-DATOS.
+           IF M15SOLICI = SPACES OR M15SOLICI = LOW-VALUES
+              MOVE 'Ingrese Observaciones ' TO RESPUESTA
+              MOVE -1 TO M15SOLICL
+              GO TO ERROR-VALIDA-DATOS.
+           MOVE 'E' TO P015-TIPO INSSI011-TIPO.
+           PERFORM PROCESA-REQUERIMIENTO THRU FPROCESA-REQUERIMIENTO.
+           IF M15UBANI NOT EQUAL SPACES AND
+              M15UBANI NOT EQUAL LOW-VALUES
+              MOVE 'TE'       TO EST-PROCESO OF T95BAN04
+              MOVE M15USRI    TO USR-SIGLO21 OF T95BAN04
+              MOVE M15SOLICI  TO OBSERVACION OF T95BAN04
+              PERFORM MODIFICA-ESTADO-BANCS  THRU 
+                      FMODIFICA-ESTADO-BANCS
+              MOVE LOW-VALUES TO M15TBANO M15UBANO
+           END-IF
+           PERFORM ELIMINA-OBSERVACION  THRU FELIMINA-OBSERVACION
+           PERFORM WRITELOG  THRU FWRITELOG.
+           MOVE P015-RESPUESTA TO M15DET1O.
+           MOVE -1             TO M15USRL.
+           PERFORM ENVIA-MAPA-01  THRU FENVIA-MAPA-01.
+           GO TO 100-REGRESO.
+
+
+      *-------------------------------------------------------------*
+      * Se procesan las consultas,modificaciones,ingreso y eliminaci*
+      * ones sobre la base de usuarios.                             *
+      *-------------------------------------------------------------*
+       PROCESA-REQUERIMIENTO.
+           EXEC CICS ASSIGN USERID(W-USERID) APPLID(W-APPLID) END-EXEC.
+           EXEC CICS GETMAIN SET(ADDRESS OF REG-INTP016)
+                          LENGTH(LENGTH OF REG-INTP016)
+           END-EXEC.
+           MOVE SPACES        TO REG-INTP016.
+           MOVE P015-TIPO     TO P016-TIPO INSSI011-TIPO.
+           MOVE P015-REGISTRO TO P016-REGISTRO.
+           MOVE FECHA-SISTEMA TO P016-UPFCH.
+           MOVE ES-HORA       TO UDP-HOR.
+           MOVE ES-MINU       TO UDP-MIN.
+           MOVE ES-SEGU       TO UDP-SEG.
+           MOVE WS-HORA       TO P016-UPTIME.
+           MOVE W-USERID      TO P016-UPUSR INSSI011-UCAMBIO.
+           MOVE EIBTRMID      TO P016-UPTERM.
+           MOVE '3270'        TO P016-TOKEN.
+           SET PUNTERO TO ADDRESS OF REG-INTP016.
+           EXEC CICS LINK PROGRAM('PRG016')
+                         COMMAREA(PUNTERO)
+                           LENGTH(LENGTH OF PUNTERO)
+           END-EXEC.
+
+           MOVE P016-TIPO      TO P015-TIPO INSSI011-TIPO.
+           MOVE P016-REGISTRO  TO P015-REGISTRO.
+           MOVE P016-CODRES    TO P015-CODRES.
+           MOVE P016-RESPUESTA TO P015-RESPUESTA.
+
+           IF P016-FCHLOGON IS NUMERIC
+              MOVE P016-FCHLOGON   TO P015-FCHLOGON
+           ELSE
+              MOVE ZEROS           TO P015-FCHLOGON.
+           IF P016-TIMELOGON IS NUMERIC
+              MOVE P016-TIMELOGON  TO P015-TIMELOGON
+           ELSE
+              MOVE ZEROS         TO P015-TIMELOGON.
+           EXEC CICS FREEMAIN DATA(REG-INTP016) END-EXEC.
+       FPROCESA-REQUERIMIENTO.
+           EXIT.
+
+
+      *-------------------------------------------------------------*
+      * El programa termina y regresa al punto donde fue llamado    *
+      *-------------------------------------------------------------*
+       TERMINA-PRG.
+           EXEC CICS XCTL PROGRAM('PRG000') END-EXEC.
+
+
+
+
+      *-------------------------------------------------------------*
+      * El programa termina y regresa al punto donde fue llamado    *
+      *-------------------------------------------------------------*
+       ENVIA-MAPA-01.
+		   MOVE '     ENTER-CONSULTA     F2-INGRESA    ' TO M15TEC1O.
+		   MOVE '        F4-MODIFICA     F5-ELIMINA    ' TO M15TEC2O.
+		   MOVE FECHA-SISTEMA          TO M15FECHAO.
+		   MOVE HORA-ABS               TO M15HORAO.
+		   MOVE EIBTRMID               TO M15TERMO.
+		   EXEC CICS ASSIGN USERID(W-USERID) APPLID(W-APPLID) END-EXEC.
+		   MOVE W-USERID               TO M15USERO.
+		   MOVE W-APPLID               TO M15CICSO.
+		   EXEC CICS SEND
+			     MAP('SSI0701')
+			     MAPSET('SSIM007')
+			     ERASE
+			     CURSOR()
+           END-EXEC.
+       FENVIA-MAPA-01.
+           EXIT.
+
+
+
+
+      *-------------------------------------------------------------*
+      * Se graba el Log del sistema administrativo                  *
+      *-------------------------------------------------------------*
+       WRITELOG.
+           MOVE SPACES TO R-T95LOG01.
+           MOVE ZEROS TO INPRG008-RET.
+           IF P015-TIPO = 'I' OR P015-TIPO = 'M' OR P015-TIPO = 'E'
+              MOVE 'T95USU03' TO T95LOG01-TRANSACCION.
+           IF P015-TIPO = 'I'
+              MOVE 'INGRESO' TO T95LOG01-OPERACION.
+           IF P015-TIPO = 'M'
+              MOVE 'MODIFICACION' TO T95LOG01-OPERACION.
+           IF P015-TIPO = 'E'
+              MOVE 'ELIMINACION' TO T95LOG01-OPERACION.
+           MOVE P015-SIGLO21    TO T95LOG01-MENSAJERIA (1:8).
+           MOVE W-DEL           TO T95LOG01-MENSAJERIA (9:1).
+           MOVE P015-NOMBRE     TO T95LOG01-MENSAJERIA (10:20).
+           MOVE W-DEL           TO T95LOG01-MENSAJERIA (30:1).
+           MOVE P015-PERS       TO T95LOG01-MENSAJERIA (31:08).
+           MOVE W-DEL           TO T95LOG01-MENSAJERIA (41:1).
+           MOVE P015-CENTRO     TO T95LOG01-MENSAJERIA (42:4).
+           MOVE W-DEL           TO T95LOG01-MENSAJERIA (46:1).
+           MOVE P015-AUTORIZA   TO T95LOG01-MENSAJERIA (47:1).
+           MOVE W-DEL           TO T95LOG01-MENSAJERIA (48:1).
+           IF P015-TIPO = 'M'
+              MOVE 'MODIFICACI' TO T95LOG01-OPERACION
+              MOVE LOG-PERS     TO T95LOG01-MENSAJERIA (49:8)
+              MOVE W-DEL        TO T95LOG01-MENSAJERIA (57:1)
+              MOVE LOG-CENTRO   TO T95LOG01-MENSAJERIA (58:4)
+              MOVE W-DEL        TO T95LOG01-MENSAJERIA (62:1)
+              MOVE LOG-AUTORIZA TO T95LOG01-MENSAJERIA (63:1)
+           ELSE
+              MOVE '********'   TO T95LOG01-MENSAJERIA (49:8)
+              MOVE W-DEL        TO T95LOG01-MENSAJERIA (57:1)
+              MOVE '****'       TO T95LOG01-MENSAJERIA (58:4)
+              MOVE W-DEL        TO T95LOG01-MENSAJERIA (62:1)
+              MOVE '*'          TO T95LOG01-MENSAJERIA (63:1)
+           END-IF.
+           MOVE W-DEL           TO T95LOG01-MENSAJERIA (64:1)
+           MOVE M15SOLICI       TO T95LOG01-MENSAJERIA (65:15)
+                                   T95LOG01-CMP-OBSERVACION.
+           MOVE W-DEL           TO T95LOG01-MENSAJERIA (80:1)
+           MOVE P015-RESPUESTA  TO T95LOG01-MENSAJERIA (81:19).
+           MOVE R-T95LOG01      TO INPRG008-T95LOG01.
+           MOVE LENGTH OF R-INPRG008 TO W-LEN.
+           EXEC CICS LINK PROGRAM('PRG008') COMMAREA(R-INPRG008)
+                     LENGTH(W-LEN) NOHANDLE
+           END-EXEC.
+           IF EIBRESP EQUAL DFHRESP(NORMAL)
+              IF INPRG008-RET EQUAL ZEROS
+                 MOVE SPACES  TO RESPUESTA
+              ELSE
+                 MOVE 'Error XXX PRG008 (Write Log)' TO RESPUESTA
+              END-IF
+           ELSE
+              MOVE 'Err XXX Link PRG008 Write Log' TO RESPUESTA
+           END-IF.
+       FWRITELOG.
+           EXIT.
+
+       GETOBSER.
+           MOVE P015-SIGLO21 TO COD-USUARIO OF T95OBS04
+           EXEC SQL
+                SELECT CMP_OBSERVACION
+                INTO   :T95OBS04.CMP-OBSERVACION
+                FROM   M2D.T95OBS04
+                WHERE  COD_USUARIO = :T95OBS04.COD-USUARIO
+           END-EXEC.
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              MOVE SPACES TO M15SOLICO
+           ELSE
+              MOVE CMP-OBSERVACION OF T95OBS04
+                TO M15SOLICO
+           END-IF.
+       FGETOBSER.
+           EXIT.
+
+       INSERTA-OBSER.
+           MOVE P015-SIGLO21 TO COD-USUARIO       OF T95OBS04
+           MOVE W-USERID     TO COD-USUARIO-MOD   OF T95OBS04
+           MOVE W-SOLICI     TO CMP-OBSERVACION   OF T95OBS04
+           EXEC SQL
+                INSERT INTO T95OBS04
+                       (COD_USUARIO,
+                        COD_USUARIO_MOD,
+                        FEC_ULT_OBS,
+                        CMP_OBSERVACION)
+                VALUES (:T95OBS04.COD-USUARIO,
+                        :T95OBS04.COD-USUARIO-MOD,
+                        CURRENT_TIMESTAMP,
+                        :T95OBS04.CMP-OBSERVACION)
+           END-EXEC.
+
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              IF SQLCODE LESS ZEROS
+                 MOVE 'Error en tabla T95OBS04 ' TO W-DETALLE
+              ELSE
+                 MOVE 'Ingreso Fallido T95OBS04' TO P015-RESPUESTA
+              END-IF
+           ELSE
+              MOVE CMP-OBSERVACION OF T95OBS04
+                TO M15SOLICO
+           END-IF.
+
+       FINSERTA-OBSER.
+           EXIT.
+
+       MODIFICA-OBSER.
+           MOVE P015-SIGLO21 TO COD-USUARIO     OF T95OBS04
+           MOVE W-USERID     TO COD-USUARIO-MOD OF T95OBS04
+           MOVE W-SOLICI     TO CMP-OBSERVACION OF T95OBS04
+           EXEC SQL
+                UPDATE T95OBS04
+                SET    COD_USUARIO_MOD = :T95OBS04.COD-USUARIO-MOD,
+                       FEC_ULT_OBS     =  CURRENT_TIMESTAMP,
+                       CMP_OBSERVACION = :T95OBS04.CMP-OBSERVACION
+                WHERE  COD_USUARIO     = :T95OBS04.COD-USUARIO
+           END-EXEC.
+
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              PERFORM INSERTA-OBSER THRU FINSERTA-OBSER
+              IF SQLCODE LESS ZEROS
+                 MOVE 'Error en UPD T95OBS04 ' TO W-DETALLE
+              ELSE
+                 MOVE 'UPDATE Fallido T95OBS04' TO P015-RESPUESTA
+              END-IF
+           ELSE
+              MOVE CMP-OBSERVACION OF T95OBS04
+                TO M15SOLICO
+           END-IF.
+
+       FMODIFICA-OBSER.
+           EXIT.
+
+       GETRECU.
+           EXEC SQL
+              SELECT DESCRIPCION
+                 INTO :T95PAR02-DESCRIPCION
+                 FROM M2D.T95PAR02
+                 WHERE COD_GRUPO_USUARIO = :W-PERFIL
+                   AND COD_PARAMETRO = 'GR'
+           END-EXEC.
+           IF NOT ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              MOVE T95PAR02-DESCRIPCION TO W-DETALLE
+           ELSE
+              IF SQLCODE EQUAL 100
+                 MOVE 'No existe en tabla Parametros' TO W-DETALLE
+              ELSE
+                 MOVE 'Error grave tabla Parametros' TO W-DETALLE
+              END-IF
+           END-IF.
+       FGETRECU.
+           EXIT.
+       GETCENTRO.
+           EXEC SQL
+              SELECT NOMBRE
+                 INTO :T06-NOMBRE
+                 FROM M2D.T06TC007
+                 WHERE COD_EMPRESA = :W-EMPWORK
+                 AND   COD_CENTRO  = :W-CENTOFC
+           END-EXEC.
+           IF NOT ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              MOVE T06-NOMBRE  TO W-DETALLE
+           ELSE
+              IF SQLCODE EQUAL 100
+                 MOVE 'No existe en tabla T06TC007  ' TO W-DETALLE
+              ELSE
+                 MOVE -1 TO M15USRL
+                 MOVE 'Error grave tabla T06TC007  ' TO W-DETALLE
+              END-IF
+           END-IF.
+       FGETCENTRO.
+           EXIT.
+       GETEMPRESA.
+           EXEC SQL
+              SELECT NOMBRE
+                 INTO :T0605-NOMBRE
+                 FROM M2D.T06TC005
+                 WHERE COD_EMPRESA = :W-EMPWORK
+           END-EXEC.
+           IF NOT ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              MOVE T0605-NOMBRE  TO W-DETALLE
+           ELSE
+              IF SQLCODE EQUAL 100
+                 MOVE 'No existe en tabla T06TC005  ' TO W-DETALLE
+              ELSE
+                 MOVE 'Error grave tabla T06TC005  ' TO W-DETALLE
+              END-IF
+           END-IF.
+       FGETEMPRESA.
+           EXIT.
+       9400-ECIPHER.
+           MOVE SPACES     TO R-DATOS-INPUT.
+           MOVE W-PASSWORD TO INPUT-DAT01.
+           MOVE '3'        TO INPUT-FUNCION.
+           EXEC CICS LINK PROGRAM('SSITP003')
+                         COMMAREA(R-DATOS-INPUT)
+                           LENGTH(LENGTH OF R-DATOS-INPUT)
+           END-EXEC.
+           MOVE INPUT-SALIDA TO W-DATKEY16.
+       9400-FECIPHER.
+           EXIT.
+       2700-DATOS-VSAM.
+           EXEC CICS GETMAIN SET(ADDRESS OF REG-INTP016)
+                          LENGTH(LENGTH OF REG-INTP016)
+           END-EXEC.
+           MOVE SPACES        TO REG-INTP016.
+           MOVE W-TIPO        TO P016-TIPO INSSI011-TIPO.
+           MOVE P015-REGISTRO TO P016-REGISTRO.
+           SET PUNTERO TO ADDRESS OF REG-INTP016.
+           EXEC CICS LINK PROGRAM('PRG016')
+                         COMMAREA(PUNTERO)
+                           LENGTH(LENGTH OF PUNTERO)
+           END-EXEC.
+
+           MOVE P016-TIPO      TO P015-TIPO INSSI011-TIPO.
+           MOVE P016-REGISTRO  TO P015-REGISTRO.
+           MOVE P016-CODRES    TO P015-CODRES.
+           MOVE P016-RESPUESTA TO P015-RESPUESTA.
+           EXEC CICS FREEMAIN DATA(REG-INTP016) END-EXEC.
+       2800-FDATOS-VSAM.
+           EXIT.
+       9900-VALKEYS.
+           EXEC CICS GETMAIN SET(ADDRESS OF R-INSSI006)
+                          LENGTH(LENGTH OF R-INSSI006)
+           END-EXEC.
+           MOVE SPACES        TO R-INSSI006.
+           MOVE W-TIPO        TO INSSI006-TIPO INSSI011-TIPO.
+           MOVE W-REGI-006    TO INSSI006-REGISTRO.
+           SET PUNTERO TO ADDRESS OF R-INSSI006.
+           EXEC CICS LINK PROGRAM('SSITP006')
+                         COMMAREA(PUNTERO)
+                           LENGTH(LENGTH OF PUNTERO)
+           END-EXEC.
+           MOVE INSSI006-TIPO      TO W-TIPO INSSI011-TIPO.
+           MOVE INSSI006-REGISTRO  TO W-REGI-006.
+           MOVE INSSI006-CODRES    TO W-CODRES.
+           MOVE INSSI006-RESPUESTA TO W-RESPUESTA.
+           EXEC CICS FREEMAIN DATA(R-INSSI006) END-EXEC.
+       9900-FVALKEYS.
+           EXIT.
+
+       PROCESA-BANCS.
+           MOVE LENGTH OF R-INSSI011 TO W-LEN.
+           EXEC CICS LINK PROGRAM('SSITP011') COMMAREA(R-INSSI011)
+                     LENGTH(W-LEN) NOHANDLE
+           END-EXEC.
+           IF EIBRESP EQUAL DFHRESP(NORMAL)
+              IF INSSI011-CODRES EQUAL ZEROS
+                 MOVE SPACES  TO RESPUESTA
+              ELSE
+                 MOVE 'Error SSITP011 ' TO RESPUESTA
+              END-IF
+           ELSE
+              MOVE 'Err Link SSITP011 ' TO RESPUESTA
+           END-IF.
+       FPROCESA-BANCS.
+           EXIT.
+
+       RECIBE-SSITP002.
+           MOVE LOW-VALUES                TO SSI0701O
+           MOVE 'C'                       TO P015-TIPO INSSI011-TIPO.
+           PERFORM PROCESA-REQUERIMIENTO THRU FPROCESA-REQUERIMIENTO.
+           MOVE P015-CID                  TO M15CIDO.
+           MOVE P015-NOMBRE               TO M15NOMBO.
+           MOVE P015-EMPRESA              TO M15CEMPO.
+           MOVE P015-CENTRO               TO M15CCENO.
+           MOVE P015-RESPUESTA            TO M15DET1O.
+           MOVE P015-SIGLO21              TO M15USRO.
+           MOVE P015-UPDFCH               TO M15UFCHO.
+           MOVE P015-UPDTIME              TO M15UHRSO.
+           MOVE P015-UPDUSR               TO M15UUSRO.
+           MOVE P015-UPDTERM              TO M15UTERO.
+           MOVE P015-DOMINIO              TO M15DOMIO.
+           MOVE P015-NODO                 TO M15NODOO.
+           MOVE P015-CARGO                TO M15CARGO.
+           MOVE P015-FCHLOGON             TO M15FCHLO.
+           MOVE P015-TIMELOGON            TO M15HRSLO.
+           MOVE P015-AUTORIZA             TO M15SAUTO.
+           MOVE P015-OFCSWIFT             TO M15SWIFTO.
+           MOVE P015-PERS                 TO M15SPVMO.
+           MOVE P015-LOGONSIGLO           TO M15LTERO.
+           MOVE P015-PERS                 TO W-PERFIL.
+           PERFORM GETRECU THRU FGETRECU.
+           MOVE W-DETALLE                 TO M15DPVMO.
+           MOVE P015-CENTRO               TO W-CENTOFC.
+           MOVE P015-EMPRESA              TO W-EMPWORK.
+           PERFORM GETCENTRO THRU FGETCENTRO.
+           MOVE W-DETALLE                 TO M15DCENO.
+           PERFORM GETEMPRESA  THRU FGETEMPRESA.
+           MOVE W-DETALLE                 TO M15DEMPO.
+           PERFORM GETRECU  THRU FGETRECU.
+           PERFORM GETOBSER THRU FGETOBSER
+           MOVE W-DETALLE                 TO M15DPVMO.
+           MOVE P015-SIGLO21 TO USR-SIGLO21 OF T95BAN04
+           PERFORM CONSULTA-USR THRU FCONSULTA-USR
+           MOVE USR-BANCS OF T95BAN04 TO M15UBANO
+           MOVE TERMNO-BANCS          TO M15TBANO
+           MOVE -1                    TO M15USRL.
+           MOVE '9'                   TO P015-COMMAREA.
+       FRECIBE-SSITP002.
+           EXIT.
+
+       CONSULTA-BANCS.
+           EXEC SQL
+                SELECT USR_BANCS,
+                       TERM_NO,
+		       EST_PROCESO
+                INTO   :USR-HOM-BANCS,
+                       :TERMNO-BANCS,
+                       :EST-HOM-PROC
+                FROM   T95BAN04
+                WHERE  USR_SIGLO21 = :T95BAN04.USR-SIGLO21 
+           END-EXEC.
+	   DISPLAY 'SSITP007 CONS-BANCS= ' SQLCODE
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              MOVE SPACES TO TERMINAL-BANCS
+                             USR-HOM-BANCS	
+                             EST-HOM-PROC
+	      MOVE SQLCODE TO NUM-RESP
+              IF SQLCODE LESS ZEROS
+                 MOVE 'NO '                    TO INSSI011-CODRES
+                 MOVE 'Err T95BAN04 SqlCode=-' TO TXT-RESP
+                 MOVE WS-RESPUESTA             TO RESPUESTA
+                 MOVE W-RESPUESTA              TO INSSI011-RESPUESTA
+              ELSE
+                 MOVE 'NO '  TO INSSI011-CODRES
+                 MOVE 'User no existe en BAN04' TO INSSI011-RESPUESTA
+              END-IF
+           ELSE            
+              MOVE 9        TO M15UBANA
+      *       MOVE 9        TO M15TBANA
+           END-IF.
+       FCONSULTA-BANCS.
+           EXIT.
+
+       CONSULTA-USR.
+           EXEC SQL
+                SELECT USR_SIGLO21,
+                       USR_BANCS,
+                       USR_NOMBRE,
+                       BRANCH_NO, 
+                       TERM_NO,
+                       COD_EMPRESA,
+                       EST_PROCESO,
+                       OBSERVACION
+                INTO   :T95BAN04.USR-SIGLO21,
+                       :T95BAN04.USR-BANCS,
+                       :T95BAN04.USR-NOMBRE,
+                       :T95BAN04.BRANCH-NO,
+                       :TERMNO-BANCS,
+                       :T95BAN04.COD-EMPRESA,
+                       :T95BAN04.EST-PROCESO,
+                       :T95BAN04.OBSERVACION
+                FROM   T95BAN04
+                WHERE  USR_SIGLO21 = :T95BAN04.USR-SIGLO21 
+           END-EXEC.
+	   DISPLAY 'SSITP007 MOD= ' SQLCODE
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+	      MOVE SQLCODE TO NUM-RESP
+              IF SQLCODE LESS ZEROS
+                 MOVE 'NO '   TO INSSI011-CODRES
+                 MOVE 'Err T95BAN04 SqlCode=-' TO TXT-RESP
+                 MOVE WS-RESPUESTA             TO RESPUESTA
+                 MOVE W-RESPUESTA              TO INSSI011-RESPUESTA
+              ELSE
+                 MOVE 'NO '   TO INSSI011-CODRES
+                 MOVE 'User no existe en BAN04' TO INSSI011-RESPUESTA
+              END-IF
+           ELSE
+                 MOVE 'OK '   TO INSSI011-CODRES
+                 MOVE 'Consulta SIGLO21 Ok    ' TO INSSI011-RESPUESTA
+                 PERFORM MOVER-DATOS-LEIDOS-BANCS 
+                    THRU FMOVER-DATOS-LEIDOS-BANCS
+                 MOVE 9        TO M15UBANA
+      *          MOVE 9        TO M15TBANA
+           END-IF.
+       FCONSULTA-USR.
+           EXIT.
+
+       INGRESA-USR.
+           PERFORM MOVER-DATOS-USR-BANCS THRU FMOVER-DATOS-USR-BANCS.
+	   IF USR-SIGLO21 OF T95BAN04 EQUAL SPACES OR
+	      USR-SIGLO21 OF T95BAN04 EQUAL LOW-VALUES 
+	      GO TO FINGRESA-USR
+           END-IF
+           IF USR-BANCS   OF T95BAN04 EQUAL SPACES OR
+	      USR-BANCS   OF T95BAN04 EQUAL ZEROS  OR 
+	      USR-BANCS   OF T95BAN04 EQUAL LOW-VALUES 
+	      GO TO FINGRESA-USR
+           END-IF
+           IF TERM-NO OF T95BAN04 EQUAL SPACES OR
+	      TERM-NO OF T95BAN04 EQUAL ZEROS  OR 
+	      TERM-NO OF T95BAN04 EQUAL LOW-VALUES 
+	      GO TO FINGRESA-USR
+           END-IF
+      *    DISPLAY 'SSITP011: USRS21  ' USR-SIGLO21 OF T95BAN04
+
+           EXEC SQL
+                INSERT INTO T95BAN04
+                     ( USR_SIGLO21,
+                       USR_BANCS,
+                       USR_NOMBRE,
+                       BRANCH_NO,
+                       TERM_NO,
+                       COD_EMPRESA,
+                       EST_PROCESO,
+                       OBSERVACION,
+                       FEC_ULT_CAMBIO,
+                       USR_ULT_CAMBIO
+                     )
+                VALUES(:T95BAN04.USR-SIGLO21,
+                       :T95BAN04.USR-BANCS,
+                       :T95BAN04.USR-NOMBRE,
+                       :T95BAN04.BRANCH-NO,
+                       :T95BAN04.TERM-NO,
+                       :T95BAN04.COD-EMPRESA,
+                       :T95BAN04.EST-PROCESO,
+                       :T95BAN04.OBSERVACION,
+                       SYSTIMESTAMP,
+                       :T95BAN04.USR-ULT-CAMBIO
+                      )
+           END-EXEC.
+           DISPLAY 'SSITP011-ING: SQLCODE ' SQLCODE
+
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+	         MOVE SQLCODE TO NUM-RESP
+                 IF SQLCODE LESS ZEROS
+                    IF SQLCODE EQUAL -1
+                     MOVE -1  TO M15UBANL
+		     MOVE 'Usuario Bancs Duplicado' TO RESPUESTA
+                    ELSE
+                      MOVE 'NO '   TO INSSI011-CODRES
+                      MOVE 'Err T95BAN04 SqlCode=-' TO TXT-RESP
+                      MOVE WS-RESPUESTA TO RESPUESTA
+                    END-IF
+                  ELSE
+                     MOVE 'NO '   TO INSSI011-CODRES
+                     MOVE 'Ingreso fallido BAN04' TO TXT-RESP
+                     MOVE WS-RESPUESTA TO RESPUESTA
+                  END-IF
+                  GO TO ERROR-VALIDA-DATOS
+           ELSE
+                 MOVE 9        TO M15UBANA
+      *          MOVE 9        TO M15TBANA
+                 MOVE 'OK '            TO INSSI011-CODRES
+                 MOVE 'Ingreso OK    ' TO INSSI011-RESPUESTA
+           END-IF.
+       FINGRESA-USR.
+           EXIT.
+
+       MODIFICA-USR.
+           MOVE INSSI011-USIGLO21  TO USR-SIGLO21 OF T95BAN04.
+           PERFORM MOVER-DATOS-USR-BANCS THRU FMOVER-DATOS-USR-BANCS.
+	   IF USR-SIGLO21 OF T95BAN04 EQUAL SPACES OR
+	      USR-SIGLO21 OF T95BAN04 EQUAL LOW-VALUES 
+	      GO TO FMODIFICA-USR
+           END-IF
+           IF USR-BANCS   OF T95BAN04 EQUAL SPACES OR
+	      USR-BANCS   OF T95BAN04 EQUAL ZEROS  OR 
+	      USR-BANCS   OF T95BAN04 EQUAL LOW-VALUES 
+	      GO TO FMODIFICA-USR
+           END-IF
+           IF TERM-NO OF T95BAN04 EQUAL SPACES OR
+	      TERM-NO OF T95BAN04 EQUAL ZEROS  OR 
+	      TERM-NO OF T95BAN04 EQUAL LOW-VALUES 
+	      GO TO FMODIFICA-USR
+           END-IF
+      *    DISPLAY 'SSITP011: USRS21  ' USR-SIGLO21 OF T95BAN04
+      *    DISPLAY 'SSITP011: UBANCS  ' USR-BANCS OF T95BAN04 
+      *    DISPLAY 'SSITP011: NOMBRE  ' USR-NOMBRE OF T95BAN04 
+      *    DISPLAY 'SSITP011: BRANCH  ' BRANCH-NO OF T95BAN04  
+      *    DISPLAY 'SSITP011: TERMIN  ' TERM-NO OF T95BAN04     
+      *    DISPLAY 'SSITP011: EMPRESA ' COD-EMPRESA OF T95BAN04 
+      *    DISPLAY 'SSITP011: ESTPROC ' EST-PROCESO OF T95BAN04	 
+      *    DISPLAY 'SSITP011: OBSERV  ' OBSERVACION OF T95BAN04
+      *    DISPLAY 'SSITP011: UCAMBIO ' USR-ULT-CAMBIO OF T95BAN04 
+
+           EXEC SQL
+                UPDATE T95BAN04
+                SET    USR_BANCS      = :T95BAN04.USR-BANCS,
+                       USR_NOMBRE     = :T95BAN04.USR-NOMBRE,
+                       BRANCH_NO      = :T95BAN04.BRANCH-NO,
+                       TERM_NO        = :T95BAN04.TERM-NO, 
+                       COD_EMPRESA    = :T95BAN04.COD-EMPRESA,
+                       EST_PROCESO    = :T95BAN04.EST-PROCESO,
+                       OBSERVACION    = :T95BAN04.OBSERVACION,
+                       FEC_ULT_CAMBIO = SYSTIMESTAMP,
+                       USR_ULT_CAMBIO = :T95BAN04.USR-ULT-CAMBIO 
+                WHERE  USR_SIGLO21    = :T95BAN04.USR-SIGLO21 
+           END-EXEC.
+           DISPLAY 'SSITP011-MOD: SQLCODE ' SQLCODE
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+	      MOVE SQLCODE TO NUM-RESP
+              IF SQLCODE EQUAL 100
+                 MOVE 'TC'    TO INSSI011-ESTPROCESO
+		             EST-PROCESO OF T95BAN04
+                 PERFORM INGRESA-USR THRU FINGRESA-USR
+              ELSE
+                 IF SQLCODE LESS ZEROS
+                    IF SQLCODE EQUAL -1
+                     MOVE -1  TO M15UBANL
+		     MOVE 'Usuario Bancs Duplicado' TO RESPUESTA
+                    ELSE
+                      MOVE 'NO '   TO INSSI011-CODRES
+                      MOVE 'Err T95BAN04 SqlCode=-' TO TXT-RESP
+                      MOVE WS-RESPUESTA             TO RESPUESTA
+                    END-IF
+                  ELSE
+                     MOVE 'NO '   TO INSSI011-CODRES
+                     MOVE 'Modificacion fallida BAN04' 
+				  TO TXT-RESP
+                     MOVE WS-RESPUESTA             TO RESPUESTA
+                  END-IF
+                  GO TO ERROR-VALIDA-DATOS
+              END-IF
+           ELSE
+              MOVE 9        TO M15UBANA
+      *       MOVE 9        TO M15TBANA
+              MOVE 'OK '   TO INSSI011-CODRES
+              MOVE 'Modificacion OK          ' TO INSSI011-RESPUESTA
+           END-IF.
+       FMODIFICA-USR.
+           EXIT.
+
+       MODIFICA-ESTADO-BANCS.
+      *    DISPLAY 'SSITP007-MOD-EST-BANCS=' USR-SIGLO21 OF T95BAN04
+	   IF USR-SIGLO21 OF T95BAN04 EQUAL SPACES 
+	      GO TO FMODIFICA-ESTADO-BANCS
+           END-IF
+           EXEC SQL
+                UPDATE T95BAN04
+                SET    EST_PROCESO    = :T95BAN04.EST-PROCESO,
+                       OBSERVACION    = :T95BAN04.OBSERVACION,
+                       FEC_ULT_CAMBIO = SYSTIMESTAMP,
+                       USR_ULT_CAMBIO = :T95BAN04.USR-ULT-CAMBIO 
+                WHERE  USR_SIGLO21    = :T95BAN04.USR-SIGLO21 
+           END-EXEC.
+	   DISPLAY 'SSITP011-MOD ESTADO SQLCODE = ' SQLCODE
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              IF SQLCODE LESS ZEROS
+                 MOVE 'NO '   TO INSSI011-CODRES
+                 MOVE 'Err T95BAN04 SqlCode=-' TO RESPUESTA
+                 MOVE W-RESPUESTA              TO INSSI011-RESPUESTA
+              ELSE
+                 MOVE 'NO '   TO INSSI011-CODRES
+                 MOVE 'Mod Estado fallido BAN04' TO INSSI011-RESPUESTA
+              END-IF
+           ELSE
+              MOVE 'OK '   TO INSSI011-CODRES
+              MOVE 'Mod Estodo BAN04 OK        ' TO INSSI011-RESPUESTA
+           END-IF.
+       FMODIFICA-ESTADO-BANCS.
+           EXIT.
+
+       ELIMINA-USR.
+      *    DISPLAY 'SSITP007-ELI-USRS21 = ' USR-SIGLO21 OF T95BAN04
+	   IF USR-SIGLO21 OF T95BAN04 EQUAL SPACES
+	      GO TO ELIMINA-USR 
+           END-IF
+           EXEC SQL
+                DELETE
+                FROM   T95BAN04
+                WHERE  USR_SIGLO21 = :T95BAN04.USR-SIGLO21
+           END-EXEC.
+	   DISPLAY 'SSITP007-ELI SQLCODE = ' SQLCODE
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              IF SQLCODE LESS ZEROS
+                 MOVE 'NO '   TO INSSI011-CODRES
+                 MOVE 'Err T95BAN04 SqlCode=-' TO RESPUESTA
+                 MOVE W-RESPUESTA              TO INSSI011-RESPUESTA
+              ELSE
+                 MOVE 'NO '   TO INSSI011-CODRES
+                 MOVE 'Eliminacion  fallida BAN04' TO INSSI011-RESPUESTA
+              END-IF
+           ELSE
+              MOVE 'OK '   TO INSSI011-CODRES
+              MOVE 'Eliminacion  OK          ' TO INSSI011-RESPUESTA
+           END-IF.
+       FELIMINA-USR.
+           EXIT.
+
+       ELIMINA-OBSERVACION.
+           MOVE P015-SIGLO21 TO COD-USUARIO OF T95OBS04
+           EXEC SQL
+                DELETE
+                FROM   M2D.T95OBS04
+                WHERE  COD_USUARIO = :T95OBS04.COD-USUARIO
+           END-EXEC.
+	   DISPLAY 'SSITP007-ELI OBSERVACION = ' SQLCODE
+           IF ( SQLCODE EQUAL 100 OR SQLCODE LESS ZEROS )
+              IF SQLCODE LESS ZEROS
+                 MOVE 'NO '   TO INSSI011-CODRES
+                 MOVE 'Err T95OBS04 SqlCode=-' TO RESPUESTA
+                 MOVE W-RESPUESTA              TO INSSI011-RESPUESTA
+              ELSE
+                 MOVE 'NO '   TO INSSI011-CODRES
+                 MOVE 'Eliminacion  fallida OBS04' TO INSSI011-RESPUESTA
+              END-IF
+           ELSE
+              MOVE 'OK '   TO INSSI011-CODRES
+              MOVE 'Eliminacion  OK          ' TO INSSI011-RESPUESTA
+           END-IF.
+       FELIMINA-OBSERVACION.
+           EXIT.
+
+
+       MOVER-DATOS-USR-BANCS.
+           INITIALIZE T95BAN04.
+      *    DISPLAY 'SSITP011: MOVER-DATOS-USR-BANCS : '
+      *    DISPLAY 'SSITP001: ----------------------------- '
+      *    DISPLAY 'SSITP011: TIPO    ' INSSI011-TIPO
+      *    DISPLAY 'SSITP011: USIGLO  ' INSSI011-USIGLO21   
+      *    DISPLAY 'SSITP011: UBANCS  ' INSSI011-UBANCS     
+      *    DISPLAY 'SSITP011: NOMBRE  ' INSSI011-NOMBRE     
+      *    DISPLAY 'SSITP011: BRANCH  ' INSSI011-BRANCHNO   
+      *    DISPLAY 'SSITP011: TERMIN  ' INSSI011-STERMNO     
+      *    DISPLAY 'SSITP011: EMPRESA ' INSSI011-EMPRESA    
+      *    DISPLAY 'SSITP011: ESTPROC ' INSSI011-ESTPROCESO 
+      *    DISPLAY 'SSITP011: OBSERV  ' INSSI011-OBSERVACION
+      *    DISPLAY 'SSITP011: UCAMBIO ' INSSI011-UCAMBIO    
+      *    DISPLAY 'SSITP001: ----------------------------- '
+
+           MOVE INSSI011-USIGLO21    TO USR-SIGLO21    OF T95BAN04.
+           MOVE INSSI011-UBANCS      TO USR-BANCS      OF T95BAN04.
+           MOVE INSSI011-NOMBRE      TO USR-NOMBRE     OF T95BAN04.
+           MOVE INSSI011-BRANCHNO    TO BRANCH-NO      OF T95BAN04.
+           MOVE INSSI011-STERMNO     TO TERMINAL-BANCS.
+           MOVE TERMNO-BANCS         TO TERM-NO        OF T95BAN04.
+           MOVE INSSI011-EMPRESA     TO COD-EMPRESA    OF T95BAN04.
+           MOVE INSSI011-ESTPROCESO  TO EST-PROCESO    OF T95BAN04.
+           MOVE INSSI011-OBSERVACION TO OBSERVACION    OF T95BAN04.
+           MOVE INSSI011-UCAMBIO     TO USR-ULT-CAMBIO OF T95BAN04.
+       FMOVER-DATOS-USR-BANCS.
+           EXIT.
+
+       MOVER-DATOS-LEIDOS-BANCS.
+           MOVE USR-SIGLO21     OF T95BAN04 TO INSSI011-USIGLO21.
+           MOVE USR-BANCS       OF T95BAN04 TO INSSI011-UBANCS
+				   M15UBANO
+           MOVE USR-NOMBRE      OF T95BAN04 TO INSSI011-NOMBRE.
+           MOVE BRANCH-NO       OF T95BAN04 TO INSSI011-BRANCHNO.
+           MOVE TERMNO-BANCS    TO INSSI011-STERMNO
+	   MOVE TERMINAL-BANCS  TO M15TBANO
+           MOVE COD-EMPRESA     OF T95BAN04 TO INSSI011-EMPRESA.
+           MOVE EST-PROCESO     OF T95BAN04 TO INSSI011-ESTPROCESO.
+           MOVE OBSERVACION     OF T95BAN04 TO INSSI011-OBSERVACION.
+           MOVE USR-ULT-CAMBIO  OF T95BAN04 TO INSSI011-UCAMBIO.
+       FMOVER-DATOS-LEIDOS-BANCS.
+           EXIT.

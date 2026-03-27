@@ -1,0 +1,75 @@
+{
+  "meta": {
+    "run_id": "run_20260327_171123_6649ef5e",
+    "project_id": "prj-fc32ffef",
+    "rag_top_k": 8,
+    "low_confidence": false
+  },
+  "sources": [
+    {
+      "name": "demo.cbl",
+      "checksum": "ad8d67abf1cdecfd38fb1a32a34fd9e725e52d27f91d3389fe9962dad4743f3d"
+    },
+    {
+      "name": "screen.bms",
+      "checksum": "a3225f3dbb5e8ceb6a79680c6301971f4b7f2e85e286b078d6627cd88ff4c525"
+    }
+  ],
+  "programs": [
+    {
+      "program_id": "DEMO01",
+      "source_ref": "demo.cbl"
+    }
+  ],
+  "screens": [
+    {
+      "screen_id": "MAP01",
+      "source_ref": "screen.bms"
+    }
+  ],
+  "relations": [
+    {
+      "type": "call",
+      "from": "demo.cbl",
+      "to": "SUBA001"
+    }
+  ],
+  "transactions": [
+    {
+      "action": "SEND",
+      "map": "MAP01",
+      "source_ref": "screen.bms"
+    }
+  ],
+  "business_rules": [],
+  "traceability": {
+    "source_ref": "snapshot/*",
+    "context_ref": "contexto_unificado.json",
+    "story_ref": "historias_usuario.md",
+    "target_ref": "generated/"
+  },
+  "confidence": {
+    "low_confidence": false,
+    "rag_chunks": [
+      {
+        "chunk_id": "chunk-1",
+        "source": "ibm-cobol-divisions",
+        "text": "COBOL define IDENTIFICATION DIVISION, ENVIRONMENT DIVISION, DATA DIVISION y PROCEDURE DIVISION.",
+        "score": 0.2261
+      },
+      {
+        "chunk_id": "chunk-2",
+        "source": "ibm-cics-bms",
+        "text": "BMS usa DFHMSD, DFHMDI y DFHMDF para mapsets. CICS usa SEND MAP y RECEIVE MAP con AID keys.",
+        "score": 0.2202
+      },
+      {
+        "chunk_id": "chunk-3",
+        "source": "legacy-patterns",
+        "text": "Patrones legacy incluyen CALL y XCTL para navegacion entre programas, validaciones de negocio y SQL embebido.",
+        "score": 0.055
+      }
+    ]
+  },
+  "unsupported_or_uncertain": []
+}

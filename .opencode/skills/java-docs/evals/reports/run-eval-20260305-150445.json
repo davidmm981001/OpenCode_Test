@@ -1,0 +1,15 @@
+{
+  "profile": "strict",
+  "lint": {
+    "exit_code": 0,
+    "status": "PASS",
+    "log": "/Users/wang/workspace/code_work/personal/java-doc/evals/reports/lint-20260305-150445.log"
+  },
+  "eval_summary": {
+    "exit_code": 0,
+    "status": "PASS",
+    "json": "/Users/wang/workspace/code_work/personal/java-doc/evals/reports/eval-summary-20260305-150445.json",
+    "markdown": "/Users/wang/workspace/code_work/personal/java-doc/evals/reports/eval-summary-20260305-150445.md"
+  },
+  "overall_status": "PASS"
+}

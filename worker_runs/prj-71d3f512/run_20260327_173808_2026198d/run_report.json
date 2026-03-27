@@ -1,0 +1,117 @@
+{
+  "run_id": "run_20260327_173808_2026198d",
+  "state": "READY",
+  "stages": {
+    "INGEST": {
+      "name": "INGEST",
+      "status": "success",
+      "started_at": "2026-03-27T17:38:08.707085+00:00",
+      "ended_at": "2026-03-27T17:38:08.708827+00:00",
+      "duration_ms": null,
+      "details": {
+        "files": 2,
+        "warnings": 0,
+        "estimated_cost_usd": 0.0003
+      }
+    },
+    "ANALYZE": {
+      "name": "ANALYZE",
+      "status": "success",
+      "started_at": "2026-03-27T17:38:08.708827+00:00",
+      "ended_at": "2026-03-27T17:38:08.708827+00:00",
+      "duration_ms": null,
+      "details": {
+        "programs": 1,
+        "screens": 1,
+        "low_confidence": false
+      }
+    },
+    "STORIES": {
+      "name": "STORIES",
+      "status": "success",
+      "started_at": "2026-03-27T17:38:08.708827+00:00",
+      "ended_at": "2026-03-27T17:38:08.708827+00:00",
+      "duration_ms": null,
+      "details": {
+        "stories": 2
+      }
+    },
+    "CODEGEN": {
+      "name": "CODEGEN",
+      "status": "success",
+      "started_at": "2026-03-27T17:38:08.708827+00:00",
+      "ended_at": "2026-03-27T17:38:08.708827+00:00",
+      "duration_ms": null,
+      "details": {
+        "backend": "worker_runs\\prj-71d3f512\\run_20260327_173808_2026198d\\generated\\backend",
+        "frontend": "worker_runs\\prj-71d3f512\\run_20260327_173808_2026198d\\generated\\frontend",
+        "db": "worker_runs\\prj-71d3f512\\run_20260327_173808_2026198d\\generated\\db"
+      }
+    },
+    "TEST_GATE": {
+      "name": "TEST_GATE",
+      "status": "success",
+      "started_at": "2026-03-27T17:38:08.708827+00:00",
+      "ended_at": "2026-03-27T17:38:09.250362+00:00",
+      "duration_ms": null,
+      "details": {
+        "backend_build": "success",
+        "frontend_build": "success",
+        "db_migrations": "success",
+        "health_check": "success"
+      }
+    },
+    "PUBLISH_GITHUB": {
+      "name": "PUBLISH_GITHUB",
+      "status": "skipped",
+      "started_at": null,
+      "ended_at": "2026-03-27T17:38:09.250362+00:00",
+      "duration_ms": null,
+      "details": {
+        "reason": "preview local mode"
+      }
+    },
+    "DEPLOY_RAILWAY": {
+      "name": "DEPLOY_RAILWAY",
+      "status": "skipped",
+      "started_at": null,
+      "ended_at": "2026-03-27T17:38:09.250362+00:00",
+      "duration_ms": null,
+      "details": {
+        "reason": "preview local mode"
+      }
+    },
+    "PREVIEW_READY": {
+      "name": "PREVIEW_READY",
+      "status": "success",
+      "started_at": null,
+      "ended_at": "2026-03-27T17:38:09.250362+00:00",
+      "duration_ms": null,
+      "details": {
+        "preview_mode": "local",
+        "preview_url_public": "http://127.0.0.1:8000/preview/local/prj-71d3f512/run_20260327_173808_2026198d",
+        "fallback": true
+      }
+    }
+  },
+  "warnings": [
+    "backend_build_simulated_in_local_preview_mode"
+  ],
+  "errors": [],
+  "metadata": {
+    "remodernize_comment_normalized": {
+      "funcional": "priorizar equivalencia funcional y limpieza tecnica",
+      "tecnico": "Ajustar implementacion y trazabilidad segun comentario.",
+      "prioridades": "fidelidad-funcional, estabilidad-pipeline, trazabilidad",
+      "exclusiones": "no-cambiar-snapshot-original"
+    },
+    "estimated_cost_usd": 0.0003,
+    "preview_mode": "local",
+    "preview_url_public": "http://127.0.0.1:8000/preview/local/prj-71d3f512/run_20260327_173808_2026198d"
+  },
+  "artifacts": {
+    "contexto_unificado.json": "worker_runs\\prj-71d3f512\\run_20260327_173808_2026198d\\contexto_unificado.json",
+    "historias_usuario.md": "worker_runs\\prj-71d3f512\\run_20260327_173808_2026198d\\historias_usuario.md",
+    "criterios_aceptacion.md": "worker_runs\\prj-71d3f512\\run_20260327_173808_2026198d\\criterios_aceptacion.md"
+  }
+}
