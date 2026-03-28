@@ -4,6 +4,11 @@ context: |
   Idioma: Español
   Todos los artefactos deben escribirse en español (proposal.md, specs, design.md, tasks.md, etc.).
 
+  SDD es obligatorio: todo cambio debe seguir estrictamente proposal -> specs -> design -> tasks -> apply -> archive.
+  No se debe implementar ni modificar código si el change no existe, no está completo o no está listo para aplicar.
+  Si falta información, el agente debe detenerse, preguntar o ampliar los artefactos; nunca improvisar ni saltarse pasos.
+  No se permiten desvíos de la especificación: la implementación debe permanecer alineada con los artefactos aprobados.
+
   Tech stack: [Java Springboot, React + Vite, PostgreSQL, Docker]
 
   Estilo de código:

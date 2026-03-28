@@ -1,6 +1,6 @@
 ---
 name: openspec-archive-change
-description: Archive a completed change in the experimental workflow. Use when the user wants to finalize and archive a change after implementation is complete.
+description: Archive a completed change in the strict spec-driven workflow. Use when the user wants to finalize and archive a change after implementation is complete.
 license: MIT
 compatibility: Requires openspec CLI.
 metadata:
@@ -9,7 +9,7 @@ metadata:
   generatedBy: "1.2.0"
 ---
 
-Archive a completed change in the experimental workflow.
+Archive a completed change in the strict spec-driven workflow.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
@@ -32,10 +32,9 @@ Archive a completed change in the experimental workflow.
    - `schemaName`: The workflow being used
    - `artifacts`: List of artifacts with their status (`done` or other)
 
-   **If any artifacts are not `done`:**
-   - Display warning listing incomplete artifacts
-   - Use **AskUserQuestion tool** to confirm user wants to proceed
-   - Proceed if user confirms
+    **If any artifacts are not `done`:**
+    - Stop and do not archive
+    - Tell the user to finish the missing artifacts first
 
 3. **Check task completion status**
 
@@ -43,10 +42,9 @@ Archive a completed change in the experimental workflow.
 
    Count tasks marked with `- [ ]` (incomplete) vs `- [x]` (complete).
 
-   **If incomplete tasks found:**
-   - Display warning showing count of incomplete tasks
-   - Use **AskUserQuestion tool** to confirm user wants to proceed
-   - Proceed if user confirms
+    **If incomplete tasks found:**
+    - Stop and do not archive
+    - Tell the user to finish the remaining tasks first
 
    **If no tasks file exists:** Proceed without task-related warning.
 
@@ -59,11 +57,10 @@ Archive a completed change in the experimental workflow.
    - Determine what changes would be applied (adds, modifications, removals, renames)
    - Show a combined summary before prompting
 
-   **Prompt options:**
-   - If changes needed: "Sync now (recommended)", "Archive without syncing"
-   - If already synced: "Archive now", "Sync anyway", "Cancel"
-
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
+    **Requirement:**
+    - If delta specs exist, sync them before archiving
+    - If they are already synced, continue
+    - If sync cannot be completed, stop and do not archive
 
 5. **Perform the archive**
 
@@ -84,12 +81,11 @@ Archive a completed change in the experimental workflow.
 
 6. **Display summary**
 
-   Show archive completion summary including:
-   - Change name
-   - Schema that was used
-   - Archive location
-   - Whether specs were synced (if applicable)
-   - Note about any warnings (incomplete artifacts/tasks)
+    Show archive completion summary including:
+    - Change name
+    - Schema that was used
+    - Archive location
+    - Whether specs were synced (synced / no delta specs)
 
 **Output On Success**
 
@@ -99,7 +95,7 @@ Archive a completed change in the experimental workflow.
 **Change:** <change-name>
 **Schema:** <schema-name>
 **Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** ✓ Synced to main specs (or "No delta specs" or "Sync skipped")
+**Specs:** ✓ Synced to main specs (or "No delta specs")
 
 All artifacts complete. All tasks complete.
 ```
@@ -107,8 +103,7 @@ All artifacts complete. All tasks complete.
 **Guardrails**
 - Always prompt for change selection if not provided
 - Use artifact graph (openspec status --json) for completion checking
-- Don't block archive on warnings - just inform and confirm
+- Do not archive incomplete or unsynced changes
 - Preserve .openspec.yaml when moving to archive (it moves with the directory)
 - Show clear summary of what happened
-- If sync is requested, use openspec-sync-specs approach (agent-driven)
-- If delta specs exist, always run the sync assessment and show the combined summary before prompting
+- If delta specs exist, always run the sync assessment and sync before archiving

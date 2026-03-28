@@ -9,7 +9,7 @@ metadata:
   generatedBy: "1.2.0"
 ---
 
-Implement tasks from an OpenSpec change.
+Implement tasks from an OpenSpec change using strict spec-driven SDD.
 
 **Input**: Optionally specify a change name. If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
@@ -25,12 +25,14 @@ Implement tasks from an OpenSpec change.
    Always announce: "Using change: <name>" and how to override (e.g., `/opsx-apply <other>`).
 
 2. **Check status to understand the schema**
-   ```bash
-   openspec status --change "<name>" --json
-   ```
-   Parse the JSON to understand:
-   - `schemaName`: The workflow being used (e.g., "spec-driven")
-   - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
+    ```bash
+    openspec status --change "<name>" --json
+    ```
+    Parse the JSON to understand:
+    - `schemaName`: The workflow being used (e.g., "spec-driven")
+    - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
+
+    **Enforcement**: this repository only supports `spec-driven` SDD. If the schema is anything else, stop and do not implement.
 
 3. **Get apply instructions**
 
@@ -44,10 +46,11 @@ Implement tasks from an OpenSpec change.
    - Task list with status
    - Dynamic instruction based on current state
 
-   **Handle states:**
-   - If `state: "blocked"` (missing artifacts): show message, suggest using openspec-continue-change
-   - If `state: "all_done"`: congratulate, suggest archive
-   - Otherwise: proceed to implementation
+    **Handle states:**
+    - If `state: "blocked"` (missing artifacts): stop, do not implement, and instruct the user to finish the missing artifacts first
+    - If `state: "all_done"`: congratulate, suggest archive
+    - If `state: "ready"`: proceed to implementation
+    - Any other state: stop and do not guess
 
 4. **Read context files**
 
@@ -64,7 +67,7 @@ Implement tasks from an OpenSpec change.
    - Remaining tasks overview
    - Dynamic instruction from CLI
 
-6. **Implement tasks (loop until done or blocked)**
+6. **Implement tasks only when the change is apply-ready**
 
    For each pending task:
    - Show which task is being worked on
@@ -139,6 +142,7 @@ What would you like to do?
 ```
 
 **Guardrails**
+- SDD is mandatory; never implement outside a spec-driven change that is ready to apply
 - Keep going through tasks until done or blocked
 - Always read context files before starting (from the apply instructions output)
 - If task is ambiguous, pause and ask before implementing
@@ -147,10 +151,3 @@ What would you like to do?
 - Update task checkbox immediately after completing each task
 - Pause on errors, blockers, or unclear requirements - don't guess
 - Use contextFiles from CLI output, don't assume specific file names
-
-**Fluid Workflow Integration**
-
-This skill supports the "actions on a change" model:
-
-- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
-- **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly

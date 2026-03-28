@@ -9,7 +9,7 @@ metadata:
   generatedBy: "1.2.0"
 ---
 
-Propose a new change - create the change and generate all artifacts in one step.
+Propose a new change using strict spec-driven SDD and generate all artifacts in one step.
 
 I'll create a change with artifacts:
 - proposal.md (what & why)
@@ -49,7 +49,9 @@ When ready to implement, run /opsx-apply
 
 4. **Create artifacts in sequence until apply-ready**
 
-   Use the **TodoWrite tool** to track progress through the artifacts.
+    Use the **TodoWrite tool** to track progress through the artifacts.
+
+    **Enforcement**: SDD is mandatory. Do not implement code in this step; only create and complete the required OpenSpec artifacts.
 
    Loop through artifacts in dependency order (artifacts with no pending dependencies first):
 
@@ -108,3 +110,4 @@ After completing all artifacts, summarize:
 - If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
 - If a change with that name already exists, ask if user wants to continue it or create a new one
 - Verify each artifact file exists after writing before proceeding to next
+- Do not move to implementation until the change is apply-ready and fully aligned with the spec

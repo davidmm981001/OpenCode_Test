@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: seguridad
+  profiles:
+    default: dev
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: "c2VndXJpZGFkLWxvY2FsLXNlY3JldC1jaGFuZ2UtbWUtcGxlYXNl"
+    expiration-minutes: 240
+  cors:
+    allowed-origins:
+      - http://localhost:5173
+      - http://127.0.0.1:5173
