@@ -4,6 +4,16 @@ context: |
   Idioma: Español
   Todos los artefactos deben escribirse en español (proposal.md, specs, design.md, tasks.md, etc.).
 
+  Flujo obligatorio:
+  - No implementar código sin tener proposal.md, design.md y tasks.md completos y coherentes.
+  - Seguir estrictamente el orden SDD: explorar -> proponer -> diseñar -> dividir en tareas -> implementar -> archivar.
+  - No hay excepciones al flujo: cualquier falta de artefacto, ambigüedad o duda técnica bloquea el avance.
+  - Si falta contexto, si hay ambigüedad o si no se tiene certeza técnica, detenerse y revisar la documentación oficial/local antes de asumir.
+  - No inventar APIs, comportamientos de librerías ni contratos de componentes.
+  - Cuando un cambio involucre librerías, componentes o frameworks, verificar primero su documentación antes de continuar si existe cualquier duda.
+  - Antes de usar una librería, framework, componente o API nueva para el agente, revisar su documentación oficial o local si no está completamente clara.
+  - Mantener los artefactos atómicos, consistentes y trazables; cada decisión importante debe quedar documentada.
+
   Tech stack: [Java Springboot, React + Vite, PostgreSQL, Docker]
 
   Estilo de código:

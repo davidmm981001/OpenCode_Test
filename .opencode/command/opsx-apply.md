@@ -59,12 +59,13 @@ Implement tasks from an OpenSpec change.
 
 6. **Implement tasks (loop until done or blocked)**
 
-   For each pending task:
-   - Show which task is being worked on
-   - Make the code changes required
-   - Keep changes minimal and focused
-   - Mark task complete in the tasks file: `- [ ]` → `- [x]`
-   - Continue to next task
+    For each pending task:
+    - Show which task is being worked on
+    - Make the code changes required
+    - Keep changes minimal and focused
+    - If you are unsure about a library/component/API, stop and review the documentation before changing code
+    - Mark task complete in the tasks file: `- [ ]` → `- [x]`
+    - Continue to next task
 
    **Pause if:**
    - Task is unclear → ask for clarification
@@ -135,6 +136,7 @@ What would you like to do?
 - Keep going through tasks until done or blocked
 - Always read context files before starting (from the apply instructions output)
 - If task is ambiguous, pause and ask before implementing
+- If the implementation depends on a library/component you do not fully understand, consult its documentation first
 - If implementation reveals issues, pause and suggest artifact updates
 - Keep code changes minimal and scoped to each task
 - Update task checkbox immediately after completing each task

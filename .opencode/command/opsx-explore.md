@@ -79,6 +79,8 @@ Depending on what the user brings, you might:
 
 You have full context of the OpenSpec system. Use it naturally, don't force it.
 
+**Strict rule**: if you are not fully sure about a library, framework, component, or API, stop and check the official documentation or the project's local docs before proceeding. Do not guess.
+
 ### Check for context
 
 At the start, quickly check what exists:

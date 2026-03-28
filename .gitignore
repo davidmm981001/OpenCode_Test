@@ -29,10 +29,17 @@ pnpm-debug.log*
 node_modules/
 dist/
 build/
+.vite/
 .next/
 out/
 coverage/
 *.tsbuildinfo
+
+# =========================
+# Java / Maven
+# =========================
+target/
+*.class
 
 # Keep lockfiles for reproducibility (RECOMMENDED)
 # package-lock.json

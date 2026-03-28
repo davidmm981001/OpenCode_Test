@@ -25,10 +25,10 @@ Archive a completed change in the experimental workflow.
    - `schemaName`: The workflow being used
    - `artifacts`: List of artifacts with their status (`done` or other)
 
-   **If any artifacts are not `done`:**
-   - Display warning listing incomplete artifacts
-   - Prompt user for confirmation to continue
-   - Proceed if user confirms
+    **If any artifacts are not `done`:**
+    - Stop immediately
+    - Report the incomplete artifacts
+    - Do not archive until everything is `done`
 
 3. **Check task completion status**
 
@@ -36,27 +36,22 @@ Archive a completed change in the experimental workflow.
 
    Count tasks marked with `- [ ]` (incomplete) vs `- [x]` (complete).
 
-   **If incomplete tasks found:**
-   - Display warning showing count of incomplete tasks
-   - Prompt user for confirmation to continue
-   - Proceed if user confirms
+    **If incomplete tasks found:**
+    - Stop immediately
+    - Report the incomplete tasks
+    - Do not archive until all tasks are complete
 
    **If no tasks file exists:** Proceed without task-related warning.
 
 4. **Assess delta spec sync state**
 
-   Check for delta specs at `openspec/changes/<name>/specs/`. If none exist, proceed without sync prompt.
+    Check for delta specs at `openspec/changes/<name>/specs/`. If none exist, proceed.
 
-   **If delta specs exist:**
-   - Compare each delta spec with its corresponding main spec at `openspec/specs/<capability>/spec.md`
-   - Determine what changes would be applied (adds, modifications, removals, renames)
-   - Show a combined summary before prompting
-
-   **Prompt options:**
-   - If changes needed: "Sync now (recommended)", "Archive without syncing"
-   - If already synced: "Archive now", "Sync anyway", "Cancel"
-
-   If user chooses sync, use Task tool (subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>"). Proceed to archive regardless of choice.
+    **If delta specs exist:**
+    - Compare each delta spec with its corresponding main spec at `openspec/specs/<capability>/spec.md`
+    - Determine what changes would be applied (adds, modifications, removals, renames)
+    - Sync them first
+    - Do not archive until the delta specs are fully reconciled with the main specs
 
 5. **Perform the archive**
 
@@ -77,12 +72,12 @@ Archive a completed change in the experimental workflow.
 
 6. **Display summary**
 
-   Show archive completion summary including:
-   - Change name
-   - Schema that was used
-   - Archive location
-   - Spec sync status (synced / sync skipped / no delta specs)
-   - Note about any warnings (incomplete artifacts/tasks)
+    Show archive completion summary including:
+     - Change name
+     - Schema that was used
+     - Archive location
+     - Spec sync status (synced / no delta specs)
+     - Note that the archive only proceeded after all artifacts, tasks, and specs were complete
 
 **Output On Success**
 
@@ -110,24 +105,6 @@ All artifacts complete. All tasks complete.
 All artifacts complete. All tasks complete.
 ```
 
-**Output On Success With Warnings**
-
-```
-## Archive Complete (with warnings)
-
-**Change:** <change-name>
-**Schema:** <schema-name>
-**Archived to:** openspec/changes/archive/YYYY-MM-DD-<name>/
-**Specs:** Sync skipped (user chose to skip)
-
-**Warnings:**
-- Archived with 2 incomplete artifacts
-- Archived with 3 incomplete tasks
-- Delta spec sync was skipped (user chose to skip)
-
-Review the archive if this was not intentional.
-```
-
 **Output On Error (Archive Exists)**
 
 ```
@@ -147,8 +124,7 @@ Target archive directory already exists.
 **Guardrails**
 - Always prompt for change selection if not provided
 - Use artifact graph (openspec status --json) for completion checking
-- Don't block archive on warnings - just inform and confirm
+- Block archive on any incomplete artifact, task, or spec sync gap
 - Preserve .openspec.yaml when moving to archive (it moves with the directory)
 - Show clear summary of what happened
-- If sync is requested, use the Skill tool to invoke `openspec-sync-specs` (agent-driven)
-- If delta specs exist, always run the sync assessment and show the combined summary before prompting
+- If delta specs exist, always reconcile them before archiving
