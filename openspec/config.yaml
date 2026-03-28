@@ -6,9 +6,32 @@ context: |
 
   Tech stack: [Java Springboot, React + Vite, PostgreSQL, Docker]
 
+  Durante el desarrollo, el agente debe consultar obligatoriamente la documentacion oficial de las librerias principales que use antes de implementar o modificar codigo.
+  El agente no debe depender solo de conocimiento previo; debe guiarse por la documentacion vigente para reducir alucinaciones y decisiones obsoletas.
+
   Estilo de código:
   Se aplicarán excelentes prácticas de software y programación, priorizando siempre la simplicidad y claridad sobre la complejidad innecesaria.
   Se evitará sobreingeniería y soluciones que no aporten valor directo al proyecto.
   El diseño y la implementación buscarán ser lo más atómicos y modulares posible, facilitando la reutilización, el mantenimiento y la escalabilidad.
   Cada componente, función o módulo debe tener una única responsabilidad bien definida.
   Se favorecerá código legible, consistente y fácil de entender para otros desarrolladores.
+
+rules:
+  proposal:
+    - Definir objetivo, alcance, fuera de alcance y capacidades afectadas.
+    - Mantener el documento centrado en el que y por que; no incluir codigo ni pasos de implementacion.
+    - Confirmar que el cambio necesita los artefactos antes de implementar.
+  specs:
+    - Escribir solo delta specs con secciones ADDED, MODIFIED y REMOVED.
+    - Describir comportamiento observable y verificable, no detalles de implementacion.
+    - Evitar duplicar requisitos que no cambian.
+  design:
+    - Describir la estrategia tecnica y decisiones de arquitectura despues de proposal y specs.
+    - Mantener el contenido modular y atomico, sin mezclar tareas de codigo.
+  tasks:
+    - Dividir el trabajo en pasos pequenos y secuenciales.
+    - Ordenar tareas para poder ejecutarlas progresivamente sin saltar dependencias.
+    - Usar checkboxes claros para marcar el avance una tarea por vez.
+  development:
+    - Antes de tocar codigo, identificar las librerias principales involucradas y leer su documentacion oficial actual.
+    - Si una libreria no tiene documentacion disponible o esta desactualizada, pausar y pedir confirmacion antes de asumir comportamiento.

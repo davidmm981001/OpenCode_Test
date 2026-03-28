@@ -1,0 +1,11 @@
+C:\Users\david.mena\AppData\Local\Programs\Python\Python312\Lib\site-packages\pydantic\_internal\_generate_schema.py:2249: UnsupportedFieldAttributeWarning: The 'validate_default' attribute with value True was provided to the `Field()` function, which has no effect in the context it was used. 'validate_default' is field-specific metadata, and can only be attached to a model field using `Annotated` metadata or by assignment. This may have happened because an `Annotated` type alias using the `type` statement was used, or if the `Field()` function was attached to a single member of a union type.
+  warnings.warn(
+Traceback (most recent call last):
+  File "C:\Users\david.mena\Documents\Nexti\rag-ui-hus\OpenCode_Test\ragapp\src\ragapp\main.py", line 17, in <module>
+    from create_llama.backend.app.api.routers.upload import file_upload_router
+  File "C:\Users\david.mena\Documents\Nexti\rag-ui-hus\OpenCode_Test\ragapp\src\ragapp\create_llama\backend\app\api\routers\__init__.py", line 3, in <module>
+    from .chat import chat_router  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\david.mena\Documents\Nexti\rag-ui-hus\OpenCode_Test\ragapp\src\ragapp\create_llama\backend\app\api\routers\chat.py", line 6, in <module>
+    from app.api.routers.events import EventCallbackHandler
+ModuleNotFoundError: No module named 'app'

@@ -4,6 +4,8 @@ description: Implement tasks from an OpenSpec change (Experimental)
 
 Implement tasks from an OpenSpec change.
 
+Also follow `.opencode/instructions/openspec-sdd.md`.
+
 **Input**: Optionally specify a change name (e.g., `/opsx-apply add-auth`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
@@ -49,6 +51,8 @@ Implement tasks from an OpenSpec change.
    - **spec-driven**: proposal, specs, design, tasks
    - Other schemas: follow the contextFiles from CLI output
 
+   Before coding, consult the official documentation for the main libraries involved in the change and use that documentation as the source of truth.
+
 5. **Show current progress**
 
    Display:
@@ -63,6 +67,7 @@ Implement tasks from an OpenSpec change.
    - Show which task is being worked on
    - Make the code changes required
    - Keep changes minimal and focused
+   - Re-check relevant library documentation before using unfamiliar APIs or patterns
    - Mark task complete in the tasks file: `- [ ]` → `- [x]`
    - Continue to next task
 

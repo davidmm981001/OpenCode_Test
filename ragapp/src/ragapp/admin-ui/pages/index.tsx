@@ -1,0 +1,130 @@
+"use client";
+
+import { fetchIsAppConfigured } from "@/client/config";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Toaster } from "@/components/ui/toaster";
+import { cn } from "@/lib/utils";
+import { AgentConfig } from "@/sections/config/agent";
+import { ChatConfig } from "@/sections/config/chat";
+import { ModelConfig } from "@/sections/config/model";
+import { DemoChat } from "@/sections/demoChat";
+import { Footer } from "@/sections/footer";
+import { Knowledge } from "@/sections/knowledge";
+import { StatusBar } from "@/sections/statusBar";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+
+export default function Home() {
+  const router = useRouter();
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [configured, setConfigured] = useState<boolean>();
+
+  useEffect(() => {
+    if (router.asPath.split("#")[1] === "new") {
+      setShowWelcome(true);
+    }
+  }, [router.asPath]);
+
+  useEffect(() => {
+    if (configured === undefined) {
+      fetchIsAppConfigured().then((data) => {
+        setConfigured(data);
+      });
+    }
+  }, [configured]);
+
+  function handleDialogState(isOpen: boolean) {
+    setShowWelcome(isOpen);
+    if (!isOpen) {
+      if (window.location.hash === "#new") {
+        window.history.pushState({}, document.title, window.location.pathname);
+      }
+    }
+  }
+
+  function handleModelConfigChange() {
+    // Fetch the app configuration again to update the state
+    fetchIsAppConfigured().then((data) => {
+      setConfigured(data);
+    });
+  }
+
+  return (
+    <>
+      <main className="h-screen w-screen">
+        <div className="flex flex-col max-h-full h-full">
+          <div className="flex w-full shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 text-sm sm:px-6">
+            <div className="font-semibold text-slate-900">Admin RAGapp</div>
+            <div className="flex items-center gap-2">
+              <a
+                href="http://localhost:3000"
+                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-white"
+              >
+                Ir al chat
+              </a>
+              <a
+                href="http://localhost:3001/admin"
+                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-white"
+              >
+                Recargar admin
+              </a>
+            </div>
+          </div>
+          <div className="w-full shrink-0">
+            <StatusBar configured={configured ?? false} />
+          </div>
+          <div className="w-full flex-1 overflow-auto flex">
+            <div
+              className={cn("w-1/2 overflow-y-auto p-4", {
+                "m-auto": !configured,
+              })}
+            >
+              {configured && (
+                <>
+                  <AgentConfig />
+                  <Knowledge />
+                  <ChatConfig />
+                </>
+              )}
+              <ModelConfig
+                sectionTitle={configured ? "Update model" : "Start"}
+                sectionDescription={
+                  configured
+                    ? "Change to a different model or use another provider"
+                    : "Set up an AI model to start the app."
+                }
+                configured={configured}
+                onConfigChange={handleModelConfigChange}
+              />
+            </div>
+            {configured && (
+              <div className="flex-1 overflow-y-auto p-4">
+                <DemoChat />
+              </div>
+            )}
+          </div>
+          <div className="w-full shrink-0">
+            <Footer />
+          </div>
+        </div>
+      </main>
+      <Toaster />
+      <Dialog open={showWelcome} onOpenChange={handleDialogState}>
+        <DialogContent>
+          <DialogTitle className="text-green-500">
+            Congratulations 🎉
+          </DialogTitle>
+          <DialogDescription>
+            You have successfully installed RAGapp. Now, let&apos;s go ahead and
+            configure it.
+          </DialogDescription>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
