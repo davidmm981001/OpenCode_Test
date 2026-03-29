@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: testing-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/testing}
+    username: ${SPRING_DATASOURCE_USERNAME:testing}
+    password: ${SPRING_DATASOURCE_PASSWORD:testing}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+  flyway:
+    enabled: true
+
+server:
+  port: ${SERVER_PORT:8080}
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

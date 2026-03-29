@@ -128,53 +128,31 @@ rules:
 
   design:
     # Cómo escribir design.md
-    - Redactar design.md después de tener proposal.md y specs aprobados,
-      nunca antes.
-    - Describir la estrategia técnica: qué clases/componentes se crean o
-      modifican, qué tablas de base de datos se necesitan, qué endpoints
-      REST se exponen.
+    - Redactar design.md después de tener proposal.md y specs aprobados, nunca antes.
+    - Describir la estrategia técnica: qué clases/componentes se crean o modifican, qué tablas de base de datos se necesitan, qué endpoints REST se exponen.
     - Incluir el esquema de la migración Flyway si hay cambios en la BD.
-    - Mantener el contenido modular: un design.md no debe mezclar múltiples
-      HUs independientes.
-    - Verificar en la documentación oficial de Spring Boot / React que la
-      aproximación técnica elegida es la recomendada actualmente.
-    - Documentar dependencias Maven/npm que se van a agregar, con versión
-      explícita, y justificar la elección.
+    - Mantener el contenido modular: un design.md no debe mezclar múltiples HUs independientes.
+    - Verificar en la documentación oficial de Spring Boot / React que la aproximación técnica elegida es la recomendada actualmente.
+    - Documentar dependencias Maven/npm que se van a agregar, con versión explícita, y justificar la elección.
 
   tasks:
     # Cómo escribir tasks.md
     - Dividir el trabajo en pasos pequeños, secuenciales e independientes.
-    - Ordenar las tareas respetando dependencias: BD primero, luego backend,
-      luego frontend, luego tests de integración.
-    - Cada tarea debe resultar en un estado compilable y ejecutable del
-      sistema (no trabajo parcial que rompa la build).
-    - Usar checkboxes markdown claros: `- [ ] 1.1 Descripción concreta`.
+    - Ordenar las tareas respetando dependencias: BD primero, luego backend, luego frontend, luego tests de integración.
+    - Cada tarea debe resultar en un estado compilable y ejecutable del sistema (no trabajo parcial que rompa la build).
+    - "Usar checkboxes markdown claros: `- [ ] 1.1 Descripción concreta`."
     - Incluir tareas de testing explícitas para cada capacidad implementada.
-    - La última tarea de cada cambio debe ser:
-        `- [ ] N.X Verificar que docker-compose up levanta el sistema sin errores`.
+    - "La última tarea de cada cambio debe ser: `- [ ] N.X Verificar que docker-compose up levanta el sistema sin errores`."
     - No mezclar tareas de múltiples HUs independientes en un solo tasks.md.
 
   development:
     # Reglas durante la implementación (fase apply)
-    - Antes de implementar, identificar todas las librerías principales del
-      delta y leer su documentación oficial actualizada.
-    - Si una versión de dependencia en pom.xml o package.json puede causar
-      incompatibilidad, preferir la versión LTS más reciente probada y
-      documentar el cambio en el design.md.
-    - Implementar UNA tarea del tasks.md a la vez. Marcarla como completada
-      (`- [x]`) antes de pasar a la siguiente.
-    - Cada endpoint REST generado debe tener su anotación OpenAPI
-      (@Operation, @ApiResponse) para mantener la documentación sincronizada.
-    - Las migraciones Flyway deben seguir la convención:
-        V{número}__{descripción_snake_case}.sql
-      y nunca modificar migraciones ya aplicadas.
-    - Los tests de integración de backend deben usar @SpringBootTest +
-      Testcontainers para levantar PostgreSQL real, no mocks de BD.
-    - Si una tarea no puede completarse por una razón técnica, detenerse,
-      explicar el bloqueo claramente en la salida de consola, y esperar
-      instrucción del usuario antes de tomar una decisión alternativa.
-    - Al completar TODAS las tareas del tasks.md, emitir en la consola la
-      cadena literal: "DELTA COMPLETADO: [nombre-del-cambio]" para que el
-      sistema de monitoreo pueda detectar el avance.
-    - Al completar TODAS las HUs del proyecto, emitir: "PROYECTO COMPLETADO"
-      seguido de un resumen de lo implementado.
+    - Antes de implementar, identificar todas las librerías principales del delta y leer su documentación oficial actualizada.
+    - Si una versión de dependencia en pom.xml o package.json puede causar incompatibilidad, preferir la versión LTS más reciente probada y documentar el cambio en el design.md.
+    - "Implementar UNA tarea del tasks.md a la vez. Marcarla como completada (`- [x]`) antes de pasar a la siguiente."
+    - "Cada endpoint REST generado debe tener su anotación OpenAPI (@Operation, @ApiResponse) para mantener la documentación sincronizada."
+    - "Las migraciones Flyway deben seguir la convención: V{número}__{descripción_snake_case}.sql y nunca modificar migraciones ya aplicadas."
+    - "Los tests de integración de backend deben usar @SpringBootTest + Testcontainers para levantar PostgreSQL real, no mocks de BD."
+    - "Si una tarea no puede completarse por una razón técnica, detenerse, explicar el bloqueo claramente en la salida de consola, y esperar instrucción del usuario antes de tomar una decisión alternativa."
+    - "Al completar TODAS las tareas del tasks.md, emitir en la consola la cadena literal: \"DELTA COMPLETADO: [nombre-del-cambio]\" para que el sistema de monitoreo pueda detectar el avance."
+    - "Al completar TODAS las HUs del proyecto, emitir: \"PROYECTO COMPLETADO\" seguido de un resumen de lo implementado."

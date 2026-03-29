@@ -5,8 +5,10 @@ import { WebSocketServer } from "ws";
 import { env } from "./env.js";
 import { createApp } from "./app.js";
 import { cleanupRunningProjectsOnBoot, getRuntimeSnapshot, sendProjectInput, subscribe } from "./lib/process-supervisor.js";
+import { ensureWorkspaceRoots } from "./lib/workspace.js";
 import { getProject } from "./services/projects.js";
 
+ensureWorkspaceRoots();
 await cleanupRunningProjectsOnBoot();
 
 const app = createApp();
@@ -30,12 +32,7 @@ wss.on("connection", async (socket, request) => {
   const snapshot = getRuntimeSnapshot(projectId);
   if (snapshot) socket.send(JSON.stringify({ type: "snapshot", ...snapshot }));
 
-  let unsubscribe: (() => void) | undefined;
-  try {
-    unsubscribe = subscribe(projectId, (event) => socket.readyState === socket.OPEN && socket.send(JSON.stringify(event)));
-  } catch {
-    // no runtime yet; the UI can still connect for idle projects
-  }
+  const unsubscribe = subscribe(projectId, (event) => socket.readyState === socket.OPEN && socket.send(JSON.stringify(event)));
 
   socket.on("message", async (raw) => {
     try {
@@ -49,7 +46,7 @@ wss.on("connection", async (socket, request) => {
   });
 
   socket.on("close", () => {
-    unsubscribe?.();
+    unsubscribe();
   });
 });
 

@@ -1,0 +1,12 @@
+version: 1
+project_name: "calculator-test-2"
+model: gpt-5.4-mini
+context:
+  user_stories_file: "user-stories.md"
+  change_dir: "openspec/changes/cmncnqmf90000gox1d3sxp65l"
+  context_file: "openspec/context.md"
+guardrails:
+  - Keep the scope anchored to the provided user stories.
+  - Prefer small, testable deltas.
+  - Keep OpenCode and OpenSpec configuration separate.
+  - Do not change the target stack.

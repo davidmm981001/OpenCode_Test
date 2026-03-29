@@ -3,8 +3,9 @@ import net from "node:net";
 
 import { env } from "../env.js";
 
-export async function getFreePort(start = env.opencodeServerPortBase): Promise<number> {
+export async function getFreePort(start = env.opencodeServerPortBase, blockedPorts = new Set<number>()): Promise<number> {
   for (let port = start; port < start + 1000; port += 1) {
+    if (blockedPorts.has(port)) continue;
     const available = await new Promise<boolean>((resolve) => {
       const server = net.createServer();
       server.unref();
@@ -24,6 +25,8 @@ export function spawnOpenCodeServe(port: number, cwd: string) {
     extraEnv.OPENCODE_SERVER_PASSWORD = process.env.OPENCODE_SERVER_PASSWORD;
   }
 
+  const useShell = process.platform === "win32";
+
   const child = spawn(
     env.opencodeCommand,
     ["serve", "--port", String(port), "--hostname", env.opencodeServerHost],
@@ -34,7 +37,7 @@ export function spawnOpenCodeServe(port: number, cwd: string) {
         OPENAI_API_KEY: env.openaiApiKey,
         ...extraEnv,
       },
-      shell: process.platform === "win32",
+      shell: useShell,
       stdio: ["pipe", "pipe", "pipe"],
     },
   );
@@ -78,17 +81,10 @@ export async function sendPrompt(baseUrl: string, sessionId: string, prompt: str
   if (!response.ok) throw new Error(`Failed to send prompt: ${response.status}`);
 }
 
-export async function sendMessage(baseUrl: string, sessionId: string, prompt: string) {
-  const response = await fetch(`${baseUrl}/session/${sessionId}/message`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: { providerID: "openai", modelID: "gpt-5.4-mini" },
-      parts: [{ type: "text", text: prompt }],
-    }),
-  });
-  if (!response.ok) throw new Error(`Failed to send message: ${response.status}`);
-  return response.json();
+export async function getSessionMessages(baseUrl: string, sessionId: string, limit = 200) {
+  const response = await fetch(`${baseUrl}/session/${sessionId}/message?limit=${limit}`);
+  if (!response.ok) throw new Error(`Failed to read session messages: ${response.status}`);
+  return (await response.json()) as Array<{ info?: { role?: string; id?: string }; parts?: Array<{ type?: string; text?: string }> }>;
 }
 
 export function parseSseLineBuffer(buffer: string, onEvent: (event: string, data: string) => void) {

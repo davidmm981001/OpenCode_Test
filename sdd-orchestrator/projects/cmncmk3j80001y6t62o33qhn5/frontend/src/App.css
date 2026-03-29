@@ -1,0 +1,89 @@
+.app-shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+}
+
+.calculator-card {
+  width: min(100%, 520px);
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+  padding: 32px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+h1 {
+  margin: 0 0 24px;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  line-height: 1.1;
+  color: #0f172a;
+}
+
+.calculator-form {
+  display: grid;
+  gap: 16px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  color: #334155;
+  font-weight: 600;
+}
+
+input,
+select,
+button {
+  font: inherit;
+  border-radius: 14px;
+}
+
+input,
+select {
+  border: 1px solid #cbd5e1;
+  padding: 14px 16px;
+  background: #fff;
+}
+
+button {
+  margin-top: 8px;
+  border: 0;
+  padding: 14px 18px;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.result,
+.error {
+  display: block;
+  margin-top: 18px;
+  padding: 14px 16px;
+  border-radius: 14px;
+}
+
+.result {
+  background: #ecfeff;
+  color: #155e75;
+}
+
+.error {
+  background: #fef2f2;
+  color: #b91c1c;
+}

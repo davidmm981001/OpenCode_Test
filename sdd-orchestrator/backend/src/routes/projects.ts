@@ -4,10 +4,10 @@ import fs from "node:fs";
 import { ProjectStatus } from "@prisma/client";
 
 import { projectToJson } from "../lib/serialize.js";
-import { stopProjectRuntime } from "../lib/process-supervisor.js";
-import { getProjectWorkspacePath } from "../lib/workspace.js";
+import { canCompleteProject, canStartProjectGeneration } from "../lib/project-runtime-policy.js";
+import { getRuntimeSnapshot, markProjectComplete, startProjectGeneration, stopProjectRuntime } from "../lib/process-supervisor.js";
+import { countFilesRecursive, getProjectWorkspacePath, listWorkspaceFiles, sizeBytesRecursive } from "../lib/workspace.js";
 import { createProject, deleteProject, getProject, listProjects, updateProject } from "../services/projects.js";
-import { markProjectComplete, startProjectGeneration } from "../lib/process-supervisor.js";
 
 export const projectsRouter = Router();
 
@@ -45,6 +45,34 @@ projectsRouter.get("/:id", async (req, res, next) => {
   }
 });
 
+projectsRouter.get("/:id/status", async (req, res, next) => {
+  try {
+    const project = await getProject(req.params.id);
+    if (!project) return res.status(404).json({ message: "Project not found" });
+    res.json({ project: projectToJson(project), execution: getRuntimeSnapshot(project.id) });
+  } catch (error) {
+    next(error);
+  }
+});
+
+projectsRouter.get("/:id/files", async (req, res, next) => {
+  try {
+    const project = await getProject(req.params.id);
+    if (!project) return res.status(404).json({ message: "Project not found" });
+    const files = listWorkspaceFiles(project.workspacePath, 4);
+    res.json({
+      projectId: project.id,
+      files,
+      stats: {
+        fileCount: countFilesRecursive(project.workspacePath),
+        totalBytes: sizeBytesRecursive(project.workspacePath),
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 projectsRouter.patch("/:id", async (req, res, next) => {
   try {
     const patch = req.body as { name?: string; userStories?: string };
@@ -58,6 +86,9 @@ projectsRouter.patch("/:id", async (req, res, next) => {
     const project = await updateProject(req.params.id, nextPatch);
     res.json(projectToJson(project));
   } catch (error) {
+    if ((error as Error).message === "Running projects cannot be edited") {
+      return res.status(409).json({ message: (error as Error).message });
+    }
     next(error);
   }
 });
@@ -80,11 +111,36 @@ projectsRouter.post("/:id/generate", async (req, res, next) => {
   try {
     const project = await getProject(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });
-    if (project.status === ProjectStatus.running) return res.status(409).json({ message: "Project already running" });
-    if (project.status === ProjectStatus.completed) return res.status(409).json({ message: "Project is already completed" });
-    const snapshot = await startProjectGeneration(project.id, project.name, project.userStories, getProjectWorkspacePath(project.id));
-    const fresh = await getProject(project.id);
-    res.json({ project: projectToJson(fresh ?? project), snapshot });
+    const currentExecution = getRuntimeSnapshot(project.id);
+    if (!canStartProjectGeneration(project.status, currentExecution.phase)) {
+      return res.status(409).json({ message: "Project already running" });
+    }
+    void startProjectGeneration(project.id, project.name, project.userStories, getProjectWorkspacePath(project.id)).catch((error) => {
+      console.error("Project generation failed", error);
+    });
+    const nextExecution = getRuntimeSnapshot(project.id);
+    res.status(202).json({ project: { ...projectToJson(project), status: nextExecution.status }, execution: nextExecution });
+  } catch (error) {
+    next(error);
+  }
+});
+
+projectsRouter.post("/:id/stop", async (req, res, next) => {
+  try {
+    const project = await getProject(req.params.id);
+    if (!project) return res.status(404).json({ message: "Project not found" });
+    const currentExecution = getRuntimeSnapshot(project.id);
+    if (currentExecution.phase === "idle" || currentExecution.phase === "completed" || currentExecution.phase === "error") {
+      return res.status(409).json({ message: "Project is not running" });
+    }
+    if (currentExecution.phase === "stopping") {
+      return res.status(202).json({ project: projectToJson(project), execution: currentExecution });
+    }
+    void stopProjectRuntime(project.id).catch((error) => {
+      console.error("Project stop failed", error);
+    });
+    const nextExecution = getRuntimeSnapshot(project.id);
+    res.status(202).json({ project: projectToJson(project), execution: nextExecution });
   } catch (error) {
     next(error);
   }
@@ -94,11 +150,19 @@ projectsRouter.post("/:id/complete", async (req, res, next) => {
   try {
     const project = await getProject(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });
-    if (project.status !== ProjectStatus.running) {
+    const execution = getRuntimeSnapshot(project.id);
+    const { confirmed } = req.body as { confirmed?: boolean };
+    if (confirmed !== true) {
+      return res.status(400).json({ message: "Completion confirmation is required" });
+    }
+    if (!canCompleteProject(project.status, execution.phase)) {
       return res.status(409).json({ message: "Project must be running before completion" });
     }
-    const result = await markProjectComplete(project.id, project.workspacePath);
-    res.json(result);
+    void markProjectComplete(project.id, project.workspacePath).catch((error) => {
+      console.error("Project completion failed", error);
+    });
+    const packagingExecution = { ...execution, phase: "packaging", status: ProjectStatus.running, message: "Empaquetando proyecto" };
+    res.status(202).json({ project: { ...projectToJson(project), status: packagingExecution.status }, execution: packagingExecution });
   } catch (error) {
     next(error);
   }

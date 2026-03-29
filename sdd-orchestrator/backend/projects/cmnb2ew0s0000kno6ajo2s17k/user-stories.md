@@ -1,1 +1,0 @@
-As a user, I want completion detection.

@@ -1,0 +1,1 @@
+Construir otra aplicacion simple de calculadora con suma, resta, multiplicacion y division. Debe tener una interfaz React minimalista, pruebas basicas y manejo de error por division entre cero.

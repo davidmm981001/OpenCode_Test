@@ -1,1 +1,0 @@
-As a user, I want generation to work.

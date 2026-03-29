@@ -1,4 +1,4 @@
-import type { Project } from "./types";
+import type { Project, ProjectStatusResponse, WorkspaceFilesResponse } from "./types";
 
 const apiBase = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8003";
 
@@ -18,11 +18,14 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 export const api = {
   listProjects: () => request<Project[]>("/api/projects"),
   getProject: (id: string) => request<Project>(`/api/projects/${id}`),
+  getProjectStatus: (id: string) => request<ProjectStatusResponse>(`/api/projects/${id}/status`),
+  getProjectFiles: (id: string) => request<WorkspaceFilesResponse>(`/api/projects/${id}/files`),
   createProject: (body: { name: string; userStories: string }) => request<Project>("/api/projects", { method: "POST", body: JSON.stringify(body) }),
   updateProject: (id: string, body: Partial<Pick<Project, "name" | "userStories">>) => request<Project>(`/api/projects/${id}`, { method: "PATCH", body: JSON.stringify(body) }),
   deleteProject: (id: string, confirmName: string) => request<void>(`/api/projects/${id}`, { method: "DELETE", body: JSON.stringify({ confirmName }) }),
-  generateProject: (id: string) => request<{ project: Project }>(`/api/projects/${id}/generate`, { method: "POST" }),
-  completeProject: (id: string) => request<{ zipPath: string; zipSizeBytes: number; fileCount: number }>(`/api/projects/${id}/complete`, { method: "POST" }),
+  generateProject: (id: string) => request<ProjectStatusResponse>(`/api/projects/${id}/generate`, { method: "POST" }),
+  stopProject: (id: string) => request<ProjectStatusResponse>(`/api/projects/${id}/stop`, { method: "POST" }),
+  completeProject: (id: string) => request<ProjectStatusResponse>(`/api/projects/${id}/complete`, { method: "POST", body: JSON.stringify({ confirmed: true }) }),
 };
 
 export function getApiBase() {

@@ -1,0 +1,12 @@
+version: 1
+project_name: "Sophi Test"
+model: gpt-5.4-mini
+context:
+  user_stories_file: "user-stories.md"
+  change_dir: "openspec/changes/cmncbm9p60000dcy2024zmmqz"
+  context_file: "openspec/context.md"
+guardrails:
+  - Keep the scope anchored to the provided user stories.
+  - Prefer small, testable deltas.
+  - Keep OpenCode and OpenSpec configuration separate.
+  - Do not change the target stack.
