@@ -1,9 +1,9 @@
 import logging
 import os
 
-from app.engine.llamacloud_index import IndexConfig as LlamaCloudIndexConfig
-from app.engine.llamacloud_index import get_index as get_llama_cloud_index
-from app.engine.vectordb import get_vector_store
+from backend.engine.llamacloud_index import IndexConfig as LlamaCloudIndexConfig
+from backend.engine.llamacloud_index import get_index as get_llama_cloud_index
+from backend.engine.vectordb import get_vector_store
 from llama_index.core.callbacks import CallbackManager
 from llama_index.core.indices import VectorStoreIndex
 
@@ -11,7 +11,7 @@ logger = logging.getLogger("uvicorn")
 
 
 class IndexConfig:
-    callback_manager: CallbackManager
+    callback_manager: CallbackManager | None
 
     def __new__(cls, *args, **kwargs):
         if os.getenv("USE_LLAMA_CLOUD", "false").lower() == "true":
@@ -21,7 +21,7 @@ class IndexConfig:
         else:
             return super().__new__(cls)
 
-    def __init__(self, callback_manager: CallbackManager = None):
+    def __init__(self, callback_manager: CallbackManager | None = None):
         self.callback_manager = callback_manager or CallbackManager()
 
     @classmethod
@@ -52,7 +52,7 @@ def get_index(index_config=None):
 # For compatibility with LLamaCloudFileService
 def get_client():
     if os.getenv("USE_LLAMA_CLOUD", "false").lower() == "true":
-        from app.engine.llamacloud_index import get_client
+        from backend.engine.llamacloud_index import get_client
 
         return get_client()
     else:

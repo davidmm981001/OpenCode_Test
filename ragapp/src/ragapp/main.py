@@ -20,22 +20,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 
-from create_llama.backend.app.settings import init_settings
-from create_llama.backend.app.api.routers.upload import file_upload_router
-from create_llama.backend.app.api.routers.chat_config import config_router
-from backend.models.model_config import ModelConfig
-from backend.controllers.providers import AIProvider
 from backend.routers.chat.index import chat_router
 from backend.routers.management import management_router
 from backend.middlewares.rate_limit import request_limit_middleware
-
-try:
-    from create_llama.backend.app.api.routers.sandbox import sandbox_router
-except Exception:
-    sandbox_router = None
+from backend.models.model_config import ModelConfig
 
 
-init_settings()
+def init_settings():
+    return None
+
 
 app = FastAPI(
     title="RAGapp",
@@ -52,17 +45,6 @@ if environment == "dev":
         allow_headers=["*"],
     )
 
-# Use upload router form create-llama codebase
-app.include_router(
-    file_upload_router,
-    prefix="/api/chat/upload",
-    tags=["Chat"],
-    dependencies=[Depends(request_limit_middleware)],
-)
-app.include_router(config_router, prefix="/api/chat/config", tags=["Chat"])
-if sandbox_router is not None:
-    app.include_router(sandbox_router, prefix="/api/sandbox", tags=["Sandbox"])
-# RAGapp routers
 app.include_router(
     chat_router,
     prefix="/api/chat",
@@ -70,34 +52,6 @@ app.include_router(
     dependencies=[Depends(request_limit_middleware)],
 )
 app.include_router(management_router, prefix="/api/management", tags=["Management"])
-
-
-@app.get("/api/management/config/is_configured")
-def management_is_configured():
-    return ModelConfig.get_config().configured
-
-
-@app.get("/api/management/config/models")
-def management_get_model_config():
-    return ModelConfig.get_config().to_api_response()
-
-
-@app.post("/api/management/config/models")
-def management_update_model_config(new_config: ModelConfig):
-    new_config.to_env_file()
-    new_config.to_runtime_env()
-    init_settings()
-    return {
-        "message": "Config updated successfully.",
-        "data": ModelConfig.get_config().to_api_response(),
-    }
-
-
-@app.get("/api/management/config/models/list")
-def management_list_models(
-    provider: str | None = None, provider_url: str | None = None
-):
-    return AIProvider.fetch_available_models(provider or "", provider_url or "")
 
 
 @app.get("/")
@@ -141,9 +95,6 @@ if __name__ == "__main__":
         reload=reload,
         loop="asyncio",
     )
-
-    if reload:
-        uvicorn_config.reload_dirs = ["backend"]
 
     server = uvicorn.Server(uvicorn_config)
     server.run()

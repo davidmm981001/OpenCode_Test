@@ -3,6 +3,7 @@
 import JSZip from "jszip";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { appConfig } from "../../../../config";
 import { isIgnoredPath, normalizePath } from "../ignorePatterns";
 
 export { isIgnoredPath, normalizePath };
@@ -279,10 +280,12 @@ export function useFileContext({ backend }: UseFileContextArgs = {}) {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [modelLabel, setModelLabel] = useState<string | null>(null);
-  const [providerLabel, setProviderLabel] = useState<string | null>(null);
+  const [modelLabel, setModelLabel] = useState<string | null>(appConfig.modelName);
+  const [providerLabel, setProviderLabel] = useState<string | null>(
+    appConfig.modelProviderLabel,
+  );
   const [contextWindowTokens, setContextWindowTokens] = useState<number | null>(
-    null,
+    appConfig.modelContextWindow,
   );
 
   useEffect(() => {
@@ -290,7 +293,7 @@ export function useFileContext({ backend }: UseFileContextArgs = {}) {
 
     const abortController = new AbortController();
 
-    fetch(`${backend}/api/chat/config/models`, {
+    fetch(`${backend}/api/management/config/models`, {
       signal: abortController.signal,
     })
       .then((response) => response.json())
@@ -298,14 +301,16 @@ export function useFileContext({ backend }: UseFileContextArgs = {}) {
         const model = typeof data?.model === "string" ? data.model : null;
         const provider =
           typeof data?.model_provider === "string" ? data.model_provider : null;
-        setModelLabel(model);
-        setProviderLabel(provider);
-        setContextWindowTokens(getOpenAIContextWindow(model));
+        setModelLabel(model ?? appConfig.modelName);
+        setProviderLabel(provider ?? appConfig.modelProviderLabel);
+        setContextWindowTokens(
+          getOpenAIContextWindow(model) ?? appConfig.modelContextWindow,
+        );
       })
       .catch(() => {
-        setModelLabel(null);
-        setProviderLabel(null);
-        setContextWindowTokens(null);
+        setModelLabel(appConfig.modelName);
+        setProviderLabel(appConfig.modelProviderLabel);
+        setContextWindowTokens(appConfig.modelContextWindow);
       });
 
     return () => abortController.abort();

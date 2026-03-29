@@ -1,9 +1,6 @@
 import logging
 
-from app.api.routers.events import EventCallbackHandler
-from app.api.routers.models import (
-    ChatData,
-)
+from backend.models.chat_api import ChatData, EventCallbackHandler
 from fastapi import APIRouter, BackgroundTasks, HTTPException, status
 from fastapi.responses import JSONResponse
 from llama_index.core.agent import AgentRunner

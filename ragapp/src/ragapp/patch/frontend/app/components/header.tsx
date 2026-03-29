@@ -1,5 +1,7 @@
 import Image from "next/image";
 
+import { appConfig } from "../config";
+
 export default function Header() {
   return (
     <div className="flex w-full items-center justify-between gap-4 rounded-full border border-slate-200/70 bg-white/90 px-4 py-3 shadow-lg shadow-slate-200/50 backdrop-blur-sm sm:px-5">
@@ -15,10 +17,10 @@ export default function Header() {
         </div>
         <div>
           <p className="text-sm font-semibold tracking-wide text-slate-900">
-            NexTI RAG Lab
+            {appConfig.appName}
           </p>
           <p className="text-xs text-slate-500">
-            Chat, RAG y archivos locales en un solo lugar.
+            {appConfig.appSubtitle}
           </p>
         </div>
       </div>
@@ -36,7 +38,7 @@ export default function Header() {
           Ir al chat
         </a>
         <div className="hidden rounded-full bg-gradient-to-r from-slate-100 to-sky-50 px-3 py-1 text-xs font-medium text-slate-600 sm:block">
-          gpt-5.4 · 1M context
+          {appConfig.modelName} · {new Intl.NumberFormat("es-ES").format(appConfig.modelContextWindow)} context
         </div>
       </div>
     </div>

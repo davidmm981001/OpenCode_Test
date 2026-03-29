@@ -5,9 +5,8 @@ from abc import ABC, abstractmethod
 from typing import AsyncGenerator, Awaitable, List
 
 from aiostream import stream
-from app.api.routers.events import EventCallbackHandler
-from app.api.routers.models import ChatData, Message, SourceNodes
-from app.api.services.suggestion import NextQuestionSuggestion
+from backend.models.chat_api import ChatData, EventCallbackHandler, Message, SourceNodes
+from backend.services.suggestion import NextQuestionSuggestion
 from fastapi import BackgroundTasks, Request
 from fastapi.responses import StreamingResponse
 from llama_index.core.chat_engine.types import StreamingAgentChatResponse
@@ -174,7 +173,7 @@ class ChatEngineVercelStreamResponse(BaseVercelStreamResponse):
     ):
         try:
             # Start background tasks to download documents from LlamaCloud if needed
-            from app.engine.service import LLamaCloudFileService  # type: ignore
+            from backend.engine.service import LLamaCloudFileService  # type: ignore
 
             LLamaCloudFileService.download_files_from_nodes(
                 source_nodes, background_tasks

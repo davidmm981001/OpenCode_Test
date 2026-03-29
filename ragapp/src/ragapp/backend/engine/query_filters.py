@@ -1,4 +1,4 @@
-from app.engine.index import get_index
+from backend.engine.index import get_index
 from llama_index.core.vector_stores.types import MetadataFilter, MetadataFilters
 from llama_index.indices.managed.llama_cloud import LlamaCloudIndex
 

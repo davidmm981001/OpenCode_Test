@@ -1,0 +1,9 @@
+services:
+  sdd-orchestrator:
+    build: .
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_ENV=production
+      - APP_PORT=3002
+      - DATABASE_URL=postgresql://postgres:postgres@host.docker.internal:5432/sdd_orchestrator?schema=public

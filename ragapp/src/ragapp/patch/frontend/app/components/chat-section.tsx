@@ -7,6 +7,7 @@ import ChatAvatar from "./ui/chat/chat-avatar";
 import RagUploadPanel from "./ui/chat/RagUploadPanel";
 import ChatInput from "./ui/chat/chat-input";
 import { useClientConfig } from "./ui/chat/hooks/use-config";
+import { appConfig } from "../config";
 
 type ChatMessage = {
   id: string;
@@ -20,10 +21,7 @@ function createId(prefix: string) {
 
 export default function ChatSection() {
   const { backend } = useClientConfig();
-  const api = useMemo(
-    () => `${backend || "http://localhost:8000"}/api/chat`,
-    [backend],
-  );
+  const api = useMemo(() => `${backend || appConfig.backendUrl}/api/chat`, [backend]);
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -166,12 +164,14 @@ export default function ChatSection() {
           <div className="grid gap-3 sm:self-end">
             <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
               <p className="text-xs uppercase tracking-wide text-slate-500">Estado</p>
-              <p className="mt-1 text-sm font-semibold text-slate-900">Conectado a {backend || "http://localhost:8000"}</p>
+              <p className="mt-1 text-sm font-semibold text-slate-900">Conectado a {backend || appConfig.backendUrl}</p>
             </div>
             <div className="rounded-2xl border border-slate-900/10 bg-slate-950 p-4 text-white shadow-sm">
               <p className="text-xs uppercase tracking-wide text-slate-300">Modelo</p>
-              <p className="mt-1 text-sm font-semibold">gpt-5.4</p>
-              <p className="text-xs text-slate-300">OpenAI · 1,048,576 tokens</p>
+              <p className="mt-1 text-sm font-semibold">{appConfig.modelName}</p>
+              <p className="text-xs text-slate-300">
+                {appConfig.modelProviderLabel} · {new Intl.NumberFormat("es-ES").format(appConfig.modelContextWindow)} tokens
+              </p>
             </div>
           </div>
         </section>

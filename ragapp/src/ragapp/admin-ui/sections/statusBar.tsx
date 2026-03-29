@@ -4,7 +4,7 @@ export const StatusBar = ({ configured }: { configured: boolean }) => {
   const chatUrl =
     process.env.NEXT_PUBLIC_CHAT_URL ||
     (typeof window !== "undefined" && window.location.port === "3001"
-      ? "http://localhost:3000/"
+      ? "http://localhost:3000/chat"
       : "/");
 
   return (

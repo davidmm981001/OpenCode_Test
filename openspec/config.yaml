@@ -1,37 +1,180 @@
+# ============================================================
+# OpenSpec config.yaml — Instancia de proyecto generado
+# Generado dinámicamente por sdd-orchestrator para cada proyecto.
+# NO editar manualmente. Este archivo es la fuente de verdad
+# de contexto para la instancia de opencode de este proyecto.
+# ============================================================
+
 schema: spec-driven
 
+# ─────────────────────────────────────────────────────────────
+# CONTEXT
+# Todo lo que esté aquí se inyecta como contexto persistente
+# en CADA prompt que el agente recibe. Es la fuente de verdad
+# que ancla al agente a las HUs y al stack tecnológico durante
+# toda la sesión, incluso si el contexto de chat se renueva.
+# ─────────────────────────────────────────────────────────────
 context: |
-  Idioma: Español
-  Todos los artefactos deben escribirse en español (proposal.md, specs, design.md, tasks.md, etc.).
+  ═══════════════════════════════════════════════════════════
+  PROYECTO: app-generadora-codigo-sdd-migracion.
+  ID:       1
+  CREADO:   Mar 28, 2026
+  ═══════════════════════════════════════════════════════════
 
-  Tech stack: [Java Springboot, React + Vite, PostgreSQL, Docker]
+  ── STACK TECNOLÓGICO FIJO (estricto, pero flexible en casos que se requiere mover ligeramente las versiones para compatibilidad) ──────────────────
+  Backend  : Java 21 + Spring Boot 3.x
+               - Spring Web (REST)
+               - Spring Data JPA + Hibernate
+               - Spring Security (si aplica según HUs)
+               - Spring Validation
+               - Maven como build tool
+  Frontend : React 18+ + Vite + TypeScript
+               - TanStack Query para data fetching
+               - React Router v6+ para navegación
+               - Axios para HTTP
+               - Tailwind CSS para estilos (preferido)
+  Base de datos: PostgreSQL 15+
+               - Flyway para migraciones de schema
+               - Convención snake_case en nombres de tablas/columnas
+  Contenedor: Docker + Docker Compose
+               - Un Dockerfile por servicio (backend, frontend)
+               - docker-compose.yml en raíz del proyecto generado
+  Testing:
+               - Backend: JUnit 5 + Mockito + Testcontainers (PostgreSQL)
+               - Frontend: Vitest + React Testing Library
+  API: RESTful, documentada con OpenAPI 3 / Springdoc
 
-  Durante el desarrollo, el agente debe consultar obligatoriamente la documentacion oficial de las librerias principales que use antes de implementar o modificar codigo.
-  El agente no debe depender solo de conocimiento previo; debe guiarse por la documentacion vigente para reducir alucinaciones y decisiones obsoletas.
+  Idioma de todos los artefactos (proposal.md, specs, design.md,
+  tasks.md, comentarios de código, README): Español.
 
-  Estilo de código:
-  Se aplicarán excelentes prácticas de software y programación, priorizando siempre la simplicidad y claridad sobre la complejidad innecesaria.
-  Se evitará sobreingeniería y soluciones que no aporten valor directo al proyecto.
-  El diseño y la implementación buscarán ser lo más atómicos y modulares posible, facilitando la reutilización, el mantenimiento y la escalabilidad.
-  Cada componente, función o módulo debe tener una única responsabilidad bien definida.
-  Se favorecerá código legible, consistente y fácil de entender para otros desarrolladores.
+  ── ALCANCE DEL PROYECTO — HISTORIAS DE USUARIO ─────────────
+  El agente SOLO debe implementar lo que esté descrito en las
+  siguientes historias de usuario. Cualquier funcionalidad no
+  cubierta explícitamente por estas HUs está FUERA DE ALCANCE
+  y no debe ser implementada bajo ninguna circunstancia.
 
+  {{USER_STORIES}}
+
+  ── RESTRICCIONES DE ALCANCE (aplicar siempre) ──────────────
+  - No implementar autenticación/autorización si ninguna HU la menciona.
+  - No agregar endpoints ni pantallas que no correspondan a una HU.
+  - No inventar entidades de dominio que las HUs no describan.
+  - Si una HU es ambigua, asumir la interpretación más simple posible
+    y documentar el supuesto en el proposal.md correspondiente.
+  - Toda desviación del alcance debe marcarse explícitamente como
+    "FUERA DE HU" y requerir confirmación del usuario antes de proceder.
+
+  ── CONSULTA DE DOCUMENTACIÓN OBLIGATORIA ───────────────────
+  Antes de usar cualquier librería, framework o herramienta,
+  el agente DEBE consultar su documentación oficial vigente.
+  No asumir comportamiento basado en conocimiento previo si la
+  librería puede haber tenido cambios recientes. Esto aplica
+  especialmente a: Spring Boot, versiones de dependencias Maven,
+  Flyway, TanStack Query, Vite config, y cualquier otra librería
+  del proyecto.
+
+  ── CALIDAD DE CÓDIGO ────────────────────────────────────────
+  - Principio de responsabilidad única: cada clase/componente
+    tiene una única razón para cambiar.
+  - Sin magia ni "código inteligente": preferir claridad sobre
+    brevedad. El código debe ser legible por otro desarrollador.
+  - Sin duplicación: si algo se repite más de dos veces, extraerlo.
+  - Cada cambio debe ser atómico: un delta = una capacidad completa
+    y verificable, no trabajo parcial sin tests.
+
+  ── CRITERIO DE FINALIZACIÓN ────────────────────────────────
+  El proyecto se considera completo cuando:
+  1. TODAS las HUs listadas arriba tienen al menos un test de
+     integración (backend) o test de componente (frontend) que pasa.
+  2. `docker-compose up` levanta el sistema completo sin errores.
+  3. El README.md generado documenta cómo correr el proyecto localmente.
+  El agente debe declarar explícitamente "PROYECTO COMPLETADO" en su
+  salida cuando estos tres criterios se cumplan.
+
+# ─────────────────────────────────────────────────────────────
+# RULES
+# Reglas específicas por tipo de artefacto. Se inyectan junto
+# al contexto en cada acción del agente.
+# ─────────────────────────────────────────────────────────────
 rules:
+
   proposal:
-    - Definir objetivo, alcance, fuera de alcance y capacidades afectadas.
-    - Mantener el documento centrado en el que y por que; no incluir codigo ni pasos de implementacion.
-    - Confirmar que el cambio necesita los artefactos antes de implementar.
+    # Qué incluir en proposal.md
+    - Identificar explícitamente qué Historia(s) de Usuario cubre este cambio,
+      citando el texto exacto de la HU del contexto de arriba.
+    - Definir objetivo, alcance y fuera de alcance del cambio propuesto.
+    - Si el cambio requiere una decisión de diseño no evidente en las HUs
+      (p.ej. estructura de tabla, endpoint REST vs GraphQL), documentar el
+      supuesto adoptado y por qué.
+    - Listar las capacidades del sistema que se ven afectadas.
+    - No incluir código ni pasos de implementación en el proposal.
+    - Si la HU es ambigua, documentar la interpretación más conservadora
+      adoptada y marcarla como "SUPUESTO".
+
   specs:
-    - Escribir solo delta specs con secciones ADDED, MODIFIED y REMOVED.
-    - Describir comportamiento observable y verificable, no detalles de implementacion.
-    - Evitar duplicar requisitos que no cambian.
+    # Cómo escribir delta specs
+    - Escribir SOLO delta specs con secciones ADDED, MODIFIED y REMOVED.
+    - Describir comportamiento observable y verificable, nunca detalles de
+      implementación interna.
+    - Usar formato Given/When/Then para todos los escenarios:
+        GIVEN  [estado inicial del sistema]
+        WHEN   [acción del usuario o evento]
+        THEN   [resultado esperado y verificable]
+    - Cada escenario debe ser directamente trazable a una HU del contexto.
+    - Incluir escenarios de error/borde además del camino feliz.
+    - No duplicar requisitos que no cambian respecto a cambios anteriores.
+    - Especificar restricciones de validación de datos (tipos, longitudes,
+      valores permitidos) cuando aplique.
+
   design:
-    - Describir la estrategia tecnica y decisiones de arquitectura despues de proposal y specs.
-    - Mantener el contenido modular y atomico, sin mezclar tareas de codigo.
+    # Cómo escribir design.md
+    - Redactar design.md después de tener proposal.md y specs aprobados,
+      nunca antes.
+    - Describir la estrategia técnica: qué clases/componentes se crean o
+      modifican, qué tablas de base de datos se necesitan, qué endpoints
+      REST se exponen.
+    - Incluir el esquema de la migración Flyway si hay cambios en la BD.
+    - Mantener el contenido modular: un design.md no debe mezclar múltiples
+      HUs independientes.
+    - Verificar en la documentación oficial de Spring Boot / React que la
+      aproximación técnica elegida es la recomendada actualmente.
+    - Documentar dependencias Maven/npm que se van a agregar, con versión
+      explícita, y justificar la elección.
+
   tasks:
-    - Dividir el trabajo en pasos pequenos y secuenciales.
-    - Ordenar tareas para poder ejecutarlas progresivamente sin saltar dependencias.
-    - Usar checkboxes claros para marcar el avance una tarea por vez.
+    # Cómo escribir tasks.md
+    - Dividir el trabajo en pasos pequeños, secuenciales e independientes.
+    - Ordenar las tareas respetando dependencias: BD primero, luego backend,
+      luego frontend, luego tests de integración.
+    - Cada tarea debe resultar en un estado compilable y ejecutable del
+      sistema (no trabajo parcial que rompa la build).
+    - Usar checkboxes markdown claros: `- [ ] 1.1 Descripción concreta`.
+    - Incluir tareas de testing explícitas para cada capacidad implementada.
+    - La última tarea de cada cambio debe ser:
+        `- [ ] N.X Verificar que docker-compose up levanta el sistema sin errores`.
+    - No mezclar tareas de múltiples HUs independientes en un solo tasks.md.
+
   development:
-    - Antes de tocar codigo, identificar las librerias principales involucradas y leer su documentacion oficial actual.
-    - Si una libreria no tiene documentacion disponible o esta desactualizada, pausar y pedir confirmacion antes de asumir comportamiento.
+    # Reglas durante la implementación (fase apply)
+    - Antes de implementar, identificar todas las librerías principales del
+      delta y leer su documentación oficial actualizada.
+    - Si una versión de dependencia en pom.xml o package.json puede causar
+      incompatibilidad, preferir la versión LTS más reciente probada y
+      documentar el cambio en el design.md.
+    - Implementar UNA tarea del tasks.md a la vez. Marcarla como completada
+      (`- [x]`) antes de pasar a la siguiente.
+    - Cada endpoint REST generado debe tener su anotación OpenAPI
+      (@Operation, @ApiResponse) para mantener la documentación sincronizada.
+    - Las migraciones Flyway deben seguir la convención:
+        V{número}__{descripción_snake_case}.sql
+      y nunca modificar migraciones ya aplicadas.
+    - Los tests de integración de backend deben usar @SpringBootTest +
+      Testcontainers para levantar PostgreSQL real, no mocks de BD.
+    - Si una tarea no puede completarse por una razón técnica, detenerse,
+      explicar el bloqueo claramente en la salida de consola, y esperar
+      instrucción del usuario antes de tomar una decisión alternativa.
+    - Al completar TODAS las tareas del tasks.md, emitir en la consola la
+      cadena literal: "DELTA COMPLETADO: [nombre-del-cambio]" para que el
+      sistema de monitoreo pueda detectar el avance.
+    - Al completar TODAS las HUs del proyecto, emitir: "PROYECTO COMPLETADO"
+      seguido de un resumen de lo implementado.

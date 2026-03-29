@@ -6,6 +6,7 @@ import type { ChatHandler } from "./chat.interface";
 import FileUploadPanel from "./FileUploadPanel";
 import { useFileContext } from "./hooks/useFileContext";
 import { useClientConfig } from "./hooks/use-config";
+import { appConfig } from "../../../config";
 import { LlamaCloudSelector } from "./widgets/LlamaCloudSelector";
 
 export default function ChatInput(
@@ -96,7 +97,7 @@ export default function ChatInput(
 
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            {process.env.NEXT_PUBLIC_USE_LLAMACLOUD === "true" &&
+            {appConfig.useLlamaCloud &&
               props.setRequestData && (
                 <LlamaCloudSelector setRequestData={props.setRequestData} />
               )}

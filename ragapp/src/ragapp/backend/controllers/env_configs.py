@@ -1,7 +1,14 @@
 import logging
 
 from backend.models.base_env import BaseEnvConfig
-from create_llama.backend.app.settings import init_settings
+
+try:
+    from create_llama.backend.app.settings import init_settings
+except ImportError:
+
+    def init_settings():
+        return None
+
 
 logger = logging.getLogger(__name__)
 

@@ -1,7 +1,8 @@
-// Patching to use value from window.ENV.BASE_URL  
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+
+import { appConfig } from "../../../../config";
 
 export interface ChatConfig {
   backend?: string;
@@ -9,29 +10,41 @@ export interface ChatConfig {
 }
 
 export function useClientConfig(): ChatConfig {
-  const chatAPI = process.env.NEXT_PUBLIC_CHAT_API;
+  const chatAPI = process.env.NEXT_PUBLIC_CHAT_API ?? appConfig.backendUrl;
   const [config, setConfig] = useState<ChatConfig>();
 
   const backendOrigin = useMemo(() => {
-    if (chatAPI) {
-      return chatAPI;
-    } else {
-      if (typeof window !== "undefined") {
-        // Use BASE_URL from window.ENV
-        return (window as any).ENV?.BASE_URL || "http://localhost:8000";
-      }
-      return "http://localhost:8000";
+    if (chatAPI) return chatAPI;
+
+    if (typeof window !== "undefined") {
+      return (window as any).ENV?.BASE_URL || appConfig.backendUrl;
     }
+
+    return appConfig.backendUrl;
   }, [chatAPI]);
 
-  const configAPI = `${backendOrigin}/api/chat/config`;
+  const configAPI = `${backendOrigin}/api/management/config/models`;
 
   useEffect(() => {
-    fetch(configAPI)
-      .then((response) => response.json())
-      .then((data) => setConfig({ ...data, chatAPI }))
-      .catch((error) => console.error("Error fetching config", error));
-  }, [chatAPI, configAPI]);
+    const abortController = new AbortController();
+
+    void fetch(configAPI, { signal: abortController.signal })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        return response.json();
+      })
+      .then((data) => setConfig({ ...data, backend: backendOrigin }))
+      .catch(() => {
+        setConfig({
+          backend: backendOrigin,
+        });
+      });
+
+    return () => abortController.abort();
+  }, [backendOrigin, configAPI]);
 
   return {
     backend: backendOrigin,

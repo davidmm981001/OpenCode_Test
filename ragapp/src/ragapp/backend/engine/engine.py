@@ -2,9 +2,9 @@ import logging
 import os
 from typing import List, Optional
 
-from app.api.routers.models import ChatMessage
+from backend.models.chat_api import ChatMessage
 from backend.models.chat_config import ChatConfig
-from app.engine.index import IndexConfig, get_index
+from backend.engine.index import IndexConfig, get_index
 from llama_index.core.agent import AgentRunner
 from llama_index.core.callbacks import CallbackManager
 from llama_index.core.chat_engine import CondensePlusContextChatEngine

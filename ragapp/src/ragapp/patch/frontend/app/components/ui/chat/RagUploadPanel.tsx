@@ -5,6 +5,7 @@ import { Loader2, Upload, Database, CheckCircle2, AlertTriangle, X } from "lucid
 
 import { Button } from "../button";
 import { cn } from "../lib/utils";
+import { appConfig } from "../../../config";
 
 type RagUploadPanelProps = {
   backend?: string;
@@ -15,19 +16,6 @@ type PendingFile = {
   file: File;
 };
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result ?? "");
-      const comma = result.indexOf(",");
-      resolve(comma >= 0 ? result.slice(comma + 1) : result);
-    };
-    reader.onerror = () => reject(new Error(`No se pudo leer ${file.name}`));
-    reader.readAsDataURL(file);
-  });
-}
-
 export default function RagUploadPanel({ backend }: RagUploadPanelProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [files, setFiles] = useState<PendingFile[]>([]);
@@ -35,7 +23,7 @@ export default function RagUploadPanel({ backend }: RagUploadPanelProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const backendUrl = useMemo(() => backend || "http://localhost:8000", [backend]);
+  const backendUrl = useMemo(() => backend || appConfig.backendUrl, [backend]);
 
   const openPicker = () => inputRef.current?.click();
 
@@ -67,12 +55,16 @@ export default function RagUploadPanel({ backend }: RagUploadPanelProps) {
     setError(null);
 
     try {
-      for (const item of files) {
-        const base64 = await fileToBase64(item.file);
-        const response = await fetch(`${backendUrl}/api/chat/upload`, {
+      for (let index = 0; index < files.length; index += 1) {
+        const item = files[index];
+        const formData = new FormData();
+        formData.append("file", item.file);
+        formData.append("fileIndex", String(index + 1));
+        formData.append("totalFiles", String(files.length));
+
+        const response = await fetch(`${backendUrl}/api/management/files`, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ base64, name: item.name, params: null }),
+          body: formData,
         });
 
         if (!response.ok) {

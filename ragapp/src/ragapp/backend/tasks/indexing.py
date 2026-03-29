@@ -2,7 +2,13 @@ import logging
 import os
 import shutil
 
-from create_llama.backend.app.engine.generate import generate_datasource
+try:
+    from create_llama.backend.app.engine.generate import generate_datasource
+except ImportError:
+
+    def generate_datasource():
+        logger.warning("Datasource generation is unavailable; skipping reindex.")
+
 
 logger = logging.getLogger("uvicorn")
 
