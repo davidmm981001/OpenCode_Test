@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { api, getApiBase, getAppLinks } from "./api";
+import "./orchestrator-app.css";
 import type { ExecutionPhase, Project, ProjectExecutionSnapshot, ProjectStatus, TerminalPayload, WorkspaceFileEntry } from "./types";
 
 type Tab = "stories" | "console" | "result";
@@ -10,37 +11,6 @@ type StopState = "idle" | "stopping" | "stopped";
 type WorkspaceTreeNode = WorkspaceFileEntry & { children: WorkspaceTreeNode[] };
 
 const selectedProjectStorageKey = "sdd-orchestrator:selected-project-id";
-
-const orchestratorStyles = `
-:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--bg:#0b1220;--panel:#101a2e;--panel-2:#16233a;--border:rgba(148,163,184,.18);--text:#e2e8f0;--muted:#94a3b8;--accent:#7dd3fc;--accent-2:#a78bfa;--good:#34d399;--warn:#f59e0b;--bad:#ef4444;--accent-soft:rgba(125,211,252,.12)}
-*{box-sizing:border-box}html,body,#root{height:100%}body{margin:0;background:radial-gradient(circle at top left,rgba(125,211,252,.14),transparent 30%),radial-gradient(circle at top right,rgba(167,139,250,.12),transparent 25%),linear-gradient(180deg,#050814,#0b1220 30%,#0b1220);color:var(--text)}
-a{color:inherit;text-decoration:none}button,input,textarea{font:inherit}
-.app-shell{display:grid;grid-template-rows:auto 1fr;min-height:100%}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 20px;border-bottom:1px solid var(--border);background:rgba(8,15,29,.82);backdrop-filter:blur(16px)}
-.brand{display:flex;flex-direction:column;gap:4px}.brand h1{margin:0;font-size:18px;letter-spacing:.02em}.brand p{margin:0;color:var(--muted);font-size:13px}
-.app-links{display:flex;gap:10px;flex-wrap:wrap}.app-link{padding:10px 14px;border:1px solid var(--border);border-radius:999px;background:rgba(255,255,255,.02);color:var(--muted)}.app-link.active{color:white;border-color:rgba(125,211,252,.5);box-shadow:0 0 0 1px rgba(125,211,252,.12) inset}
-.topbar-stats{display:flex;flex-direction:column;gap:4px;text-align:right;color:var(--muted);font-size:12px}
-.content{display:grid;grid-template-columns:360px 1fr;gap:16px;padding:16px;min-height:0}
-.sidebar,.main-panel,.card,.terminal{background:linear-gradient(180deg,rgba(22,35,58,.92),rgba(16,26,46,.92));border:1px solid var(--border);border-radius:20px;box-shadow:0 20px 60px rgba(0,0,0,.2)}
-.sidebar{padding:16px;display:flex;flex-direction:column;gap:14px;min-height:0}
-.section-title{display:flex;justify-content:space-between;align-items:center;gap:12px}.section-title h2{margin:0;font-size:14px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
-.button{border:1px solid rgba(125,211,252,.28);background:linear-gradient(180deg,rgba(125,211,252,.2),rgba(59,130,246,.18));color:white;border-radius:12px;padding:10px 14px;cursor:pointer}.button.secondary{background:rgba(255,255,255,.03);border-color:var(--border);color:var(--text)}.button.ghost{background:transparent;border-color:var(--border);color:var(--text)}.button.danger{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.3)}.button:disabled{opacity:.45;cursor:not-allowed}
-.project-list{display:flex;flex-direction:column;gap:10px;overflow:auto;min-height:0}.project-item{padding:14px;border:1px solid var(--border);border-radius:16px;background:rgba(255,255,255,.02);cursor:pointer}.project-item.active{border-color:rgba(125,211,252,.5);box-shadow:0 0 0 1px rgba(125,211,252,.12) inset}.project-name{margin:0 0 6px;font-weight:700}
-.meta{color:var(--muted);font-size:12px}.small{font-size:12px}.muted{color:var(--muted)}
-.badge{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}.badge.idle{background:rgba(148,163,184,.12);color:#cbd5e1}.badge.running{background:rgba(59,130,246,.16);color:#93c5fd}.badge.completed{background:rgba(52,211,153,.15);color:#86efac}.badge.error{background:rgba(239,68,68,.14);color:#fca5a5}
-.main-panel{padding:16px;min-height:0;display:flex;flex-direction:column;gap:14px}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab{border:1px solid var(--border);background:rgba(255,255,255,.02);color:var(--text);border-radius:999px;padding:10px 14px;cursor:pointer}.tab.active{border-color:rgba(125,211,252,.5);background:rgba(125,211,252,.12)}
-.grid-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{padding:16px}.field,textarea,input[type="text"]{width:100%;border:1px solid var(--border);background:rgba(2,6,23,.38);color:var(--text);border-radius:14px;padding:12px 14px;outline:none}textarea{min-height:180px;resize:vertical}.field:focus,textarea:focus,input[type="text"]:focus{outline:2px solid var(--accent-soft);border-color:var(--accent)}
-.status-row{display:flex;gap:10px;flex-wrap:wrap}
-.console-grid{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(280px,.9fr);gap:14px;min-height:0}
-.terminal{display:flex;flex-direction:column;min-height:0;height:min(64vh,700px);max-height:700px;overflow:hidden}.terminal-body{flex:1;min-height:0;padding:16px;overflow:auto;overscroll-behavior:contain;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;background:linear-gradient(180deg,rgba(0,0,0,.55),rgba(2,6,23,.9))}.terminal-line{white-space:pre-wrap;word-break:break-word;margin:0 0 4px}.terminal-input{border-top:1px solid var(--border);padding:12px;display:flex;gap:10px}.terminal-input input{flex:1}.terminal-input .button{white-space:nowrap}
-.files-panel{display:flex;flex-direction:column;gap:12px;min-height:0;height:min(64vh,700px);max-height:700px;overflow:hidden}.files-stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.files-stat-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid rgba(125,211,252,.18);border-radius:999px;background:rgba(255,255,255,.03);color:var(--muted);font-size:12px}.files-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding-right:4px}
-.file-tree-row{display:flex;flex-direction:column}.file-tree-entry{width:100%;display:flex;align-items:center;gap:10px;min-height:34px;padding:6px 10px;margin-bottom:4px;border:1px solid transparent;border-radius:10px;background:rgba(255,255,255,.02);color:inherit;text-align:left;cursor:pointer}.file-tree-entry:hover{background:rgba(125,211,252,.08)}.file-tree-row.directory>.file-tree-entry{color:var(--accent)}.file-tree-row.file>.file-tree-entry{color:#dbeafe}.file-tree-icon{width:28px;flex:0 0 28px;text-align:center;font-size:14px;opacity:.95}.file-entry-path{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;word-break:break-word}.file-tree-children{padding-left:14px;border-left:1px dashed rgba(148,163,184,.18);margin-left:12px}
-.console-ready-line{display:inline-flex;align-items:center;gap:8px}.status-light{display:inline-block;width:10px;height:10px;border-radius:999px;box-shadow:0 0 0 4px rgba(255,255,255,.03)}.status-light.ok{background:#22c55e;box-shadow:0 0 0 4px rgba(34,197,94,.12)}.status-light.bad{background:#ef4444;box-shadow:0 0 0 4px rgba(239,68,68,.12)}.status-light.warn{background:#f59e0b;box-shadow:0 0 0 4px rgba(245,158,11,.12)}
-.result-callout{display:flex;flex-direction:column;gap:10px;background:rgba(255,255,255,.02)}.result-ready{display:flex;align-items:center;gap:10px}
-.stack{display:flex;flex-direction:column;gap:8px}.footer{color:var(--muted);font-size:12px;padding:0 4px 10px}
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:16px}.modal{width:min(560px,100%);background:#0f172a;border:1px solid var(--border);border-radius:20px;padding:20px;box-shadow:0 30px 90px rgba(0,0,0,.45)}.modal h3{margin:0 0 8px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
-@media (max-width:980px){.content{grid-template-columns:1fr}.grid-two{grid-template-columns:1fr}.console-grid{grid-template-columns:1fr}.terminal,.files-panel{height:auto;max-height:none}.topbar{flex-direction:column;align-items:flex-start}.topbar-stats{text-align:left}}
-`;
 
 function formatDate(value: string | null) {
   if (!value) return "—";
@@ -209,12 +179,24 @@ function buildWorkspaceTree(entries: WorkspaceFileEntry[]) {
   return roots;
 }
 
+function readEmbedSearchParams() {
+  if (typeof window === "undefined") {
+    return { embed: false, sddProjectId: null as string | null };
+  }
+  const p = new URLSearchParams(window.location.search);
+  return {
+    embed: p.get("embed") === "1" || p.get("embed") === "true",
+    sddProjectId: p.get("sddProjectId"),
+  };
+}
+
 export default function App() {
   const links = getAppLinks();
+  const embedParams = useMemo(() => readEmbedSearchParams(), []);
   const [projects, setProjects] = useState<Project[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [selectedExecution, setSelectedExecution] = useState<ProjectExecutionSnapshot | null>(null);
-  const [tab, setTab] = useState<Tab>("stories");
+  const [tab, setTab] = useState<Tab>(() => (readEmbedSearchParams().embed ? "console" : "stories"));
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
@@ -372,9 +354,24 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (!embedParams.embed || !embedParams.sddProjectId) return;
+    const id = embedParams.sddProjectId;
+    const exists = projects.some((project) => project.id === id);
+    if (exists) setSelectedId(id);
+    else if (projects.length > 0) setSelectedId(null);
+  }, [embedParams.embed, embedParams.sddProjectId, projects]);
+
+  useEffect(() => {
     selectedIdRef.current = selectedId;
+    if (embedParams.embed) return;
     if (selectedId) window.localStorage.setItem(selectedProjectStorageKey, selectedId);
-  }, [selectedId]);
+  }, [selectedId, embedParams.embed]);
+
+  useEffect(() => {
+    if (!embedParams.embed || !selected) return;
+    if (selected.status === "completed") setTab("result");
+    else setTab("console");
+  }, [embedParams.embed, selected?.id, selected?.status]);
 
   useEffect(() => {
     if (selected) setEditingName(selected.name);
@@ -586,27 +583,31 @@ export default function App() {
   const consoleReady = Boolean(inputEnabled && execution?.sessionId);
   const consoleReadyLabel = consoleReady ? "Lista para escribir" : "Bloqueada";
 
+  const visibleTabs: Tab[] = embedParams.embed ? (["console", "result"] as Tab[]) : (["stories", "console", "result"] as Tab[]);
+
   return (
     <div className="app-shell">
-      <style>{orchestratorStyles}</style>
-      <header className="topbar">
-        <div className="brand">
-          <h1>SDD Orchestrator</h1>
-          <p>Generador visual de proyectos con OpenCode + OpenSpec</p>
-        </div>
-        <nav className="app-links">
-          <a className="app-link" href={links.rag}>RagApp</a>
-          <a className="app-link" href={links.manager}>Manager</a>
-          <a className="app-link active" href={links.sdd}>SDD Orchestrator</a>
-        </nav>
-        <div className="topbar-stats">
-          <div><strong>{activeConsoleCount}/{consoleCapacity}</strong> consolas activas</div>
-          <div><strong>{availableConsoles}/{consoleCapacity}</strong> disponibles</div>
-          <div><strong>{projects.length}</strong> proyectos</div>
-        </div>
-      </header>
+      {!embedParams.embed && (
+        <header className="topbar">
+          <div className="brand">
+            <h1>Generación de aplicación</h1>
+            <p>Generador visual de proyectos con OpenCode + OpenSpec</p>
+          </div>
+          <nav className="app-links">
+            <a className="app-link" href={links.rag}>RagApp</a>
+            <a className="app-link" href={links.manager}>Manager</a>
+            <a className="app-link active" href={links.sdd}>Generación de aplicación</a>
+          </nav>
+          <div className="topbar-stats">
+            <div><strong>{activeConsoleCount}/{consoleCapacity}</strong> consolas activas</div>
+            <div><strong>{availableConsoles}/{consoleCapacity}</strong> disponibles</div>
+            <div><strong>{projects.length}</strong> proyectos</div>
+          </div>
+        </header>
+      )}
 
-      <main className="content">
+      <main className={`content ${embedParams.embed ? "embed-layout" : ""}`}>
+        {!embedParams.embed && (
         <aside className="sidebar">
           <div className="section-title">
             <h2>Proyectos</h2>
@@ -627,24 +628,51 @@ export default function App() {
             ))}
           </div>
         </aside>
+        )}
 
         <section className="main-panel">
-          {selected && execution ? (
+          {embedParams.embed &&
+          embedParams.sddProjectId &&
+          projects.length > 0 &&
+          !projects.some((p) => p.id === embedParams.sddProjectId) ? (
+            <div className="card">
+              <p><strong>Proyecto de generación no encontrado.</strong></p>
+              <p className="muted small" style={{ marginTop: 8 }}>El id <code>{embedParams.sddProjectId}</code> no existe en este servicio.</p>
+            </div>
+          ) : selected && execution ? (
             <>
               <div className="card grid-two">
                 <div>
                   <div className="section-title">
-                    <h2>Proyecto</h2>
+                    <h2>{embedParams.embed ? "Estado" : "Proyecto"}</h2>
                     <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                       <StatusBadge status={selected.status} />
                       <PhaseBadge phase={currentPhase} />
                     </div>
                   </div>
-                  <input className="field" value={editingName} onChange={(event) => setEditingName(event.target.value)} disabled={storiesLocked} />
-                  <div style={{ display: "flex", gap: 10, marginTop: 10 }}>
-                    <button className="button secondary" onClick={saveProjectName} disabled={busy !== null || storiesLocked}>Guardar nombre</button>
-                    <button className="button danger" onClick={() => setDeleteTarget(selected)}>Eliminar</button>
+                  {embedParams.embed && (
+                    <p className="muted small" style={{ marginBottom: 10 }}>
+                      Historias gestionadas en NexTI; use Generar cuando estén sincronizadas con el servicio de generación.
+                    </p>
+                  )}
+                  {!embedParams.embed && (
+                    <input className="field" value={editingName} onChange={(event) => setEditingName(event.target.value)} disabled={storiesLocked} />
+                  )}
+                  <div style={{ display: "flex", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
+                    {!embedParams.embed && (
+                      <>
+                        <button className="button secondary" onClick={saveProjectName} disabled={busy !== null || storiesLocked}>
+                          Guardar nombre
+                        </button>
+                        <button className="button danger" onClick={() => setDeleteTarget(selected)}>Eliminar</button>
+                      </>
+                    )}
                     <button className="button secondary" onClick={stopProject} disabled={!canStop || busy !== null || stopState === "stopping"}>{stopButtonLabel}</button>
+                    {embedParams.embed && isEditablePhase(currentPhase) && (
+                      <button type="button" className="button" onClick={() => void launchGeneration()} disabled={busy !== null || storiesLocked}>
+                        Generar aplicación
+                      </button>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -668,12 +696,12 @@ export default function App() {
               </div>
 
               <div className="tabs">
-                {(["stories", "console", "result"] as Tab[]).map((item) => (
+                {visibleTabs.map((item) => (
                   <button key={item} className={`tab ${tab === item ? "active" : ""}`} onClick={() => setTab(item)}>{item === "stories" ? "Historias de Usuario" : item === "console" ? "Proceso de Ejecución" : "Resultado"}</button>
                 ))}
               </div>
 
-              {tab === "stories" && (
+              {tab === "stories" && !embedParams.embed && (
                 <div className="card stack">
                   <textarea className="field" value={selected.userStories} onChange={(event) => setProjects((current) => current.map((project) => (project.id === selected.id ? { ...project, userStories: event.target.value } : project)))} disabled={storiesLocked} />
                   <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
@@ -729,7 +757,9 @@ export default function App() {
                   </div>
 
                   <div className="grid-two">
-                    <div><div className="meta">Nombre</div><strong>{selected.name}</strong></div>
+                    {!embedParams.embed && (
+                      <div><div className="meta">Nombre</div><strong>{selected.name}</strong></div>
+                    )}
                     <div><div className="meta">ZIP</div><strong>{formatBytes(selected.zipSizeBytes)}</strong></div>
                     <div><div className="meta">Archivos</div><strong>{selected.fileCount ?? workspaceStats?.fileCount ?? 0}</strong></div>
                     <div><div className="meta">Fecha</div><strong>{formatDate(selected.completedAt)}</strong></div>
@@ -756,6 +786,14 @@ export default function App() {
                 </div>
               )}
             </>
+          ) : embedParams.embed ? (
+            <div className="card">
+              {!embedParams.sddProjectId ? (
+                <p className="muted">Falta el identificador del proyecto en la URL del iframe.</p>
+              ) : (
+                <p className="muted">Cargando proyecto de generación…</p>
+              )}
+            </div>
           ) : (
             <div className="card">No hay proyectos todavía. Crea uno para empezar.</div>
           )}
@@ -800,7 +838,9 @@ export default function App() {
         </Modal>
       )}
 
-      <div className="footer">OpenCode: gpt-5.4-mini · WebSocket + polling por proyecto · OpenSpec local por proyecto</div>
+      {!embedParams.embed && (
+        <div className="footer">OpenCode: gpt-5.4-mini · WebSocket + polling por proyecto · OpenSpec local por proyecto</div>
+      )}
     </div>
   );
 }

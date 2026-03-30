@@ -12,7 +12,15 @@ export function createApp() {
   app.use(express.json({ limit: "5mb" }));
   app.use(
     cors({
-      origin: [env.apiBaseUrl, env.ragAppUrl, env.managerUrl, "http://localhost:3002", "http://localhost:3000", "http://localhost:3001"],
+      origin: [
+        env.apiBaseUrl,
+        env.ragAppUrl,
+        env.managerUrl,
+        "http://localhost:3002",
+        "http://localhost:3000",
+        "http://localhost:3001",
+        ...env.nextiTestingUrls,
+      ],
     }),
   );
 

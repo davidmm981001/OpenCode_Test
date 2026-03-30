@@ -1,0 +1,2 @@
+Replace logo-nexti.png with the official NexTI mark from your brand kit.
+This repository ships a geometric placeholder (navy/mint/white) for CI and local builds.

@@ -1,0 +1,1598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TestFlow — STLC Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Funnel+Display:wght@400;600;700&family=Work+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#04142a;
+  --surface:#071e3d;
+  --surface2:#0a2850;
+  --surface3:#0d3060;
+  --green:#05E194;
+  --green-dim:rgba(5,225,148,0.15);
+  --green-soft:rgba(5,225,148,0.08);
+  --blue:#052158;
+  --text:#e8f1ff;
+  --text2:#7a9cc4;
+  --text3:#4a6a94;
+  --border:rgba(5,225,148,0.18);
+  --border2:rgba(255,255,255,0.07);
+  --red:#ff4d6a;
+  --amber:#ffb547;
+  --teal:#00d4ff;
+  --radius:8px;
+  --radius-lg:12px;
+}
+body{font-family:'Work Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:220px;min-width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:relative;z-index:10}
+.logo{padding:22px 20px 16px;border-bottom:1px solid var(--border)}
+.logo-mark{display:flex;align-items:center;gap:8px}
+.logo-icon{width:30px;height:30px;background:var(--green);border-radius:6px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:18px;height:18px}
+.logo-text{font-family:'Funnel Display',sans-serif;font-size:17px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.logo-text span{color:var(--green)}
+.logo-sub{font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;padding-left:38px}
+.nav-section{padding:16px 12px 8px;flex:1;overflow-y:auto}
+.nav-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;padding:0 8px;margin-bottom:6px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;transition:all .15s;margin-bottom:2px;border:1px solid transparent}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--green-dim);color:var(--green);border-color:var(--border)}
+.nav-item svg{width:15px;height:15px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--surface3);color:var(--text2);font-size:10px;padding:2px 7px;border-radius:10px}
+.nav-item.active .nav-badge{background:rgba(5,225,148,0.2);color:var(--green)}
+.nav-divider{height:1px;background:var(--border2);margin:10px 0}
+.sidebar-bottom{padding:12px;border-top:1px solid var(--border)}
+.user-chip{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius);background:var(--surface2)}
+.user-avatar{width:28px;height:28px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;font-family:'Funnel Display',sans-serif;font-size:11px;font-weight:700;color:#04142a;flex-shrink:0}
+.user-info{flex:1;overflow:hidden}
+.user-name{font-size:12px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.user-role{font-size:10px;color:var(--text2)}
+.project-items{padding:4px 12px}
+.project-nav{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--text2);transition:all .15s;margin-bottom:1px}
+.project-nav:hover{background:var(--surface2);color:var(--text)}
+.project-nav.active{color:var(--green)}
+.project-dot{width:6px;height:6px;border-radius:50%;background:var(--text3);flex-shrink:0}
+.project-nav.active .project-dot{background:var(--green)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{height:56px;border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 28px;gap:16px;background:var(--surface);flex-shrink:0}
+.topbar-title{font-family:'Funnel Display',sans-serif;font-size:16px;font-weight:600;color:var(--text);flex:1}
+.topbar-actions{display:flex;align-items:center;gap:8px}
+.content{flex:1;overflow-y:auto;padding:28px}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--radius);font-family:'Work Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;transition:all .15s;text-decoration:none;white-space:nowrap}
+.btn-primary{background:var(--green);color:#04142a;border-color:var(--green)}
+.btn-primary:hover{background:#04c880;box-shadow:0 0 16px rgba(5,225,148,0.25)}
+.btn-secondary{background:var(--surface2);color:var(--text);border-color:var(--border2)}
+.btn-secondary:hover{background:var(--surface3);border-color:var(--border)}
+.btn-ghost{background:transparent;color:var(--text2);border-color:transparent}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.btn-danger{background:rgba(255,77,106,0.12);color:var(--red);border-color:rgba(255,77,106,0.3)}
+.btn-danger:hover{background:rgba(255,77,106,0.2)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+.btn svg{width:14px;height:14px}
+
+/* VIEWS */
+.view{display:none}
+.view.active{display:block}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-family:'Funnel Display',sans-serif;font-size:15px;font-weight:600;color:var(--text)}
+.card-subtitle{font-size:12px;color:var(--text2);margin-top:2px}
+
+/* PROJECT CARDS GRID */
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.project-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.project-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green);transform:scaleX(0);transform-origin:left;transition:transform .2s}
+.project-card:hover::before{transform:scaleX(1)}
+.project-card:hover{border-color:var(--border);background:var(--surface2);transform:translateY(-1px)}
+.project-card-code{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);letter-spacing:0.5px;margin-bottom:8px}
+.project-card-name{font-family:'Funnel Display',sans-serif;font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
+.project-card-desc{font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.5}
+.project-meta{display:flex;gap:12px;flex-wrap:wrap}
+.meta-chip{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);background:var(--surface2);padding:4px 9px;border-radius:20px}
+.meta-chip svg{width:12px;height:12px}
+
+/* TABS */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border2);margin-bottom:24px}
+.tab{padding:10px 16px;font-size:13px;font-weight:500;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--green);border-bottom-color:var(--green)}
+.tab svg{width:14px;height:14px}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+/* UPLOAD AREAS */
+.upload-zone{border:1.5px dashed var(--border);border-radius:var(--radius-lg);padding:28px;text-align:center;cursor:pointer;transition:all .2s;background:var(--green-soft)}
+.upload-zone:hover{border-color:var(--green);background:var(--green-dim)}
+.upload-icon{width:40px;height:40px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;margin:0 auto 12px}
+.upload-icon svg{width:20px;height:20px;color:var(--green)}
+.upload-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px}
+.upload-sub{font-size:12px;color:var(--text2)}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+
+/* CODE EDITOR */
+.code-editor{background:#020d1a;border:1px solid var(--border2);border-radius:var(--radius);padding:0;overflow:hidden}
+.code-header{background:var(--surface2);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border2)}
+.code-lang{font-size:11px;color:var(--green);font-family:'JetBrains Mono',monospace}
+.code-body{padding:14px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#a8c7e8;min-height:160px;resize:vertical;width:100%;background:transparent;border:none;outline:none;line-height:1.7}
+
+/* FORM ELEMENTS */
+.form-group{margin-bottom:16px}
+.form-label{display:block;font-size:12px;font-weight:500;color:var(--text2);margin-bottom:6px;letter-spacing:0.3px}
+.form-input{width:100%;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);padding:9px 13px;font-family:'Work Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .15s}
+.form-input:focus{border-color:var(--green)}
+.form-input::placeholder{color:var(--text3)}
+select.form-input option{background:#071e3d}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-textarea{min-height:100px;resize:vertical;line-height:1.6}
+
+/* STORIES */
+.story-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);margin-bottom:12px;overflow:hidden}
+.story-header{padding:14px 18px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:background .15s}
+.story-header:hover{background:var(--surface2)}
+.story-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green);min-width:60px}
+.story-title{font-size:13px;font-weight:500;color:var(--text);flex:1}
+.story-status{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.status-generated{background:rgba(5,225,148,0.15);color:var(--green)}
+.status-pending{background:rgba(255,181,71,0.15);color:var(--amber)}
+.status-review{background:rgba(0,212,255,0.15);color:var(--teal)}
+.story-body{padding:14px 18px;border-top:1px solid var(--border2);display:none}
+.story-body.open{display:block}
+.criteria-list{list-style:none;margin-top:10px}
+.criteria-item{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--border2);font-size:12px;color:var(--text2)}
+.criteria-item:last-child{border-bottom:none}
+.criteria-dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;margin-top:4px}
+
+/* TEST CASES */
+.test-table{width:100%;border-collapse:collapse}
+.test-table th{text-align:left;padding:9px 14px;font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border2);background:var(--surface2)}
+.test-table td{padding:10px 14px;font-size:12px;color:var(--text);border-bottom:1px solid var(--border2);vertical-align:middle}
+.test-table tr:hover td{background:var(--surface2)}
+.test-table tr:last-child td{border-bottom:none}
+.tc-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--green)}
+.tc-priority{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500}
+.priority-high{background:rgba(255,77,106,0.15);color:var(--red)}
+.priority-med{background:rgba(255,181,71,0.15);color:var(--amber)}
+.priority-low{background:rgba(5,225,148,0.12);color:var(--green)}
+.tc-type{font-size:11px;padding:2px 8px;border-radius:20px;background:var(--surface3);color:var(--text2)}
+
+/* AUTOMATION CARDS */
+.framework-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:20px}
+.framework-card{background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:18px;cursor:pointer;transition:all .2s;text-align:center}
+.framework-card:hover{border-color:var(--border);background:var(--surface2)}
+.framework-card.selected{border-color:var(--green);background:var(--green-dim)}
+.framework-logo{width:44px;height:44px;border-radius:10px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500}
+.framework-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px}
+.framework-desc{font-size:11px;color:var(--text2)}
+.fw-pw{background:rgba(45,205,75,0.15);color:#2dcd4b}
+.fw-se{background:rgba(0,200,255,0.15);color:#00c8ff}
+.fw-sr{background:rgba(255,181,71,0.15);color:var(--amber)}
+.fw-cu{background:rgba(35,162,96,0.15);color:#23a260}
+.fw-pg{background:rgba(150,100,255,0.15);color:#9664ff}
+
+/* JIRA CONFIG */
+.jira-status{display:flex;align-items:center;gap:10px;padding:14px 18px;background:var(--surface2);border-radius:var(--radius);margin-bottom:20px;border:1px solid var(--border2)}
+.jira-dot{width:10px;height:10px;border-radius:50%;background:var(--red)}
+.jira-dot.connected{background:var(--green);box-shadow:0 0 8px rgba(5,225,148,0.4)}
+
+/* AI GENERATION */
+.ai-panel{background:linear-gradient(135deg,rgba(5,33,88,0.8),rgba(4,20,42,0.8));border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:20px;position:relative;overflow:hidden}
+.ai-panel::before{content:'';position:absolute;top:-50%;right:-50%;width:200%;height:200%;background:radial-gradient(circle at 80% 50%,rgba(5,225,148,0.04),transparent 50%);pointer-events:none}
+.ai-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.ai-icon{width:34px;height:34px;border-radius:8px;background:var(--green-dim);border:1px solid var(--border);display:flex;align-items:center;justify-content:center}
+.ai-icon svg{width:18px;height:18px;color:var(--green)}
+.ai-title{font-family:'Funnel Display',sans-serif;font-size:15px;font-weight:600;color:var(--text)}
+.ai-desc{font-size:12px;color:var(--text2);margin-bottom:16px;line-height:1.6}
+
+/* PROGRESS */
+.progress-bar{height:3px;background:var(--surface3);border-radius:2px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width .5s}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(4,20,42,0.85);z-index:100;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);width:580px;max-width:90vw;max-height:85vh;overflow-y:auto}
+.modal-head{padding:20px 24px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-family:'Funnel Display',sans-serif;font-size:17px;font-weight:600;color:var(--text)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border2);display:flex;justify-content:flex-end;gap:8px}
+.close-btn{width:30px;height:30px;border-radius:6px;background:var(--surface2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+.close-btn:hover{color:var(--text);background:var(--surface3)}
+
+/* STATS ROW */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:16px;position:relative;overflow:hidden}
+.stat-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--accent,var(--green))}
+.stat-label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.stat-value{font-family:'Funnel Display',sans-serif;font-size:28px;font-weight:700;color:var(--text)}
+.stat-sub{font-size:11px;color:var(--text2);margin-top:4px}
+
+/* BREADCRUMB */
+.breadcrumb{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text2);margin-bottom:20px}
+.breadcrumb a{color:var(--text2);text-decoration:none;cursor:pointer}
+.breadcrumb a:hover{color:var(--green)}
+.breadcrumb-sep{color:var(--text3)}
+.breadcrumb-current{color:var(--text)}
+
+/* INLINE EDIT */
+.inline-edit{display:flex;align-items:center;gap:6px}
+.edit-input{background:var(--surface2);border:1px solid var(--green);border-radius:var(--radius);padding:4px 8px;font-size:12px;color:var(--text);font-family:'Work Sans',sans-serif;outline:none;min-width:200px}
+.chip-lang{font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(0,212,255,0.12);color:var(--teal);padding:3px 9px;border-radius:20px}
+
+/* LOADING */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.loading{animation:pulse 1.5s infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--border)}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 24px}
+.empty-icon{width:56px;height:56px;border-radius:16px;background:var(--surface2);display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.empty-icon svg{width:24px;height:24px;color:var(--text3)}
+.empty-title{font-family:'Funnel Display',sans-serif;font-size:17px;font-weight:600;color:var(--text);margin-bottom:6px}
+.empty-sub{font-size:13px;color:var(--text2);line-height:1.6;max-width:380px;margin:0 auto 20px}
+
+/* NOTIFICATION */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--green);border-radius:var(--radius);padding:12px 18px;display:flex;align-items:center;gap:10px;font-size:13px;color:var(--text);z-index:200;transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* FILE UPLOADED */
+.file-chip{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--surface2);border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;color:var(--text)}
+.file-chip svg{width:14px;height:14px;color:var(--green)}
+.file-chip-remove{margin-left:auto;color:var(--text3);cursor:pointer;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:3px}
+.file-chip-remove:hover{color:var(--red);background:rgba(255,77,106,0.1)}
+.file-chips{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg fill="none" viewBox="0 0 24 24" stroke="#04142a" stroke-width="2.5"><path d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">Test<span>Flow</span></div>
+      </div>
+    </div>
+    <div class="logo-sub">STLC Platform</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">General</div>
+    <div class="nav-item active" onclick="showView('projects')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Proyectos
+      <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" onclick="openNewProject()">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+      Nuevo Proyecto
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-label">Proyectos recientes</div>
+    <div id="project-nav-items">
+      <div class="project-nav active" onclick="openProject('BNK-001')">
+        <div class="project-dot"></div>
+        BNK-001 · Core Banking
+      </div>
+      <div class="project-nav" onclick="openProject('INS-002')">
+        <div class="project-dot"></div>
+        INS-002 · SaludSa JAMS
+      </div>
+      <div class="project-nav" onclick="openProject('ESB-003')">
+        <div class="project-dot"></div>
+        ESB-003 · OSB Migration
+      </div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-item" onclick="showView('settings')">
+      <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      Configuración
+    </div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="user-chip">
+      <div class="user-avatar">DB</div>
+      <div class="user-info">
+        <div class="user-name">David Balseca</div>
+        <div class="user-role">Solution Architect</div>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- ============ VIEW: PROJECTS LIST ============ -->
+  <div class="view active" id="view-projects">
+    <div class="topbar">
+      <div class="topbar-title">Proyectos</div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary btn-sm">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          Buscar
+        </button>
+        <button class="btn btn-primary btn-sm" onclick="openNewProject()">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Nuevo Proyecto
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="stats-row">
+        <div class="stat-card" style="--accent:var(--green)">
+          <div class="stat-label">Total Proyectos</div>
+          <div class="stat-value">3</div>
+          <div class="stat-sub">2 activos este mes</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--teal)">
+          <div class="stat-label">Historias Generadas</div>
+          <div class="stat-value">47</div>
+          <div class="stat-sub">Across all projects</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--amber)">
+          <div class="stat-label">Casos de Prueba</div>
+          <div class="stat-value">184</div>
+          <div class="stat-sub">12 pendientes revisión</div>
+        </div>
+        <div class="stat-card" style="--accent:var(--red)">
+          <div class="stat-label">Sincronizados Jira</div>
+          <div class="stat-value">38</div>
+          <div class="stat-sub">9 en cola</div>
+        </div>
+      </div>
+
+      <div class="projects-grid">
+        <div class="project-card" onclick="openProject('BNK-001')">
+          <div class="project-card-code">BNK-001</div>
+          <div class="project-card-name">Core Banking API</div>
+          <div class="project-card-desc">Migración OSB → AWS API Gateway. Módulos de seguridad y conciliación Visa Direct.</div>
+          <div class="project-meta">
+            <div class="meta-chip">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              Java
+            </div>
+            <div class="meta-chip">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+              22 historias
+            </div>
+            <div class="meta-chip" style="color:var(--green)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Activo
+            </div>
+          </div>
+        </div>
+
+        <div class="project-card" onclick="openProject('INS-002')">
+          <div class="project-card-code">INS-002</div>
+          <div class="project-card-name">SaludSa — JAMS Migration</div>
+          <div class="project-card-desc">Migración Hangfire a JAMS. Módulo de Fees y Coberturas con motor de reglas.</div>
+          <div class="project-meta">
+            <div class="meta-chip">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              .NET 8
+            </div>
+            <div class="meta-chip">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+              15 historias
+            </div>
+            <div class="meta-chip" style="color:var(--amber)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              En revisión
+            </div>
+          </div>
+        </div>
+
+        <div class="project-card" onclick="openProject('ESB-003')">
+          <div class="project-card-code">ESB-003</div>
+          <div class="project-card-name">OSB → API Migration</div>
+          <div class="project-card-desc">Modernización ESB Banco Bolivariano. Análisis ESQL y COBOL batch a microservicios.</div>
+          <div class="project-meta">
+            <div class="meta-chip">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+              COBOL / ESQL
+            </div>
+            <div class="meta-chip">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+              10 historias
+            </div>
+            <div class="meta-chip" style="color:var(--teal)">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Nuevo
+            </div>
+          </div>
+        </div>
+
+        <!-- NEW PROJECT CARD -->
+        <div class="project-card" style="border-style:dashed;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:160px;gap:10px" onclick="openNewProject()">
+          <div style="width:40px;height:40px;border-radius:50%;border:1.5px dashed var(--border);display:flex;align-items:center;justify-content:center;color:var(--text3)">
+            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:18px;height:18px"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          </div>
+          <div style="font-size:13px;color:var(--text3)">Crear nuevo proyecto</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VIEW: PROJECT DETAIL ============ -->
+  <div class="view" id="view-project">
+    <div class="topbar">
+      <div class="topbar-title" id="project-topbar-title">BNK-001 · Core Banking API</div>
+      <div class="topbar-actions">
+        <span class="chip-lang" id="project-lang-chip">Java</span>
+        <button class="btn btn-ghost btn-sm">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+          Configurar
+        </button>
+      </div>
+    </div>
+    <div class="content">
+      <div class="breadcrumb">
+        <a onclick="showView('projects')">Proyectos</a>
+        <span class="breadcrumb-sep">/</span>
+        <span class="breadcrumb-current" id="bc-project-name">BNK-001</span>
+      </div>
+
+      <div class="tabs" id="project-tabs">
+        <div class="tab active" onclick="switchTab('overview')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          Resumen
+        </div>
+        <div class="tab" onclick="switchTab('docs')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Documentación
+        </div>
+        <div class="tab" onclick="switchTab('stories')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Historias de Usuario
+          <span class="nav-badge">22</span>
+        </div>
+        <div class="tab" onclick="switchTab('testcases')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+          Casos de Prueba
+          <span class="nav-badge">84</span>
+        </div>
+        <div class="tab" onclick="switchTab('automation')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Automatización
+        </div>
+        <div class="tab" onclick="switchTab('jira')">
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:14px;height:14px"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+          Jira
+        </div>
+      </div>
+
+      <!-- TAB: OVERVIEW -->
+      <div class="tab-content active" id="tab-overview">
+        <div class="stats-row">
+          <div class="stat-card" style="--accent:var(--teal)">
+            <div class="stat-label">Requerimientos</div>
+            <div class="stat-value">12</div>
+            <div class="stat-sub">Funcionales cargados</div>
+          </div>
+          <div class="stat-card" style="--accent:var(--green)">
+            <div class="stat-label">Historias Generadas</div>
+            <div class="stat-value">22</div>
+            <div class="stat-sub">Con criterios de aceptación</div>
+          </div>
+          <div class="stat-card" style="--accent:var(--amber)">
+            <div class="stat-label">Casos de Prueba</div>
+            <div class="stat-value">84</div>
+            <div class="stat-sub">18 pendientes ejecución</div>
+          </div>
+          <div class="stat-card" style="--accent:var(--red)">
+            <div class="stat-label">Tests Automatizados</div>
+            <div class="stat-value">56</div>
+            <div class="stat-sub">Playwright · Configurado</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Información del Proyecto</div></div>
+              <button class="btn btn-ghost btn-xs">Editar</button>
+            </div>
+            <table style="width:100%;font-size:13px;border-collapse:collapse">
+              <tr><td style="color:var(--text2);padding:7px 0;width:140px">Código</td><td style="font-family:'JetBrains Mono',monospace;color:var(--green)">BNK-001</td></tr>
+              <tr><td style="color:var(--text2);padding:7px 0;border-top:1px solid var(--border2)">Proyecto</td><td style="padding-top:7px;border-top:1px solid var(--border2)">Core Banking API</td></tr>
+              <tr><td style="color:var(--text2);padding:7px 0;border-top:1px solid var(--border2)">Lenguaje</td><td style="padding-top:7px;border-top:1px solid var(--border2)"><span class="chip-lang">Java · Spring Boot</span></td></tr>
+              <tr><td style="color:var(--text2);padding:7px 0;border-top:1px solid var(--border2)">Cliente</td><td style="padding-top:7px;border-top:1px solid var(--border2)">Banco Internacional</td></tr>
+              <tr><td style="color:var(--text2);padding:7px 0;border-top:1px solid var(--border2)">Framework QA</td><td style="padding-top:7px;border-top:1px solid var(--border2)">Playwright + Cucumber</td></tr>
+              <tr><td style="color:var(--text2);padding:7px 0;border-top:1px solid var(--border2)">Jira</td><td style="padding-top:7px;border-top:1px solid var(--border2);color:var(--green)">Conectado · BNK</td></tr>
+            </table>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">Progreso del Ciclo</div></div>
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px"><span>Documentación cargada</span><span style="color:var(--green)">100%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:100%;background:var(--green)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px"><span>Historias generadas</span><span style="color:var(--green)">100%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px"><span>Casos de prueba</span><span style="color:var(--amber)">73%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:73%;background:var(--amber)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px"><span>Tests automatizados</span><span style="color:var(--teal)">67%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:67%;background:var(--teal)"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px"><span>Sincronizado Jira</span><span style="color:var(--red)">45%</span></div>
+                <div class="progress-bar"><div class="progress-fill" style="width:45%;background:var(--red)"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: DOCUMENTACIÓN -->
+      <div class="tab-content" id="tab-docs">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+          <!-- Requerimientos Funcionales -->
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Requerimientos Funcionales</div><div class="card-subtitle">Documento de especificación funcional</div></div>
+            </div>
+            <div class="upload-zone" onclick="simulateUpload('req')">
+              <div class="upload-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+              <div class="upload-title">Arrastrar archivo o hacer clic</div>
+              <div class="upload-sub">.pdf, .docx, .txt — máx. 10MB</div>
+            </div>
+            <div class="file-chips" id="files-req">
+              <div class="file-chip">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                RF_CoreBanking_v2.1.docx
+                <span class="file-chip-remove" onclick="removeFile(this)">×</span>
+              </div>
+            </div>
+          </div>
+          <!-- Historias de Usuario (raw) -->
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Historias de Usuario (Base)</div><div class="card-subtitle">Historias en formato raw o Jira export</div></div>
+            </div>
+            <div class="upload-zone" onclick="simulateUpload('stories-raw')">
+              <div class="upload-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 2 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+              <div class="upload-title">Subir historias base</div>
+              <div class="upload-sub">.pdf, .docx, .csv, .json</div>
+            </div>
+            <div class="file-chips" id="files-stories-raw">
+              <div class="file-chip">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                HU_export_jira.csv
+                <span class="file-chip-remove" onclick="removeFile(this)">×</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- COBOL + ESQL editors -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Código COBOL</div><div class="card-subtitle">Programa batch o online COBOL</div></div>
+              <button class="btn btn-ghost btn-xs" onclick="clearCode('cobol')">Limpiar</button>
+            </div>
+            <div class="code-editor">
+              <div class="code-header">
+                <span class="code-lang">COBOL</span>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-xs">Pegar</button>
+                  <button class="btn btn-ghost btn-xs" onclick="simulateUpload('cobol-file')">Subir archivo</button>
+                </div>
+              </div>
+              <textarea class="code-body" id="code-cobol" placeholder="       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CORECALC.
+       ENVIRONMENT DIVISION.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-SALDO         PIC 9(10)V99.
+       01 WS-INTERES       PIC 9(8)V9(4).
+       PROCEDURE DIVISION.
+           COMPUTE WS-INTERES = WS-SALDO * 0.0425
+           STOP RUN.">       IDENTIFICATION DIVISION.
+       PROGRAM-ID. CORECALC.
+       DATA DIVISION.
+       WORKING-STORAGE SECTION.
+       01 WS-CUENTA        PIC X(16).
+       01 WS-SALDO         PIC 9(10)V99.
+       01 WS-TIPO          PIC X(2).
+       PROCEDURE DIVISION.
+           MOVE '001-1234567-000' TO WS-CUENTA
+           COMPUTE WS-SALDO = WS-SALDO - WS-DEBITO
+           STOP RUN.</textarea>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <div><div class="card-title">Código ESQL (IBM IIB/ACE)</div><div class="card-subtitle">Message flow ESQL del bus de datos</div></div>
+              <button class="btn btn-ghost btn-xs" onclick="clearCode('esql')">Limpiar</button>
+            </div>
+            <div class="code-editor">
+              <div class="code-header">
+                <span class="code-lang">ESQL · IBM ACE/IIB</span>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-xs">Pegar</button>
+                  <button class="btn btn-ghost btn-xs" onclick="simulateUpload('esql-file')">Subir archivo</button>
+                </div>
+              </div>
+              <textarea class="code-body" id="code-esql" placeholder="CREATE COMPUTE MODULE CoreBanking_Compute
+  CREATE FUNCTION Main() RETURNS BOOLEAN
+  BEGIN
+    SET OutputRoot = InputRoot;
+    SET OutputRoot.JSON.Data.codigo =
+      InputRoot.JSON.Data.cuenta;
+    RETURN TRUE;
+  END;
+END MODULE;">CREATE COMPUTE MODULE TransfValidation_Compute
+  CREATE FUNCTION Main() RETURNS BOOLEAN
+  BEGIN
+    DECLARE saldo DECIMAL;
+    SET saldo = InputRoot.JSON.Data.saldoDisponible;
+    IF saldo >= InputRoot.JSON.Data.monto THEN
+      SET OutputRoot.JSON.Data.resultado = 'APROBADO';
+    ELSE
+      SET OutputRoot.JSON.Data.resultado = 'RECHAZADO';
+    END IF;
+    RETURN TRUE;
+  END;
+END MODULE;</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Generation Panel -->
+        <div class="ai-panel">
+          <div class="ai-header">
+            <div class="ai-icon">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+            </div>
+            <div>
+              <div class="ai-title">Generación de Historias con IA</div>
+            </div>
+          </div>
+          <div class="ai-desc">
+            Con la documentación cargada (requerimientos funcionales, código COBOL/ESQL y las historias base), la IA analizará el contexto técnico y de negocio para generar historias de usuario con criterios de aceptación detallados en formato BDD.
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <button class="btn btn-primary" onclick="generateStories()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Generar Historias de Usuario
+            </button>
+            <button class="btn btn-secondary" onclick="switchTab('stories')">Ver historias existentes</button>
+            <div id="gen-spinner" style="display:none"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: HISTORIAS DE USUARIO -->
+      <div class="tab-content" id="tab-stories">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <div style="font-family:'Funnel Display',sans-serif;font-size:18px;font-weight:600;color:var(--text)">Historias de Usuario</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">22 historias · Con criterios de aceptación BDD</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-secondary btn-sm">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Exportar
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="addStory()">+ Nueva Historia</button>
+          </div>
+        </div>
+
+        <div id="stories-list">
+          <div class="story-card">
+            <div class="story-header" onclick="toggleStory(this)">
+              <span class="story-id">HU-001</span>
+              <div style="flex:1">
+                <div class="story-title">Como usuario autenticado, quiero transferir fondos entre cuentas propias</div>
+                <div style="font-size:11px;color:var(--text2);margin-top:2px">Módulo: Transferencias · 5 criterios de aceptación</div>
+              </div>
+              <span class="story-status status-generated">Generada</span>
+              <div style="display:flex;gap:4px;margin-left:8px">
+                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();editStory('HU-001')">Editar</button>
+                <button class="btn btn-primary btn-xs" onclick="event.stopPropagation();syncToJira('HU-001')">→ Jira</button>
+              </div>
+            </div>
+            <div class="story-body">
+              <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
+                <strong style="color:var(--text)">Descripción:</strong> Como usuario bancario autenticado mediante OAuth 2.0 + MFA, quiero poder realizar transferencias de fondos entre mis cuentas registradas, de manera que pueda gestionar mi liquidez sin necesidad de acudir a un canal presencial.
+              </div>
+              <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px">Criterios de Aceptación:</div>
+              <ul class="criteria-list">
+                <li class="criteria-item"><div class="criteria-dot"></div><div><strong style="color:var(--text)">DADO</strong> que el usuario está autenticado y tiene saldo disponible, <strong style="color:var(--text)">CUANDO</strong> ingresa monto válido y cuenta destino propia, <strong style="color:var(--text)">ENTONCES</strong> la transferencia se procesa en menos de 3 segundos.</div></li>
+                <li class="criteria-item"><div class="criteria-dot"></div><div><strong style="color:var(--text)">DADO</strong> que el monto excede el saldo disponible, <strong style="color:var(--text)">CUANDO</strong> intenta confirmar la operación, <strong style="color:var(--text)">ENTONCES</strong> el sistema retorna error E-4001 con mensaje descriptivo.</div></li>
+                <li class="criteria-item"><div class="criteria-dot"></div><div><strong style="color:var(--text)">DADO</strong> que la transferencia es exitosa, <strong style="color:var(--text)">ENTONCES</strong> se genera registro en el módulo COBOL CORECALC y se actualiza saldo en tiempo real.</div></li>
+                <li class="criteria-item"><div class="criteria-dot"></div><div><strong style="color:var(--text)">DADO</strong> que el servicio ESQL TransfValidation responde RECHAZADO, <strong style="color:var(--text)">ENTONCES</strong> se registra en el log de auditoría y se notifica al usuario.</div></li>
+                <li class="criteria-item"><div class="criteria-dot"></div><div><strong style="color:var(--text)">DADO</strong> un fallo de red durante la operación, <strong style="color:var(--text)">ENTONCES</strong> el sistema implementa rollback y no debita el saldo.</div></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="story-card">
+            <div class="story-header" onclick="toggleStory(this)">
+              <span class="story-id">HU-002</span>
+              <div style="flex:1">
+                <div class="story-title">Como administrador, quiero configurar reglas de límites de transferencia por perfil de usuario</div>
+                <div style="font-size:11px;color:var(--text2);margin-top:2px">Módulo: Seguridad · 4 criterios de aceptación</div>
+              </div>
+              <span class="story-status status-review">En revisión</span>
+              <div style="display:flex;gap:4px;margin-left:8px">
+                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();editStory('HU-002')">Editar</button>
+                <button class="btn btn-secondary btn-xs" onclick="event.stopPropagation()">Revisando</button>
+              </div>
+            </div>
+            <div class="story-body">
+              <div style="font-size:12px;color:var(--text2);margin-bottom:12px">
+                <strong style="color:var(--text)">Descripción:</strong> Como administrador del sistema de seguridad, necesito poder configurar límites diarios, semanales y mensuales de transferencia diferenciados por perfil de usuario (retail, empresarial, VIP), para cumplir con regulaciones de la Superintendencia de Bancos.
+              </div>
+              <ul class="criteria-list">
+                <li class="criteria-item"><div class="criteria-dot"></div><div><strong style="color:var(--text)">DADO</strong> que el administrador accede al módulo de configuración, <strong style="color:var(--text)">CUANDO</strong> modifica límite de perfil empresarial, <strong style="color:var(--text)">ENTONCES</strong> el cambio aplica en el próximo ciclo transaccional (máx. 5 min).</div></li>
+                <li class="criteria-item"><div class="criteria-dot"></div><div><strong style="color:var(--text)">DADO</strong> que un límite es modificado, <strong style="color:var(--text)">ENTONCES</strong> el módulo ESQL TransfValidation recibe la nueva regla vía message flow actualizado.</div></li>
+                <li class="criteria-item"><div class="criteria-dot"></div><div><strong style="color:var(--text)">DADO</strong> que se intenta configurar un límite de $0, <strong style="color:var(--text)">ENTONCES</strong> el sistema valida y rechaza la configuración con error de negocio.</div></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="story-card">
+            <div class="story-header" onclick="toggleStory(this)">
+              <span class="story-id">HU-003</span>
+              <div style="flex:1">
+                <div class="story-title">Como usuario, quiero consultar el historial de movimientos con filtros avanzados</div>
+                <div style="font-size:11px;color:var(--text2);margin-top:2px">Módulo: Consultas · 6 criterios de aceptación</div>
+              </div>
+              <span class="story-status status-pending">Pendiente</span>
+              <div style="display:flex;gap:4px;margin-left:8px">
+                <button class="btn btn-ghost btn-xs" onclick="event.stopPropagation();editStory('HU-003')">Editar</button>
+                <button class="btn btn-primary btn-xs" onclick="event.stopPropagation();syncToJira('HU-003')">→ Jira</button>
+              </div>
+            </div>
+            <div class="story-body" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: CASOS DE PRUEBA -->
+      <div class="tab-content" id="tab-testcases">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+          <div>
+            <div style="font-family:'Funnel Display',sans-serif;font-size:18px;font-weight:600;color:var(--text)">Casos de Prueba</div>
+            <div style="font-size:12px;color:var(--text2);margin-top:2px">84 casos · Generados desde historias de usuario</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <select class="form-input btn-sm" style="width:auto;font-size:12px;padding:5px 10px">
+              <option>Todas las historias</option>
+              <option>HU-001</option>
+              <option>HU-002</option>
+              <option>HU-003</option>
+            </select>
+            <button class="btn btn-secondary btn-sm">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Generar CPs de HU
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="openAddTestCase()">+ Agregar caso</button>
+          </div>
+        </div>
+
+        <div class="card" style="padding:0;overflow:hidden">
+          <table class="test-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Historia</th>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Prioridad</th>
+                <th>Estado</th>
+                <th style="width:100px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tc-table-body">
+              <tr>
+                <td><span class="tc-id">TC-001</span></td>
+                <td style="color:var(--text2)">HU-001</td>
+                <td>Transferencia exitosa con saldo suficiente</td>
+                <td><span class="tc-type">Funcional</span></td>
+                <td><span class="tc-priority priority-high">Alta</span></td>
+                <td><span class="story-status status-generated">Listo</span></td>
+                <td>
+                  <div style="display:flex;gap:4px">
+                    <button class="btn btn-ghost btn-xs" onclick="editTestCase('TC-001')">✏</button>
+                    <button class="btn btn-ghost btn-xs" style="color:var(--red)">✕</button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td><span class="tc-id">TC-002</span></td>
+                <td style="color:var(--text2)">HU-001</td>
+                <td>Transferencia rechazada por saldo insuficiente (error E-4001)</td>
+                <td><span class="tc-type">Negativo</span></td>
+                <td><span class="tc-priority priority-high">Alta</span></td>
+                <td><span class="story-status status-generated">Listo</span></td>
+                <td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="editTestCase('TC-002')">✏</button><button class="btn btn-ghost btn-xs" style="color:var(--red)">✕</button></div></td>
+              </tr>
+              <tr>
+                <td><span class="tc-id">TC-003</span></td>
+                <td style="color:var(--text2)">HU-001</td>
+                <td>Rollback automático ante falla de red durante transferencia</td>
+                <td><span class="tc-type">Edge case</span></td>
+                <td><span class="tc-priority priority-med">Media</span></td>
+                <td><span class="story-status status-review">Revisión</span></td>
+                <td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="editTestCase('TC-003')">✏</button><button class="btn btn-ghost btn-xs" style="color:var(--red)">✕</button></div></td>
+              </tr>
+              <tr>
+                <td><span class="tc-id">TC-004</span></td>
+                <td style="color:var(--text2)">HU-001</td>
+                <td>Validación ESQL: TransfValidation retorna RECHAZADO</td>
+                <td><span class="tc-type">Integración</span></td>
+                <td><span class="tc-priority priority-high">Alta</span></td>
+                <td><span class="story-status status-generated">Listo</span></td>
+                <td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="editTestCase('TC-004')">✏</button><button class="btn btn-ghost btn-xs" style="color:var(--red)">✕</button></div></td>
+              </tr>
+              <tr>
+                <td><span class="tc-id">TC-005</span></td>
+                <td style="color:var(--text2)">HU-002</td>
+                <td>Configurar límite perfil empresarial — propagación en 5 min</td>
+                <td><span class="tc-type">Performance</span></td>
+                <td><span class="tc-priority priority-med">Media</span></td>
+                <td><span class="story-status status-pending">Pendiente</span></td>
+                <td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="editTestCase('TC-005')">✏</button><button class="btn btn-ghost btn-xs" style="color:var(--red)">✕</button></div></td>
+              </tr>
+              <tr>
+                <td><span class="tc-id">TC-006</span></td>
+                <td style="color:var(--text2)">HU-002</td>
+                <td>Rechazo de límite $0 — validación de negocio</td>
+                <td><span class="tc-type">Negativo</span></td>
+                <td><span class="tc-priority priority-low">Baja</span></td>
+                <td><span class="story-status status-generated">Listo</span></td>
+                <td><div style="display:flex;gap:4px"><button class="btn btn-ghost btn-xs" onclick="editTestCase('TC-006')">✏</button><button class="btn btn-ghost btn-xs" style="color:var(--red)">✕</button></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;font-size:12px;color:var(--text2)">
+          <span>Mostrando 6 de 84 casos</span>
+          <div style="display:flex;gap:4px">
+            <button class="btn btn-ghost btn-xs">← Anterior</button>
+            <button class="btn btn-secondary btn-xs">1</button>
+            <button class="btn btn-ghost btn-xs">2</button>
+            <button class="btn btn-ghost btn-xs">3</button>
+            <button class="btn btn-ghost btn-xs">Siguiente →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: AUTOMATIZACIÓN -->
+      <div class="tab-content" id="tab-automation">
+        <div style="font-family:'Funnel Display',sans-serif;font-size:18px;font-weight:600;color:var(--text);margin-bottom:4px">Generación de Tests Automatizados</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:20px">Selecciona el framework y configura los parámetros para generar el código de pruebas automáticamente.</div>
+
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Framework de Automatización</div></div>
+          <div class="framework-grid">
+            <div class="framework-card selected" onclick="selectFramework(this)">
+              <div class="framework-logo fw-pw">PW</div>
+              <div class="framework-name">Playwright</div>
+              <div class="framework-desc">E2E moderno · TypeScript</div>
+            </div>
+            <div class="framework-card" onclick="selectFramework(this)">
+              <div class="framework-logo fw-se">SE</div>
+              <div class="framework-name">Selenium</div>
+              <div class="framework-desc">Cross-browser · Java</div>
+            </div>
+            <div class="framework-card" onclick="selectFramework(this)">
+              <div class="framework-logo fw-sr">SB</div>
+              <div class="framework-name">Serenity BDD</div>
+              <div class="framework-desc">Reportes avanzados</div>
+            </div>
+            <div class="framework-card" onclick="selectFramework(this)">
+              <div class="framework-logo fw-cu">CU</div>
+              <div class="framework-name">Cucumber</div>
+              <div class="framework-desc">BDD · Gherkin</div>
+            </div>
+            <div class="framework-card" onclick="selectFramework(this)">
+              <div class="framework-logo fw-pg">PG</div>
+              <div class="framework-name">Playwright+Cucumber</div>
+              <div class="framework-desc">BDD + E2E combinado</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Configuración de Generación</div></div>
+            <div class="form-group">
+              <label class="form-label">Lenguaje de salida</label>
+              <select class="form-input">
+                <option>TypeScript</option>
+                <option>JavaScript</option>
+                <option>Java</option>
+                <option>Python</option>
+                <option>C#</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Patrón de diseño</label>
+              <select class="form-input">
+                <option>Page Object Model (POM)</option>
+                <option>Screenplay Pattern</option>
+                <option>BDD + Step Definitions</option>
+                <option>Fluent Interface</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Base URL del entorno</label>
+              <input class="form-input" placeholder="https://uat.banco-int.com" value="https://uat.banco-int.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Casos a automatizar</label>
+              <select class="form-input">
+                <option>Todos los casos (84)</option>
+                <option>Solo alta prioridad (32)</option>
+                <option>Casos de HU-001 (18)</option>
+                <option>Selección manual</option>
+              </select>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><div class="card-title">CI/CD e Integración</div></div>
+            <div class="form-group">
+              <label class="form-label">Pipeline CI/CD</label>
+              <select class="form-input">
+                <option>GitHub Actions</option>
+                <option>Azure DevOps Pipelines</option>
+                <option>Jenkins</option>
+                <option>GitLab CI</option>
+                <option>Solo generar código</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Reporte de resultados</label>
+              <select class="form-input">
+                <option>Allure Report</option>
+                <option>HTML integrado</option>
+                <option>Serenity Report</option>
+                <option>JUnit XML</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Directorio de salida</label>
+              <input class="form-input" placeholder="./tests/e2e" value="./tests/e2e/playwright">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Timeout por caso (ms)</label>
+              <input class="form-input" type="number" value="30000">
+            </div>
+          </div>
+        </div>
+
+        <div class="ai-panel">
+          <div class="ai-header">
+            <div class="ai-icon">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div>
+              <div class="ai-title">Generar código de pruebas automatizadas</div>
+            </div>
+          </div>
+          <div class="ai-desc">La IA generará el código Playwright + TypeScript con Page Object Model para los 84 casos de prueba. Se incluirán fixtures, helpers de autenticación OAuth y stubs para el módulo ESQL.</div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" onclick="generateAutomation()">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Generar Código Automatizado
+            </button>
+            <button class="btn btn-secondary">Vista previa de ejemplo</button>
+          </div>
+          <div id="automation-progress" style="display:none;margin-top:14px">
+            <div style="font-size:12px;color:var(--text2);margin-bottom:6px" id="auto-progress-text">Analizando casos de prueba...</div>
+            <div class="progress-bar"><div class="progress-fill" id="auto-progress-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+
+        <!-- Generated code preview -->
+        <div id="generated-code-section" style="display:none">
+          <div class="card" style="margin-top:16px">
+            <div class="card-header">
+              <div><div class="card-title">Código Generado — TC-001.spec.ts</div></div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-secondary btn-sm">
+                  <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Descargar ZIP
+                </button>
+                <button class="btn btn-primary btn-sm">Copiar al repositorio</button>
+              </div>
+            </div>
+            <div class="code-editor">
+              <div class="code-header"><span class="code-lang">TypeScript · Playwright</span></div>
+              <textarea class="code-body" readonly style="height:200px">import { test, expect } from '@playwright/test';
+import { TransferPage } from '../pages/TransferPage';
+import { AuthHelper } from '../helpers/AuthHelper';
+
+test.describe('HU-001 — Transferencia entre cuentas propias', () => {
+  
+  test('TC-001: Transferencia exitosa con saldo suficiente', async ({ page }) => {
+    const auth = new AuthHelper(page);
+    const transferPage = new TransferPage(page);
+    
+    await auth.loginOAuth({ user: process.env.TEST_USER, mfa: true });
+    await transferPage.navigate();
+    
+    await transferPage.selectSourceAccount('001-1234567-000');
+    await transferPage.selectDestinationAccount('001-7654321-000');
+    await transferPage.enterAmount(500.00);
+    
+    const startTime = Date.now();
+    await transferPage.confirmTransfer();
+    const elapsed = Date.now() - startTime;
+    
+    await expect(transferPage.successMessage).toBeVisible();
+    expect(elapsed).toBeLessThan(3000); // SLA < 3s
+    await expect(transferPage.newBalance).toContainText('$');
+  });
+
+  test('TC-002: Rechazo por saldo insuficiente — Error E-4001', async ({ page }) => {
+    // ...
+  });
+});</textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: JIRA -->
+      <div class="tab-content" id="tab-jira">
+        <div style="font-family:'Funnel Display',sans-serif;font-size:18px;font-weight:600;color:var(--text);margin-bottom:4px">Integración Jira</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:20px">Sincroniza automáticamente historias de usuario y casos de prueba con tu proyecto Jira.</div>
+
+        <div class="jira-status">
+          <div class="jira-dot connected"></div>
+          <div>
+            <div style="font-size:13px;font-weight:500;color:var(--text)">Conectado a Jira Cloud</div>
+            <div style="font-size:11px;color:var(--text2)">banco-internacional.atlassian.net · Proyecto: BNK</div>
+          </div>
+          <button class="btn btn-ghost btn-sm" style="margin-left:auto">Reconectar</button>
+          <button class="btn btn-danger btn-sm">Desconectar</button>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+          <div class="card">
+            <div class="card-header"><div class="card-title">Configuración de Conexión</div></div>
+            <div class="form-group">
+              <label class="form-label">URL de Jira</label>
+              <input class="form-input" value="https://banco-internacional.atlassian.net">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email / API Token</label>
+              <input class="form-input" type="password" value="••••••••••••••••••••">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Clave del proyecto Jira</label>
+              <input class="form-input" value="BNK">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo de issue para Historias</label>
+              <select class="form-input">
+                <option>Story</option>
+                <option>User Story</option>
+                <option>Feature</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tipo de issue para Casos de Prueba</label>
+              <select class="form-input">
+                <option>Test (Zephyr)</option>
+                <option>Sub-task</option>
+                <option>Task</option>
+                <option>Bug</option>
+              </select>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="testJiraConnection()">Probar conexión</button>
+          </div>
+
+          <div class="card">
+            <div class="card-header"><div class="card-title">Mapeo de Campos</div></div>
+            <div class="form-group">
+              <label class="form-label">Sprint activo</label>
+              <select class="form-input">
+                <option>Sprint 12 — Core Banking API</option>
+                <option>Sprint 13 (próximo)</option>
+                <option>Backlog (sin sprint)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Epic Link</label>
+              <input class="form-input" value="BNK-42 · API Migration Epic">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Asignado por defecto</label>
+              <input class="form-input" placeholder="email@banco.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Etiquetas automáticas</label>
+              <input class="form-input" value="qa-automated, testflow, bnk-001">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prioridad — mapeo</label>
+              <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:center;font-size:12px">
+                <span class="tc-priority priority-high">Alta (TestFlow)</span>
+                <span style="color:var(--text3)">→</span>
+                <span style="color:var(--text)">Highest (Jira)</span>
+                <span class="tc-priority priority-med" style="margin-top:4px">Media</span>
+                <span style="color:var(--text3)">→</span>
+                <span style="color:var(--text)">Medium</span>
+                <span class="tc-priority priority-low" style="margin-top:4px">Baja</span>
+                <span style="color:var(--text3)">→</span>
+                <span style="color:var(--text)">Low</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div><div class="card-title">Cola de Sincronización</div><div class="card-subtitle">9 elementos pendientes de replicar</div></div>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-secondary btn-sm">Seleccionar todo</button>
+              <button class="btn btn-primary btn-sm" onclick="syncAll()">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+                Sincronizar ahora
+              </button>
+            </div>
+          </div>
+          <table class="test-table">
+            <thead>
+              <tr>
+                <th style="width:30px"><input type="checkbox" onchange="toggleAll(this)" style="accent-color:var(--green)"></th>
+                <th>Item</th>
+                <th>Tipo</th>
+                <th>Estado</th>
+                <th>Jira ID</th>
+                <th>Última sincronización</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" checked style="accent-color:var(--green)"></td>
+                <td>HU-001 · Transferencia entre cuentas</td>
+                <td><span class="tc-type">Historia</span></td>
+                <td><span class="story-status status-generated">Sincronizado</span></td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal)">BNK-145</td>
+                <td style="color:var(--text2);font-size:11px">Hace 2h</td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked style="accent-color:var(--green)"></td>
+                <td>HU-002 · Límites de transferencia</td>
+                <td><span class="tc-type">Historia</span></td>
+                <td><span class="story-status status-pending">Pendiente</span></td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">—</td>
+                <td style="color:var(--text2);font-size:11px">Sin sincronizar</td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" style="accent-color:var(--green)"></td>
+                <td>TC-001 · Transferencia exitosa</td>
+                <td><span class="tc-type">Caso prueba</span></td>
+                <td><span class="story-status status-pending">Pendiente</span></td>
+                <td style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text3)">—</td>
+                <td style="color:var(--text2);font-size:11px">Sin sincronizar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ VIEW: SETTINGS ============ -->
+  <div class="view" id="view-settings">
+    <div class="topbar">
+      <div class="topbar-title">Configuración Global</div>
+    </div>
+    <div class="content">
+      <div style="max-width:680px">
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Integraciones de IA</div></div>
+          <div class="form-group">
+            <label class="form-label">Modelo de IA para generación de historias</label>
+            <select class="form-input">
+              <option>Claude Sonnet 4.5 (Recomendado)</option>
+              <option>Claude Opus 4</option>
+              <option>GPT-4o</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">API Key (Anthropic)</label>
+            <input class="form-input" type="password" placeholder="sk-ant-...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Idioma de generación</label>
+            <select class="form-input"><option>Español (Ecuador)</option><option>Inglés</option><option>Portugués</option></select>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:16px">
+          <div class="card-header"><div class="card-title">Configuración Jira Global</div></div>
+          <div class="form-group">
+            <label class="form-label">URL base Jira</label>
+            <input class="form-input" value="https://nextisolutions.atlassian.net">
+          </div>
+          <div class="form-group">
+            <label class="form-label">API Token global</label>
+            <input class="form-input" type="password" value="••••••••••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Plugin de tests</label>
+            <select class="form-input"><option>Zephyr Scale</option><option>Xray</option><option>TestRail (webhook)</option><option>Issues nativos</option></select>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Preferencias de Generación</div></div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Formato criterios de aceptación</label>
+              <select class="form-input"><option>BDD (Dado/Cuando/Entonces)</option><option>Tabla de decisión</option><option>Checklist</option></select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Cobertura mínima de casos (%)</label>
+              <input class="form-input" type="number" value="80">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Template de casos de prueba</label>
+            <select class="form-input"><option>IEEE 829</option><option>ISTQB</option><option>Personalizado NexTI</option></select>
+          </div>
+          <button class="btn btn-primary" onclick="saveSettings()">Guardar configuración</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- MODAL: NEW PROJECT -->
+<div class="modal-overlay" id="modal-new-project">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Nuevo Proyecto</div>
+      <button class="close-btn" onclick="closeModal('modal-new-project')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Código del proyecto *</label>
+          <input class="form-input" id="new-proj-code" placeholder="Ej: BNK-004" style="font-family:'JetBrains Mono',monospace">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Lenguaje principal *</label>
+          <select class="form-input" id="new-proj-lang">
+            <option>Java · Spring Boot</option>
+            <option>.NET 8 / C#</option>
+            <option>COBOL</option>
+            <option>COBOL + ESQL (IBM IIB/ACE)</option>
+            <option>Python</option>
+            <option>Node.js</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Nombre del proyecto *</label>
+        <input class="form-input" id="new-proj-name" placeholder="Ej: Módulo de Seguridad v2.0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Cliente</label>
+        <input class="form-input" id="new-proj-client" placeholder="Ej: Banco Bolivariano">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción</label>
+        <textarea class="form-input form-textarea" placeholder="Breve descripción del alcance del proyecto..."></textarea>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Framework QA</label>
+          <select class="form-input">
+            <option>Playwright + TypeScript</option>
+            <option>Selenium + Java</option>
+            <option>Serenity BDD</option>
+            <option>Cucumber + Java</option>
+            <option>Playwright + Cucumber</option>
+            <option>Por definir</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Proyecto Jira</label>
+          <input class="form-input" placeholder="Clave Jira (ej: BNK)">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-new-project')">Cancelar</button>
+      <button class="btn btn-primary" onclick="createProject()">Crear Proyecto</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: EDIT TEST CASE -->
+<div class="modal-overlay" id="modal-edit-tc">
+  <div class="modal" style="width:640px">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-tc-title">Editar Caso de Prueba — TC-001</div>
+      <button class="close-btn" onclick="closeModal('modal-edit-tc')">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="width:16px;height:16px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">ID del caso</label>
+          <input class="form-input" value="TC-001" style="font-family:'JetBrains Mono',monospace">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Historia de Usuario</label>
+          <select class="form-input"><option>HU-001</option><option>HU-002</option><option>HU-003</option></select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Descripción del caso *</label>
+        <input class="form-input" value="Transferencia exitosa con saldo suficiente">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Precondiciones</label>
+        <textarea class="form-input form-textarea" style="min-height:70px">- Usuario autenticado con OAuth 2.0 + MFA
+- Cuenta origen con saldo >= $500
+- Cuenta destino perteneciente al mismo titular</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pasos de ejecución</label>
+        <textarea class="form-input form-textarea">1. Navegar a Transferencias > Entre cuentas propias
+2. Seleccionar cuenta origen: 001-1234567-000
+3. Seleccionar cuenta destino: 001-7654321-000
+4. Ingresar monto: $500.00
+5. Confirmar con PIN/token
+6. Verificar confirmación pantalla</textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Resultado esperado</label>
+        <textarea class="form-input form-textarea" style="min-height:70px">- Mensaje de éxito visible en pantalla
+- Tiempo de respuesta menor a 3 segundos
+- Saldo actualizado en ambas cuentas
+- Registro generado en módulo CORECALC</textarea>
+      </div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Tipo</label>
+          <select class="form-input"><option>Funcional</option><option>Negativo</option><option>Edge case</option><option>Integración</option><option>Performance</option><option>Seguridad</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prioridad</label>
+          <select class="form-input"><option>Alta</option><option>Media</option><option>Baja</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-edit-tc')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveTestCase()">Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-dot"></div>
+  <span id="toast-msg">Acción completada</span>
+</div>
+
+<script>
+const state = {currentProject: 'BNK-001', currentTab: 'overview'};
+
+function showView(v) {
+  document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+  document.getElementById('view-' + v).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+  if(v === 'projects') document.querySelectorAll('.nav-item')[0].classList.add('active');
+  if(v === 'settings') document.querySelectorAll('.nav-item')[2].classList.add('active');
+}
+
+function openProject(code) {
+  state.currentProject = code;
+  const projects = {
+    'BNK-001': {name: 'Core Banking API', lang: 'Java · Spring Boot'},
+    'INS-002': {name: 'SaludSa — JAMS Migration', lang: '.NET 8'},
+    'ESB-003': {name: 'OSB Migration', lang: 'COBOL / ESQL'}
+  };
+  const p = projects[code];
+  document.getElementById('project-topbar-title').textContent = code + ' · ' + p.name;
+  document.getElementById('project-lang-chip').textContent = p.lang;
+  document.getElementById('bc-project-name').textContent = code;
+  document.querySelectorAll('.project-nav').forEach(x => x.classList.remove('active'));
+  event.currentTarget && event.currentTarget.classList && event.currentTarget.classList.add('active');
+  switchTab('overview');
+  showView('project');
+}
+
+function switchTab(t) {
+  state.currentTab = t;
+  document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+  const tabMap = {overview:0, docs:1, stories:2, testcases:3, automation:4, jira:5};
+  document.querySelectorAll('.tab')[tabMap[t]].classList.add('active');
+  document.getElementById('tab-' + t).classList.add('active');
+}
+
+function toggleStory(header) {
+  const body = header.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function openNewProject() {
+  document.getElementById('modal-new-project').classList.add('open');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function createProject() {
+  const code = document.getElementById('new-proj-code').value;
+  const name = document.getElementById('new-proj-name').value;
+  if(!code || !name) { showToast('Completa los campos requeridos'); return; }
+  closeModal('modal-new-project');
+  showToast('Proyecto ' + code + ' creado exitosamente');
+}
+
+function editTestCase(id) {
+  document.getElementById('modal-tc-title').textContent = 'Editar Caso de Prueba — ' + id;
+  document.getElementById('modal-edit-tc').classList.add('open');
+}
+
+function openAddTestCase() {
+  document.getElementById('modal-tc-title').textContent = 'Agregar Caso de Prueba';
+  document.getElementById('modal-edit-tc').classList.add('open');
+}
+
+function saveTestCase() {
+  closeModal('modal-edit-tc');
+  showToast('Caso de prueba guardado correctamente');
+}
+
+function editStory(id) {
+  showToast('Abriendo editor de historia ' + id);
+}
+
+function addStory() {
+  showToast('Abriendo formulario de nueva historia');
+}
+
+function syncToJira(id) {
+  showToast(id + ' enviado a Jira · Cola de sincronización');
+}
+
+function syncAll() {
+  showToast('Sincronizando 9 elementos con Jira...');
+  setTimeout(() => showToast('Sincronización completada · 9 items en Jira'), 2000);
+}
+
+function testJiraConnection() {
+  showToast('Conectando con Jira Cloud...');
+  setTimeout(() => showToast('Conexión exitosa · banco-internacional.atlassian.net'), 1500);
+}
+
+function saveSettings() {
+  showToast('Configuración global guardada');
+}
+
+function selectFramework(card) {
+  document.querySelectorAll('.framework-card').forEach(x => x.classList.remove('selected'));
+  card.classList.add('selected');
+  const name = card.querySelector('.framework-name').textContent;
+  showToast('Framework seleccionado: ' + name);
+}
+
+function generateStories() {
+  const spinner = document.getElementById('gen-spinner');
+  spinner.style.display = 'flex';
+  showToast('IA analizando documentación y código...');
+  setTimeout(() => {
+    spinner.style.display = 'none';
+    showToast('22 historias generadas con criterios de aceptación');
+    switchTab('stories');
+  }, 2500);
+}
+
+function generateAutomation() {
+  const prog = document.getElementById('automation-progress');
+  const bar = document.getElementById('auto-progress-bar');
+  const txt = document.getElementById('auto-progress-text');
+  prog.style.display = 'block';
+  const steps = [
+    [10, 'Analizando casos de prueba...'],
+    [30, 'Generando estructura Page Objects...'],
+    [55, 'Creando specs Playwright...'],
+    [75, 'Configurando fixtures y helpers OAuth...'],
+    [90, 'Generando stubs ESQL...'],
+    [100, '84 archivos generados exitosamente']
+  ];
+  let i = 0;
+  const run = () => {
+    if(i < steps.length) {
+      bar.style.width = steps[i][0] + '%';
+      txt.textContent = steps[i][1];
+      i++;
+      setTimeout(run, 600);
+    } else {
+      setTimeout(() => {
+        prog.style.display = 'none';
+        document.getElementById('generated-code-section').style.display = 'block';
+        showToast('Código automatizado generado · 84 specs Playwright');
+      }, 400);
+    }
+  };
+  run();
+}
+
+function simulateUpload(type) {
+  const labels = {
+    'req': 'RF_documento_v3.pdf cargado',
+    'stories-raw': 'historias_base.csv cargado',
+    'cobol-file': 'programa.cbl cargado',
+    'esql-file': 'message_flow.esql cargado'
+  };
+  showToast(labels[type] || 'Archivo cargado exitosamente');
+}
+
+function removeFile(btn) {
+  btn.closest('.file-chip').remove();
+}
+
+function clearCode(id) {
+  document.getElementById('code-' + id).value = '';
+}
+
+function toggleAll(cb) {
+  document.querySelectorAll('#tab-jira input[type="checkbox"]').forEach(x => x.checked = cb.checked);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', e => { if(e.target === o) o.classList.remove('open'); });
+});
+
+// Init: show project view directly
+openProject('BNK-001');
+</script>
+</body>
+</html>

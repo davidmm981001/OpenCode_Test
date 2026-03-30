@@ -94,7 +94,7 @@ export const getDefaultProviderConfig = (provider: string) => {
 };
 
 export const fetchModelConfig = async (): Promise<ModelConfigType> => {
-  const res = await fetch(`${getBaseURL()}/api/chat/config/models`);
+  const res = await fetch(`${getBaseURL()}/api/management/config/models`);
   if (!res.ok) {
     throw new Error("Failed to fetch model config");
   }

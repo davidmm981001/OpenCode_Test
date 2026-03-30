@@ -1,0 +1,130 @@
+{
+  "name": "US Generation v1 (Replacement)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "user-story-generation",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "234b4e7c-db38-45d2-b527-cf85a0d3c494",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-1080, 120],
+      "webhookId": "user-story-generation"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\n\nconst contractVersion = body.contractVersion ?? 'legacy';\nconst requestId = body.requestId ?? `REQ-${Date.now()}`;\nconst projectId = body.projectId ?? null;\nconst projectName = body.projectName ?? 'Proyecto';\nconst documentationText = String(body.documentationText ?? '').trim();\nconst baseStoriesText = String(body.baseStoriesText ?? '').trim();\nconst codeContext = Array.isArray(body.codeContext) ? body.codeContext : [];\nconst apiResources = Array.isArray(body.apiResources) ? body.apiResources : [];\n\nif (!documentationText && !baseStoriesText && codeContext.length === 0) {\n  throw new Error('No hay contexto suficiente para generar historias de usuario.');\n}\n\nreturn [{\n  json: {\n    contractVersion,\n    requestId,\n    projectId,\n    projectName,\n    documentationText,\n    baseStoriesText,\n    codeContext,\n    ...(apiResources.length ? { apiResources } : {})\n  }\n}];"
+      },
+      "id": "fadf47de-4d4a-434d-839b-3366a888df1e",
+      "name": "Prepare US Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-820, 120]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un analista funcional senior y Product Owner. Adaptas vocabulario, actores, reglas y módulos al **sector y dominio que infieras del documento** (finanzas, salud, retail, legado COBOL/CICS, Web Forms ASP.NET, APIs, etc.). No asumas un sector concreto si el texto no lo dice.\n\nOBJETIVO: Transformar todas las funcionalidades identificadas en historias de usuario listas para migración a:\n- Frontend: React\n- Backend: Java Spring (APIs REST)\n- Base de datos: PostgreSQL\n\nLas historias deben ser implementables en esa pila manteniendo equivalencia funcional con el origen (legado, Web Forms, APIs actuales, etc.). En technicalNotes, cuando haya base en codeContext o en la documentación, incluye orientaciones concretas de mapeo a React / Spring (REST) / PostgreSQL; no inventes requisitos fuera del input.\n\nENTRADAS:\n- documentationText, baseStoriesText, codeContext, apiResources (opcional) como en el payload.\n\nREGLA CENTRAL: Cada historia **anclada al contenido real** (secciones, procesos, reglas, roles, mapas BMS, transacciones, páginas .aspx, servicios). Si hay ambigüedad, dilo en description y acota la hipótesis al fragmento.\n\nPROHIBIDO: títulos vagos (\"Flujo 1\", \"Módulo general\"); description trivial (<120 palabras) si el documento tiene sustancia; criterios genéricos; repetir en description listas completas que ya van en businessRules o functionalFlow.\n\nOBLIGATORIO:\n1) Volumen: documento extenso → 8-20 historias; breve → 5-10.\n2) title: qué se logra y para quién/caso de uso, con términos del documento.\n3) description: ~150-400 palabras, narrativa de negocio, valor y alcance; al menos una referencia explícita al fuente; **no** dupliques functionalFlow ni businessRules completos.\n4) module: área funcional estable (menús, transacciones, carpetas, dominio de negocio del texto).\n5) actor: rol o actor principal según contexto; nombres de rol finos (admin, operador, etc.) solo si el documento o código los distinguen explícitamente.\n6) functionalFlow: pasos usuario/sistema, numerados o párrafos claros.\n7) screensInvolved: mapas BMS, .aspx, pantallas o rutas del contexto; si no hay UI en el input, \"N/A\".\n8) businessRules: validaciones, reglas y casos límite del texto/código.\n9) technicalNotes: solo con base en codeContext o doc técnica (ej. CICS→REST, ViewState→estado cliente). Si no hay señal, cadena vacía.\n10) criteria: documento sustancial → mínimo 6 criterios Gherkin \"Dado/cuando/entonces\" con datos concretos; documento muy breve → mínimo 4. **Redacción de criterios:** (a) Si el sistema origen refresca listados tras altas/bajas o re-bind (p. ej. postback WebForms), en la migración React+SPA exige que, tras la operación exitosa, el listado se actualice para reflejar el estado persistido en PostgreSQL **sin depender solo de una recarga manual completa de página**, cuando eso equivalga al comportamiento legado. (b) Para contratos REST: no afirmes que \"la respuesta HTTP contiene únicamente\" ciertos datos (existen cabeceras, código de estado); formula que **el cuerpo JSON** del recurso (p. ej. cada elemento del array) expone **solo** los campos de negocio acordados. (c) Evita criterios ambiguos que mezclen metadatos HTTP con el payload.\n11) modules (raíz del JSON): una entrada por cada **module** distinto usado en stories, con name, order (1..n) y summary de una línea. order = prioridad de presentación.\n12) apiResources: úsalos si existen; no inventes endpoints.\n13) status siempre \"generated\".\n\nResponde SOLO JSON válido, sin markdown:\n{\n  \"runId\": \"string\",\n  \"requestId\": \"string\",\n  \"projectId\": \"string|null\",\n  \"modules\": [{ \"name\": \"string\", \"order\": 1, \"summary\": \"string\" }],\n  \"stories\": [\n    {\n      \"title\": \"string\",\n      \"description\": \"string\",\n      \"module\": \"string\",\n      \"actor\": \"string\",\n      \"functionalFlow\": \"string\",\n      \"screensInvolved\": \"string\",\n      \"businessRules\": \"string\",\n      \"technicalNotes\": \"string\",\n      \"criteria\": [\"string\"],\n      \"status\": \"generated\"\n    }\n  ]\n}\n\nInput:\n{{ JSON.stringify($json, null, 2) }}"
+      },
+      "id": "52eff75b-1189-4db3-b3c7-297c30f73a56",
+      "name": "Generate User Stories JSON",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [-540, 120]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {
+          "timeout": 900000,
+          "maxRetries": 2,
+          "maxTokens": 16384
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [-700, 280],
+      "id": "4c3caff5-962d-4f48-b840-302f91c627ca",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PLKjMS5Q3Lpxskx2",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function safeParse(value) {\n  if (typeof value !== 'string') return null;\n  try { return JSON.parse(value); } catch { return null; }\n}\n\nfunction trimStr(v) {\n  return String(v ?? '').trim();\n}\n\nconst raw = $json.text ?? $json.response ?? $json.output ?? JSON.stringify($json);\nconst parsed = typeof raw === 'string' ? safeParse(raw) : raw;\n\nif (!parsed || typeof parsed !== 'object') {\n  throw new Error('El modelo no devolvió JSON válido.');\n}\nif (!Array.isArray(parsed.stories)) {\n  throw new Error('El JSON no contiene stories[].');\n}\n\nconst stories = parsed.stories\n  .filter((s) => s && typeof s === 'object')\n  .map((s) => {\n    const moduleName = trimStr(s.module) || 'General';\n    const screens = trimStr(s.screensInvolved) || 'N/A';\n    const detail = {\n      actor: trimStr(s.actor),\n      functionalFlow: trimStr(s.functionalFlow),\n      screensInvolved: screens,\n      businessRules: trimStr(s.businessRules),\n      technicalNotes: trimStr(s.technicalNotes),\n    };\n    return {\n      title: trimStr(s.title),\n      description: trimStr(s.description),\n      module: moduleName,\n      criteria: Array.isArray(s.criteria) ? s.criteria.map((c) => trimStr(c)).filter(Boolean) : [],\n      status: 'generated',\n      detail,\n    };\n  })\n  .filter((s) => s.title.length > 0);\n\nif (stories.length === 0) {\n  throw new Error('No se pudieron normalizar historias de usuario.');\n}\n\nfunction deriveModulesFromStories(list) {\n  const seen = [];\n  const keySet = new Set();\n  for (const s of list) {\n    const name = s.module || 'General';\n    if (!keySet.has(name)) {\n      keySet.add(name);\n      seen.push(name);\n    }\n  }\n  return seen.map((name, i) => ({ name, order: i + 1, summary: '' }));\n}\n\nlet modules = [];\nif (Array.isArray(parsed.modules) && parsed.modules.length > 0) {\n  modules = parsed.modules\n    .filter((m) => m && typeof m === 'object')\n    .map((m, i) => ({\n      name: trimStr(m.name) || `Módulo ${i + 1}`,\n      order: Number.isFinite(m.order) ? Number(m.order) : i + 1,\n      summary: trimStr(m.summary),\n    }))\n    .filter((m) => m.name.length > 0);\n}\nif (modules.length === 0) {\n  modules = deriveModulesFromStories(stories);\n}\n\nreturn [{\n  json: {\n    runId: String(parsed.runId ?? `RUN-${Date.now()}`),\n    requestId: String(parsed.requestId ?? ''),\n    projectId: parsed.projectId ?? null,\n    modules,\n    stories,\n  },\n}];"
+      },
+      "id": "c389ec10-054e-4f51-91c6-1e7fb837b7bb",
+      "name": "Parse User Stories",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-260, 120]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare US Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare US Input": {
+      "main": [
+        [
+          {
+            "node": "Generate User Stories JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate User Stories JSON": {
+      "main": [
+        [
+          {
+            "node": "Parse User Stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate User Stories JSON",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionTimeout": 960
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b35467aedc9aac9cd74b41779bfe567efc46d891837181b162014a3dfedf673b"
+  }
+}

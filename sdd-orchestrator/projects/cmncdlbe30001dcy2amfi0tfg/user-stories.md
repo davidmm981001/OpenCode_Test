@@ -1,1 +1,0 @@
-Como usuario quiero que el proyecto genere la app.

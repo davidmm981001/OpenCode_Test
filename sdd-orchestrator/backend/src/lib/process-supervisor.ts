@@ -246,7 +246,10 @@ function formatOpenCodeSpawnError(error: unknown) {
   const message = error instanceof Error ? error.message : "Unknown error";
   const code = typeof error === "object" && error && "code" in error ? String((error as { code?: string }).code ?? "") : "";
   if (code === "ENOENT") {
-    return `No se encontró el comando ${JSON.stringify(env.opencodeCommand)}. Instala OpenCode o ajusta OPENCODE_COMMAND.`;
+    if (env.opencodeUseNpx) {
+      return `No se encontró "npx" (Node.js). Instala Node o desactiva OPENCODE_USE_NPX y define OPENCODE_COMMAND con la ruta al binario opencode.`;
+    }
+    return `No se encontró el comando ${JSON.stringify(env.opencodeCommand)}. Instala OpenCode (p. ej. \`npm i -g opencode-ai\` o \`curl -fsSL https://opencode.ai/install | bash\`), o en backend/.env pon OPENCODE_USE_NPX=true, o ajusta OPENCODE_COMMAND.`;
   }
   return message;
 }

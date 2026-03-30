@@ -142,7 +142,26 @@ tmp/
 /ragapp/**/.env
 /manager/**/.env
 /sdd-orchestrator/**/.env
+
+# Generated app outputs (orchestrator workspaces; not source)
+/sdd-orchestrator/projects/
 **/.env.local
 **/.env.development
 **/.env.production
 **/.env.test
+
+# =========================
+# Nextitestingplatform (Vite / Firebase / Supabase CLI)
+# =========================
+Nextitestingplatform/node_modules/
+Nextitestingplatform/dist/
+Nextitestingplatform/.vite/
+Nextitestingplatform/build/
+Nextitestingplatform/coverage/
+Nextitestingplatform/*.tsbuildinfo
+Nextitestingplatform/.firebase/
+Nextitestingplatform/firebase-debug.log
+Nextitestingplatform/functions/node_modules/
+Nextitestingplatform/functions/.firebase/
+Nextitestingplatform/supabase/.temp/
+Nextitestingplatform/supabase/.branches/

@@ -1,1 +1,0 @@
-Como usuario quiero probar la estructura del proyecto.

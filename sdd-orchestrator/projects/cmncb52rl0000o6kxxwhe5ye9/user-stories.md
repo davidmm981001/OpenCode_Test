@@ -1,1 +1,0 @@
-Como usuario quiero validar la estructura final del workspace.

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${inter.className} background-gradient min-h-full`}>{children}</body>
+      <body className={`${inter.className} nexti-chat-shell min-h-full`}>{children}</body>
     </html>
   );
 }

@@ -44,6 +44,8 @@ COPY . .
 # Copy config as default config
 COPY config .config
 
+RUN chmod +x /app/entrypoint.sh
+
 # Create an empty data folder
 RUN mkdir -p data
 

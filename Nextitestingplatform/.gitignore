@@ -1,0 +1,11 @@
+/node_modules
+/dist
+/.firebase/
+/public/index.html
+/firebase-debug.log
+/.env
+/.env.local
+/.env.*.local
+
+/functions/node_modules/
+/functions/.firebase/

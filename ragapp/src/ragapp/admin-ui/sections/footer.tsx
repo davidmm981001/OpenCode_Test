@@ -1,17 +1,19 @@
 const Footer = () => {
   return (
-    <div className="p-4 text-center bg-gray-200 w-full">
+    <footer className="w-full border-t border-border bg-muted/60 px-4 py-3 text-center text-xs text-muted-foreground">
       <p>
-        Questions, feature requests or found a bug? Open an issue on&nbsp;
+        <span className="font-medium text-foreground">NexTI</span>
+        {" · "}
+        RAG Lab — soporte y mejoras vía{" "}
         <a
           href="https://github.com/ragapp/ragapp/issues/"
-          className="text-blue-500 hover:underline decoration-blue-500"
+          className="text-primary underline-offset-2 hover:underline"
         >
-          GitHub
+          GitHub (RAGapp upstream)
         </a>
-        .&nbsp;© 2024 by Schiesser IT, LLC.
+        .
       </p>
-    </div>
+    </footer>
   );
 };
 

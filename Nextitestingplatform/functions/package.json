@@ -1,0 +1,14 @@
+{
+  "name": "nexti-n8n-proxy-functions",
+  "private": true,
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "lint": "echo \"no lint\""
+  },
+  "dependencies": {
+    "firebase-functions": "^6.3.0",
+    "undici": "^6.20.0"
+  }
+}
+

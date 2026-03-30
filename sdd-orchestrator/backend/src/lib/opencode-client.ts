@@ -26,21 +26,26 @@ export function spawnOpenCodeServe(port: number, cwd: string) {
   }
 
   const useShell = process.platform === "win32";
+  const serveArgs = ["serve", "--port", String(port), "--hostname", env.opencodeServerHost];
+  const childEnv = {
+    ...process.env,
+    OPENAI_API_KEY: env.openaiApiKey,
+    ...extraEnv,
+  };
 
-  const child = spawn(
-    env.opencodeCommand,
-    ["serve", "--port", String(port), "--hostname", env.opencodeServerHost],
-    {
-      cwd,
-      env: {
-        ...process.env,
-        OPENAI_API_KEY: env.openaiApiKey,
-        ...extraEnv,
-      },
-      shell: useShell,
-      stdio: ["pipe", "pipe", "pipe"],
-    },
-  );
+  const child = env.opencodeUseNpx
+    ? spawn("npx", ["-y", env.opencodeNpxPackage, ...serveArgs], {
+        cwd,
+        env: childEnv,
+        shell: useShell,
+        stdio: ["pipe", "pipe", "pipe"],
+      })
+    : spawn(env.opencodeCommand, serveArgs, {
+        cwd,
+        env: childEnv,
+        shell: useShell,
+        stdio: ["pipe", "pipe", "pipe"],
+      });
 
   return child;
 }

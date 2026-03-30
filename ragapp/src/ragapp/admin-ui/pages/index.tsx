@@ -12,10 +12,12 @@ import { cn } from "@/lib/utils";
 import { AgentConfig } from "@/sections/config/agent";
 import { ChatConfig } from "@/sections/config/chat";
 import { ModelConfig } from "@/sections/config/model";
+import { NexTiHeaderChrome } from "@/components/nexti-header-chrome";
 import { DemoChat } from "@/sections/demoChat";
 import { Footer } from "@/sections/footer";
 import { Knowledge } from "@/sections/knowledge";
 import { StatusBar } from "@/sections/statusBar";
+import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
@@ -56,25 +58,65 @@ export default function Home() {
 
   return (
     <>
-      <main className="h-screen w-screen">
-        <div className="flex flex-col max-h-full h-full">
-          <div className="flex w-full shrink-0 items-center justify-between gap-3 border-b border-slate-200 bg-white px-4 py-3 text-sm sm:px-6">
-            <div className="font-semibold text-slate-900">Admin RAGapp</div>
-            <div className="flex items-center gap-2">
-              <a
-                href="http://localhost:3000"
-                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-white"
-              >
-                Ir al chat
-              </a>
-              <a
-                href="http://localhost:3001/admin"
-                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-700 transition hover:bg-white"
-              >
-                Recargar admin
-              </a>
-            </div>
-          </div>
+      <main className="nexti-admin-shell h-screen w-screen">
+        <div className="flex max-h-full h-full flex-col">
+          <NexTiHeaderChrome
+            left={
+              <div className="flex items-center gap-2">
+                {/* Logo — same markup as Sidebar.tsx */}
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-lg">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/logo-nexti.png"
+                    alt="NexTI"
+                    className="h-8 w-8 object-contain"
+                  />
+                </div>
+                <div>
+                  <div
+                    className="text-sm leading-tight text-white"
+                    style={{ fontWeight: 700, letterSpacing: "0.06em" }}
+                  >
+                    NexTI
+                  </div>
+                  <div
+                    className="uppercase leading-tight tracking-wider"
+                    style={{ color: "rgba(255,255,255,0.45)", fontWeight: 500, fontSize: "0.6rem" }}
+                  >
+                    RAG Lab
+                  </div>
+                </div>
+              </div>
+            }
+            right={
+              <div className="flex shrink-0 items-center gap-2">
+                {/* Chat static app is at site root; not a page in this Next app (basePath /admin). */}
+                {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
+                <a
+                  href="/"
+                  className="rounded-full px-3 py-1.5 text-xs font-medium text-white/90 transition"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    backdropFilter: "blur(8px)",
+                  }}
+                >
+                  Ir al chat
+                </a>
+                <Link
+                  href="/"
+                  className="rounded-full px-3 py-1.5 text-xs font-medium text-white/90 transition"
+                  style={{
+                    backgroundColor: "rgba(255,255,255,0.07)",
+                    border: "1px solid rgba(255,255,255,0.12)",
+                    backdropFilter: "blur(8px)",
+                  }}
+                >
+                  Recargar
+                </Link>
+              </div>
+            }
+          />
           <div className="w-full shrink-0">
             <StatusBar configured={configured ?? false} />
           </div>

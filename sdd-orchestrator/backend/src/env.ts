@@ -17,6 +17,9 @@ export const env = {
   managerUrl: process.env.MANAGER_URL ?? "http://localhost:3001",
   databaseUrl: process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/sdd_orchestrator?schema=public",
   openaiApiKey: process.env.OPENAI_API_KEY ?? "",
+  /** When true, runs `npx -y opencode-ai serve ...` instead of a global `opencode` binary. */
+  opencodeUseNpx: ["1", "true", "yes"].includes((process.env.OPENCODE_USE_NPX ?? "").toLowerCase()),
+  opencodeNpxPackage: process.env.OPENCODE_NPX_PACKAGE ?? "opencode-ai",
   opencodeCommand: process.env.OPENCODE_COMMAND ?? "opencode",
   opencodeModel: process.env.OPENCODE_MODEL ?? "openai/gpt-5.4-mini",
   opencodeSmallModel: process.env.OPENCODE_SMALL_MODEL ?? "openai/gpt-5.4-mini",
@@ -26,6 +29,11 @@ export const env = {
   processTimeoutMinutes: Number(process.env.PROCESS_TIMEOUT_MINUTES ?? "90"),
   rootDir: path.resolve(process.cwd(), ".."),
   backendRoot: process.cwd(),
+  /** Comma-separated browser origins allowed to call the SDD API (e.g. NexTI Vite dev server). */
+  nextiTestingUrls: (process.env.NEXTI_TESTING_URLS ?? "http://localhost:5173,http://127.0.0.1:5173")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
 };
 
 export function ensureDirSync(dir: string) {

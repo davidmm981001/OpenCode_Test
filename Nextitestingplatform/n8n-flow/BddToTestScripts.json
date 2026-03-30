@@ -1,0 +1,168 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -80,
+        368
+      ],
+      "id": "9c4ffb75-6179-40b2-a3dc-2d847d3d2702",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "PLKjMS5Q3Lpxskx2",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function tryParseJson(str) {\n  try {\n    return JSON.parse(str);\n  } catch {\n    return null;\n  }\n}\n\n/** Strip ```json / ``` at start; strip closing ``` if present (optional). */\nfunction stripMarkdownFence(s) {\n  let t = String(s).trim();\n  if (t.startsWith('```')) {\n    const nl = t.indexOf('\\n');\n    t = nl > 0 ? t.slice(nl + 1) : t.replace(/^```\\w*\\s*/i, '');\n  }\n  const idx = t.lastIndexOf('\\n```');\n  if (idx >= 0) {\n    t = t.slice(0, idx).trim();\n  } else if (t.endsWith('```')) {\n    t = t.slice(0, -3).trim();\n  }\n  return t.trim();\n}\n\n/** Extract one balanced {...} from first `{`, respecting strings (handles nested braces in strings). */\nfunction extractBalancedJsonFrom(s) {\n  const start = s.indexOf('{');\n  if (start < 0) return null;\n  let depth = 0;\n  let inStr = false;\n  let esc = false;\n  for (let i = start; i < s.length; i++) {\n    const c = s[i];\n    if (esc) {\n      esc = false;\n      continue;\n    }\n    if (inStr) {\n      if (c === '\\\\' && i + 1 < s.length) {\n        esc = true;\n        continue;\n      }\n      if (c === '\"') inStr = false;\n      continue;\n    }\n    if (c === '\"') {\n      inStr = true;\n      continue;\n    }\n    if (c === '{') depth++;\n    if (c === '}') {\n      depth--;\n      if (depth === 0) return s.slice(start, i + 1);\n    }\n  }\n  return null;\n}\n\nfunction tryParseLlmJson(raw) {\n  if (raw == null) return null;\n  if (typeof raw === 'object' && Array.isArray(raw.frameworkFiles)) return raw;\n  if (typeof raw !== 'string') return null;\n\n  const stripped = stripMarkdownFence(raw);\n  const direct = tryParseJson(stripped);\n  if (direct && Array.isArray(direct.frameworkFiles)) return direct;\n\n  const balanced = extractBalancedJsonFrom(stripped);\n  if (balanced) {\n    const p = tryParseJson(balanced);\n    if (p && Array.isArray(p.frameworkFiles)) return p;\n  }\n\n  const loose = stripped.replace(/,(\\s*[\\]}])/g, '$1');\n  const p2 = tryParseJson(loose);\n  if (p2 && Array.isArray(p2.frameworkFiles)) return p2;\n\n  return null;\n}\n\nfunction extractParsedPayload(root) {\n  if (!root || typeof root !== 'object') return null;\n  if (Array.isArray(root.frameworkFiles)) return root;\n\n  const raw =\n    root.text ?? root.response ?? root.output ?? (root.message && root.message.content);\n  if (raw == null) return null;\n  if (typeof raw === 'object') return raw;\n\n  return tryParseLlmJson(typeof raw === 'string' ? raw : String(raw));\n}\n\n// n8n injects $json\nconst parsed = extractParsedPayload($json);\nif (!parsed || !Array.isArray(parsed.frameworkFiles)) {\n  const preview =\n    typeof ($json && $json.text) === 'string' ? $json.text.slice(0, 800) : JSON.stringify($json).slice(0, 800);\n  throw new Error(\n    'Expected frameworkFiles[] in LLM output (check markdown fences, truncated JSON, or max tokens). Preview: ' +\n      preview,\n  );\n}\n\nconst frameworkFiles = parsed.frameworkFiles\n  .filter((f) => f && typeof f === 'object')\n  .map((f) => ({\n    framework: String(f.framework || '').trim(),\n    path: String(f.path || '').trim(),\n    content: String(f.content ?? ''),\n  }))\n  .filter((f) => f.framework && f.path);\n\nconst frameworkMessages = Array.isArray(parsed.frameworkMessages)\n  ? parsed.frameworkMessages\n      .filter((m) => m && typeof m === 'object')\n      .map((m) => ({\n        framework: String(m.framework || '').trim(),\n        level: String(m.level || 'info').trim(),\n        message: String(m.message || '').trim(),\n      }))\n      .filter((m) => m.framework && m.message)\n  : [];\n\nif (!frameworkFiles.length) {\n  throw new Error('No frameworkFiles generated. Expected at least one output file.');\n}\n\nreturn [\n  {\n    json: {\n      frameworkFiles,\n      frameworkMessages,\n    },\n  },\n];\n"
+      },
+      "id": "b3a1eea3-8091-4bd8-a3c4-c246e8d95197",
+      "name": "Parse Files JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        288,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-4.1-MINI"
+        },
+        "responses": {
+          "values": [
+            {}
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0dd1b19e-79da-4acb-ac4d-d42e3b1d4da4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PLKjMS5Q3Lpxskx2",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un asistente experto en automatizacion de pruebas. Debes generar archivos de pruebas segun el framework seleccionado por categoria.\n\nEntrada:\n- gherkin: string\n- feature_title: string\n- featureSlug: string\n- codeContext?: Array<{ fileName, language, content }>\n- requirementText?: string\n- test_hints?: { api?, validation?, state? }\n- aiRoles?: Array<{ name, description }>\n- scriptingLanguage?: string\n- maxScenarios?: number\n- minPositiveCases?: number\n- minNegativeCases?: number\n- istqbPrompt?: string\n- selectedFrameworkByCategory?: { api?: string|null, web?: string|null, performance?: string|null }\n- selectedFrameworks?: string[]\n- archetypePathsByFramework?: { [framework: string]: string[] } - rutas del arquetipo ZIP por framework\n- apiResources?: Array<{ id, name, baseUrl?, swaggerUrl?, openApiSummary?, openApiEndpoints? }> - recursos API múltiples preparados por la app (Swagger parseado). Usarlos como fuente principal para endpoints y contratos.\n\nObjetivo:\nGenerar archivos concretos para los frameworks seleccionados en API/Web/Performance.\n\nReglas:\n1) Genera archivos SOLAMENTE para frameworks en selectedFrameworkByCategory o selectedFrameworks.\n2) Frameworks validos: Karate, Playwright, Selenium, Serenity, k6, JMeter.\n3) Si archetypePathsByFramework tiene rutas para un framework, USA ESAS RUTAS para el campo path. Coloca .feature en carpetas features/, .spec.ts en tests o e2e/, .jmx en tests o scripts/, segun la estructura del arquetipo. El path debe ser una ruta completa que exista en archetypePathsByFramework (ej: karate-archetype/src/test/resources/features/mi-feature.feature).\n4) Si un framework no tiene suficiente contexto, igual devuelve scaffold util (no error).\n5) Usa istqbPrompt, minPositiveCases y minNegativeCases para influir en cobertura.\n6) Usa aiRoles (name + description) para tono y profundidad tecnica.\n7) Responde SOLO JSON valido.\n8) Si el gherkin tiene varios Escenario: o Scenario: (o muchos casos), NO condenses todo en un unico archivo salvo que archetypePathsByFramework fuerce una sola ruta. Prioriza varios elementos en frameworkFiles: por ejemplo varios .spec.ts (uno por escenario o por grupo), o .feature + steps/helpers/runner en archivos distintos. Con 4+ escenarios, como minimo 2 archivos por framework cuando el arquetipo lo permita.\n9) Si el gherkin incluye [Instrucción: este es el lote] o [Generación lote], ese payload es solo un SUBCONJUNTO de escenarios: debes cubrir TODOS los Escenario: o Scenario: de ese texto sin omitir ni resumir. El front puede enviar varios lotes; cada lote debe estar completo.\n10) Si selectedFrameworks o selectedFrameworkByCategory incluye Karate, cumple TODAS las reglas del apartado Karate en \"Guia minima por framework\" (Gherkin en ingles, DSL ejecutable, sin classpath invalidos).\n\nSalida requerida (JSON valido solamente):\n{\n  \"frameworkFiles\": [\n    { \"framework\": \"Karate|Playwright|Selenium|Serenity|k6|JMeter\", \"path\": \"string\", \"content\": \"string\" }\n  ],\n  \"frameworkMessages\": [\n    { \"framework\": \"Karate|Playwright|Selenium|Serenity|k6|JMeter\", \"level\": \"info|warning|error\", \"message\": \"string\" }\n  ]\n}\n\nGuia minima por framework:\n- Karate (OBLIGATORIO si generas Karate):\n  a) Gherkin en INGLES en cada .feature: Feature, Scenario, Background, Given, When, Then, And, But. NUNCA Funcionalidad, Escenario, Dado, Cuando, Entonces (Karate/Cucumber estandar no los usa asi en el mismo archivo).\n  b) Si el gherkin de entrada esta en español, TRADUCE titulos y reescribe cada paso como DSL Karate ejecutable (no dejes solo narrativa tipo \"Ingresar email valido\" sin url/method/request/status/match).\n  c) Pasos ejecutables: url, path, method, request, status, match, def, call read('classpath:...'). Cada escenario debe realizar al menos una llamada HTTP y validar status + cuerpo (match) o error esperado.\n  d) URLs: si el Input trae apiResources[*].baseUrl, usarla como base del API en features Karate y coherente con karate-config. Si trae apiResources[*].swaggerUrl, usarla como referencia de contrato/paths. No inventar URLs de ejemplo cuando esas vengan informadas; sin apiTesting, usar baseUrl/authLoginPath desde karate-config.js en el feature.\n  e) classpath: SOLO rutas bajo src/test/resources del arquetipo: classpath:features/... y classpath:helpers/... . PROHIBIDO prefijos tipo classpath:karate-archetype/src/test/resources/ o rutas que no existan.\n  f) call read solo a helpers que existan en el arquetipo; si no hay helper, inline la misma logica en el .feature.\n  g) Runner JUnit: Runner.path(\"classpath:features/...\") o API Karate JUnit5 equivalente, apuntando a features reales; parallel(1) si hay escenarios con estado (lockout).\n  h) Helpers .feature para reutilizar: marcar con @ignore si son solo para call read; contenido con pasos HTTP reales.\n  i) No generar pseudo-codigo ni solo documentacion; salida lista para gradle test salvo TODO explicito si falta contrato API.\n  j) Colocar .feature bajo resources/features/ segun archetypePathsByFramework; alinear paths con el ZIP.\n  k) ORDEN HTTP OBLIGATORIO en cada escenario: primero url (o Background con * url baseUrl y luego path ...), despues request { ... }, despues When method post|get|put|delete. PROHIBIDO poner When method antes de request o url; PROHIBIDO request despues method.\n  l) Cuerpo JSON de login: usar siempre las mismas claves que el API (por defecto email y password). No mezclar username y email en distintos escenarios salvo que test_hints o requirementText lo exijan.\n  m) Un solo path de login por proyecto salvo test_hints: ej. baseUrl + '/auth/login' o variable authLoginPath. No mezclar '/auth/login' y '/api/auth/login' sin motivo en test_hints.\n  n) No inventar APIs de Karate inexistentes o fragiles: evitar karate.callSingle, karate.repeat como funcion JS arbitraria, o patrones que no sean validos en Karate 1.4. Para repeticiones usar bloque * repeat N con pasos * url/request/method/match, o lineas duplicadas claras.\n  o) No añadir endpoints de administracion (ej. PUT /user/status) si no aparecen en test_hints, codeContext o requirementText; si el caso lo requiere, marcar TODO y usar solo login documentado.\n  p) Nombres de archivo .feature: NO incluir -part1, -part2 en el nombre base (el front añade sufijos por lotes). Usar nombres estables como auth-login-validation.feature.\n- Playwright: tests .spec.ts en e2e o tests; helpers .ts; API con request cuando aplique.\n- Selenium: base test + page object(s) en Java o TypeScript segun scriptingLanguage.\n- Serenity BDD: .feature bajo resources/features (o arquetipo) con @tags obligatorios como en regla 8; step definitions / Screenplay en src/test/java; Serenity 3.x / Cucumber.\n- k6: scripts .js con escenarios, thresholds, checks.\n- JMeter: plan .jmx en tests o scripts.\n\nInput:\n{{ JSON.stringify($json, null, 2) }}\n"
+      },
+      "id": "a05643ad-ad8c-4ff5-ae7e-c78d6d1ed58d",
+      "name": "Generate Test Scripts JSON",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "function slugify(input) {\n  return String(input || '')\n    .toLowerCase()\n    .trim()\n    .replace(/[^a-z0-9]+/g, '-')\n    .replace(/^-+|-+$/g, '');\n}\n\nconst FRAMEWORKS = ['Karate', 'Playwright', 'Selenium', 'Serenity', 'k6', 'JMeter'];\n\n// In n8n Webhook, payload can come flat or under `body`.\nconst input = $json && typeof $json === 'object' && $json.body ? $json.body : $json;\n\nconst gherkin = input?.gherkin ?? input?.gherkinText ?? '';\nconst featureTitle = input?.feature_title ?? input?.featureTitle ?? '';\nconst codeContext = Array.isArray(input?.codeContext) ? input.codeContext : [];\nconst requirementText = typeof input?.requirementText === 'string' ? input.requirementText : '';\nconst testHints = input?.test_hints && typeof input.test_hints === 'object' ? input.test_hints : {};\nconst aiRoles = Array.isArray(input?.aiRoles) ? input.aiRoles : [];\nconst scriptingLanguage = typeof input?.scriptingLanguage === 'string' ? input.scriptingLanguage : '';\nconst maxScenariosRaw = Number(input?.maxScenarios);\nconst maxScenarios = Number.isFinite(maxScenariosRaw)\n  ? Math.min(50, Math.max(1, Math.floor(maxScenariosRaw)))\n  : 10;\nconst minPositiveCasesRaw = Number(input?.minPositiveCases);\nconst minPositiveCases = Number.isFinite(minPositiveCasesRaw)\n  ? Math.min(50, Math.max(0, Math.floor(minPositiveCasesRaw)))\n  : 1;\nconst minNegativeCasesRaw = Number(input?.minNegativeCases);\nconst minNegativeCases = Number.isFinite(minNegativeCasesRaw)\n  ? Math.min(50, Math.max(0, Math.floor(minNegativeCasesRaw)))\n  : 1;\nconst istqbPrompt = typeof input?.istqbPrompt === 'string' ? input.istqbPrompt : '';\n\nconst selectedFrameworkByCategoryInput = input?.selectedFrameworkByCategory && typeof input.selectedFrameworkByCategory === 'object'\n  ? input.selectedFrameworkByCategory\n  : {};\n\nconst selectedFrameworkByCategory = {\n  api: FRAMEWORKS.includes(selectedFrameworkByCategoryInput.api) ? selectedFrameworkByCategoryInput.api : null,\n  web: FRAMEWORKS.includes(selectedFrameworkByCategoryInput.web) ? selectedFrameworkByCategoryInput.web : null,\n  performance: FRAMEWORKS.includes(selectedFrameworkByCategoryInput.performance) ? selectedFrameworkByCategoryInput.performance : null,\n};\n\nconst selectedFrameworksInput = Array.isArray(input?.selectedFrameworks) ? input.selectedFrameworks : [];\nconst selectedFromCategories = Object.values(selectedFrameworkByCategory).filter(Boolean);\nconst selectedFrameworks = Array.from(\n  new Set([...selectedFromCategories, ...selectedFrameworksInput].filter(fw => FRAMEWORKS.includes(fw))),\n);\n\nconst archetypePathsByFramework = input?.archetypePathsByFramework && typeof input.archetypePathsByFramework === 'object'\n  ? input.archetypePathsByFramework\n  : {};\n\nconst apiResources = Array.isArray(input?.apiResources)\n  ? input.apiResources\n      .filter((r) => r && typeof r === 'object')\n      .map((r, idx) => ({\n        id: String(r.id ?? `api-${idx + 1}`),\n        name: String(r.name ?? `API ${idx + 1}`),\n        ...(typeof r.baseUrl === 'string' && r.baseUrl.trim() ? { baseUrl: r.baseUrl.trim() } : {}),\n        ...(typeof r.swaggerUrl === 'string' && r.swaggerUrl.trim() ? { swaggerUrl: r.swaggerUrl.trim() } : {}),\n        ...(typeof r.openApiSummary === 'string' && r.openApiSummary.trim()\n          ? { openApiSummary: r.openApiSummary.trim() }\n          : {}),\n        ...(Array.isArray(r.openApiEndpoints) ? { openApiEndpoints: r.openApiEndpoints.slice(0, 200) } : {}),\n      }))\n      .filter((r) => r.baseUrl || r.swaggerUrl || r.openApiSummary || (r.openApiEndpoints && r.openApiEndpoints.length))\n  : [];\n\nif (!gherkin || typeof gherkin !== 'string') {\n  throw new Error(\n    'Missing required field: gherkin (string). Got: ' +\n      JSON.stringify({\n        hasRoot: Boolean($json && typeof $json === 'object' && 'gherkin' in $json),\n        hasBody: Boolean(input && typeof input === 'object' && 'gherkin' in input),\n      })\n  );\n}\n\nconst featureSlug = slugify(featureTitle) || 'feature';\n\nreturn [\n  {\n    json: {\n      gherkin,\n      feature_title: featureTitle,\n      featureSlug,\n      codeContext,\n      requirementText,\n      test_hints: testHints,\n      aiRoles,\n      scriptingLanguage,\n      maxScenarios,\n      minPositiveCases,\n      minNegativeCases,\n      istqbPrompt,\n      selectedFrameworkByCategory,\n      selectedFrameworks,\n      archetypePathsByFramework,\n      ...(apiResources.length > 0 && { apiResources }),\n    },\n  },\n];"
+      },
+      "id": "76177888-b9b0-4065-aaaa-d409ce4394ee",
+      "name": "Prepare Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        160
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bdd-to-tests",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "9d5d7b8c-1a57-480f-bb06-3d704fbd4be7",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -480,
+        160
+      ],
+      "webhookId": "bdd-to-tests"
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Test Scripts JSON",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Test Scripts JSON": {
+      "main": [
+        [
+          {
+            "node": "Parse Files JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Input": {
+      "main": [
+        [
+          {
+            "node": "Generate Test Scripts JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b35467aedc9aac9cd74b41779bfe567efc46d891837181b162014a3dfedf673b"
+  }
+}

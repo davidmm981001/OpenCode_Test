@@ -1,1 +1,0 @@
-Como usuario quiero validar OpenCode en Windows.

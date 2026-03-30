@@ -1,0 +1,137 @@
+{
+  "name": "TC Generation v1",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "tc-generation-v1",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "8e06a378-0e8a-4fe5-b76d-df4fb17f9e31",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1080,
+        140
+      ],
+      "webhookId": "tc-generation-v1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\n\nconst contractVersion = String(body.contractVersion ?? '');\nconst requestId = String(body.requestId ?? `REQ-${Date.now()}`);\nconst projectId = String(body.projectId ?? '');\nconst userStories = Array.isArray(body.userStories) ? body.userStories : [];\n\nif (contractVersion !== 'v1') {\n  throw new Error(`Unsupported contractVersion: ${contractVersion}`);\n}\nif (!projectId) {\n  throw new Error('Missing projectId');\n}\nif (userStories.length === 0) {\n  throw new Error('No userStories provided');\n}\n\nreturn [{\n  json: {\n    contractVersion,\n    requestId,\n    projectId,\n    userStories: userStories.map((s) => ({\n      id: String(s?.id ?? ''),\n      title: String(s?.title ?? ''),\n      description: String(s?.description ?? ''),\n      module: String(s?.module ?? 'General'),\n      criteria: Array.isArray(s?.criteria) ? s.criteria.map((c) => String(c)) : []\n    })).filter((s) => s.id && s.title)\n  }\n}];"
+      },
+      "id": "3ae5395a-5e66-4a89-9cf6-e374aa9d7992",
+      "name": "Prepare TC Input",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -820,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un Senior QA Engineer experto en diseño de casos de prueba funcionales, negativos, de integración y borde.\n\nDebes generar casos de prueba en ESPAÑOL usando la lista de userStories recibida.\n\nResponde SOLO JSON válido (sin markdown) con esta estructura exacta:\n{\n  \"runId\": \"string\",\n  \"requestId\": \"string\",\n  \"projectId\": \"string\",\n  \"testCases\": [\n    {\n      \"storyId\": \"string\",\n      \"description\": \"string\",\n      \"preconditions\": \"string\",\n      \"steps\": \"string\",\n      \"expected\": \"string\",\n      \"type\": \"functional|negative|edge|integration|performance|security\",\n      \"priority\": \"high|medium|low\",\n      \"status\": \"generated\"\n    }\n  ]\n}\n\nReglas:\n1) Genera 3-6 casos por cada historia.\n2) Incluye combinacion de happy path + negativos + validaciones de borde.\n3) steps debe ser texto multilinea numerado (1., 2., 3.).\n4) status siempre debe ser \"generated\".\n5) type y priority deben estar en minusculas y dentro de los valores permitidos.\n\nInput:\n{{ JSON.stringify($json, null, 2) }}"
+      },
+      "id": "94477f6e-6a2a-4312-ac98-0ee6473d8f44",
+      "name": "Generate Test Cases JSON",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.4,
+      "position": [
+        -540,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -700,
+        300
+      ],
+      "id": "82629f4a-18ad-47dd-acf3-14cf6c265ff4",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "PLKjMS5Q3Lpxskx2",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "function safeParse(value) {\n  if (typeof value !== 'string') return null;\n  try { return JSON.parse(value); } catch { return null; }\n}\n\nconst raw = $json.text ?? $json.response ?? $json.output ?? JSON.stringify($json);\nconst parsed = typeof raw === 'string' ? safeParse(raw) : raw;\n\nif (!parsed || typeof parsed !== 'object') {\n  throw new Error('Model did not return valid JSON');\n}\nif (!Array.isArray(parsed.testCases)) {\n  throw new Error('JSON does not contain testCases[]');\n}\n\nconst allowedTypes = new Set(['functional', 'negative', 'edge', 'integration', 'performance', 'security']);\nconst allowedPriorities = new Set(['high', 'medium', 'low']);\nconst allowedStatus = new Set(['generated', 'pending', 'review']);\n\nconst testCases = parsed.testCases\n  .filter((tc) => tc && typeof tc === 'object')\n  .map((tc) => {\n    const t = tc;\n    const type = String(t.type ?? 'functional').toLowerCase();\n    const priority = String(t.priority ?? 'medium').toLowerCase();\n    const status = String(t.status ?? 'generated').toLowerCase();\n    return {\n      storyId: String(t.storyId ?? '').trim(),\n      description: String(t.description ?? '').trim(),\n      preconditions: String(t.preconditions ?? '').trim(),\n      steps: String(t.steps ?? '').trim(),\n      expected: String(t.expected ?? '').trim(),\n      type: allowedTypes.has(type) ? type : 'functional',\n      priority: allowedPriorities.has(priority) ? priority : 'medium',\n      status: allowedStatus.has(status) ? status : 'generated'\n    };\n  })\n  .filter((tc) => tc.storyId && tc.description);\n\nif (testCases.length === 0) {\n  throw new Error('No valid test cases produced');\n}\n\nreturn [{\n  json: {\n    runId: String(parsed.runId ?? `RUN-${Date.now()}`),\n    requestId: String(parsed.requestId ?? ''),\n    projectId: String(parsed.projectId ?? ''),\n    testCases\n  }\n}];"
+      },
+      "id": "39ff1ddb-89cc-4db5-9b34-c20f617e40db",
+      "name": "Parse Test Cases",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -260,
+        140
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Prepare TC Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare TC Input": {
+      "main": [
+        [
+          {
+            "node": "Generate Test Cases JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Test Cases JSON": {
+      "main": [
+        [
+          {
+            "node": "Parse Test Cases",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Test Cases JSON",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}

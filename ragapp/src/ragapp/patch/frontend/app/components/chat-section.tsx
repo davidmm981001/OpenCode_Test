@@ -141,19 +141,16 @@ export default function ChatSection() {
   const displayedMessages = messages;
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top,_#ffffff,_#f8fafc_30%,_#eef2ff_56%,_#e2e8f0_100%)] p-4 text-slate-900 sm:p-6">
-      <div className="absolute inset-x-0 top-0 -z-10 h-80 bg-[radial-gradient(circle,_rgba(15,23,42,0.08)_0%,_transparent_65%)]" />
-      <div className="absolute left-0 top-24 -z-10 h-72 w-72 rounded-full bg-sky-200/35 blur-3xl" />
-      <div className="absolute right-0 top-40 -z-10 h-72 w-72 rounded-full bg-emerald-200/25 blur-3xl" />
+    <main className="relative min-h-screen overflow-x-hidden p-4 text-slate-900 sm:p-6">
       <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-6xl flex-col gap-5 pb-6 sm:min-h-[calc(100vh-3rem)] sm:pb-8">
         <Header />
 
-        <section className="grid gap-4 rounded-[2rem] border border-slate-200/70 bg-white/65 p-4 shadow-2xl shadow-slate-200/50 backdrop-blur-md sm:grid-cols-[1.15fr_0.85fr] sm:p-6">
+        <section className="grid gap-4 rounded-[var(--radius)] border border-[#202950]/10 bg-white/90 p-4 shadow-[0_12px_40px_rgba(32,41,80,0.08)] backdrop-blur-sm sm:grid-cols-[1.15fr_0.85fr] sm:p-6">
           <div className="space-y-3">
-            <div className="inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-slate-600 shadow-sm">
+            <div className="inline-flex items-center rounded-full border border-[#58B888]/35 bg-[#58B888]/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#1a5c40]">
               Chat local + RAG + contexto temporal
             </div>
-            <h1 className="max-w-xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+            <h1 className="max-w-xl text-3xl font-semibold tracking-tight text-[#131a35] sm:text-4xl">
               Interfaz NexTI para hablar con tus datos sin perder el estilo.
             </h1>
             <p className="max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
@@ -162,23 +159,23 @@ export default function ChatSection() {
           </div>
 
           <div className="grid gap-3 sm:self-end">
-            <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="rounded-[var(--radius)] border border-slate-200/90 bg-white p-4 shadow-sm">
               <p className="text-xs uppercase tracking-wide text-slate-500">Estado</p>
               <p className="mt-1 text-sm font-semibold text-slate-900">Conectado a {backend || appConfig.backendUrl}</p>
             </div>
-            <div className="rounded-2xl border border-slate-900/10 bg-slate-950 p-4 text-white shadow-sm">
-              <p className="text-xs uppercase tracking-wide text-slate-300">Modelo</p>
+            <div className="rounded-[var(--radius)] border border-[#202950]/20 bg-gradient-to-br from-[#202950] to-[#131a35] p-4 text-white shadow-sm">
+              <p className="text-xs uppercase tracking-wide text-white/55">Modelo</p>
               <p className="mt-1 text-sm font-semibold">{appConfig.modelName}</p>
-              <p className="text-xs text-slate-300">
+              <p className="text-xs text-white/70">
                 {appConfig.modelProviderLabel} · {new Intl.NumberFormat("es-ES").format(appConfig.modelContextWindow)} tokens
               </p>
             </div>
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-slate-200/70 bg-white/88 shadow-2xl shadow-slate-200/60 backdrop-blur-sm">
+        <section className="rounded-[var(--radius)] border border-[#202950]/10 bg-white/95 shadow-[0_12px_40px_rgba(32,41,80,0.1)] backdrop-blur-sm">
           <div className="border-b border-slate-100 px-4 py-3 sm:px-6">
-            <p className="text-sm font-semibold text-slate-900">Conversación</p>
+            <p className="text-sm font-semibold text-[#131a35]">Conversación</p>
             <p className="text-xs text-slate-500">
               Envía el mensaje con Enter. Shift+Enter agrega una nueva línea.
             </p>
@@ -186,7 +183,7 @@ export default function ChatSection() {
 
           <div className="max-h-[52vh] overflow-y-auto px-4 py-5 sm:px-6">
             {displayedMessages.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-200 bg-[linear-gradient(180deg,_rgba(248,250,252,0.95),_rgba(241,245,249,0.95))] p-6 text-sm text-slate-500">
+              <div className="rounded-[var(--radius)] border border-dashed border-[#202950]/15 bg-slate-50/80 p-6 text-sm text-slate-500">
                 Escribe una pregunta para empezar.
               </div>
             ) : (
@@ -198,9 +195,9 @@ export default function ChatSection() {
                   >
                     <ChatAvatar role={message.role} />
                     <div
-                      className={`min-w-0 flex-1 rounded-2xl p-4 text-sm leading-6 whitespace-pre-wrap shadow-sm ${
+                      className={`min-w-0 flex-1 rounded-[var(--radius)] p-4 text-sm leading-6 whitespace-pre-wrap shadow-sm ${
                         message.role === "user"
-                          ? "border border-sky-200 bg-sky-50/90 text-slate-900"
+                          ? "border border-[#58B888]/40 bg-[#58B888]/12 text-[#131a35]"
                           : "border border-slate-200 bg-white text-slate-900"
                       }`}
                     >
@@ -211,7 +208,7 @@ export default function ChatSection() {
                 {isLoading ? (
                   <div className="flex gap-3">
                     <ChatAvatar role="assistant" />
-                    <div className="min-w-0 flex-1 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4 text-sm text-slate-500">
+                    <div className="min-w-0 flex-1 rounded-[var(--radius)] border border-dashed border-[#202950]/20 bg-slate-50 p-4 text-sm text-slate-500">
                       Pensando...
                     </div>
                   </div>
