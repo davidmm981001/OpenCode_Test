@@ -24,6 +24,7 @@ const EXT_TO_LANGUAGE: Record<string, string> = {
   '.svelte': 'svelte',
   '.cob': 'cobol',
   '.cbl': 'cobol',
+  '.bms': 'mapa bms',
   '.esql': 'plaintext',
   '.xml': 'xml',
   '.json': 'json',

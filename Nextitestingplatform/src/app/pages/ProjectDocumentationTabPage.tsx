@@ -342,7 +342,7 @@ export default function ProjectDocumentationTabPage() {
         <UploadCard
           title="Código Fuente"
           subtitle="COBOL, C#, Java, TS, JS u otros archivos de código"
-          accept=".cbl,.cob,.cs,.java,.ts,.tsx,.js,.jsx,.py,.go,.rb,.sql,.esql,.xml,.json,.txt,.md"
+          accept=".cbl,.bms,.cob,.cs,.java,.ts,.tsx,.js,.jsx,.py,.go,.rb,.sql,.esql,.xml,.json,.txt,.md"
           files={codeDocs}
           onAddFiles={addFileNames(setCodeDocs)}
           onRemoveFile={(index) => setCodeDocs((prev) => prev.filter((_, i) => i !== index))}

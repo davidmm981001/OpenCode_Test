@@ -9,6 +9,23 @@ type ConnectionState = "idle" | "connecting" | "open" | "reconnecting";
 type StopState = "idle" | "stopping" | "stopped";
 
 type WorkspaceTreeNode = WorkspaceFileEntry & { children: WorkspaceTreeNode[] };
+type ConsoleRole = "user" | "assistant";
+type AssistantInnerKind = "reasoning" | "tool" | "step-start" | "step-finish" | "unknown" | "text";
+type AssistantInnerBlock = {
+  id: string;
+  kind: AssistantInnerKind;
+  title: string;
+  summary: string;
+  details: string;
+  expandable: boolean;
+};
+type ConsoleBlock = {
+  id: string;
+  role: ConsoleRole;
+  content: string;
+  expandable: boolean;
+  innerBlocks: AssistantInnerBlock[];
+};
 
 const selectedProjectStorageKey = "sdd-orchestrator:selected-project-id";
 
@@ -190,6 +207,180 @@ function readEmbedSearchParams() {
   };
 }
 
+function truncateText(value: string, maxLength = 120) {
+  const compact = value.replace(/\s+/g, " ").trim();
+  if (compact.length <= maxLength) return compact;
+  return `${compact.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+function prettyJson(value: unknown) {
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
+function firstNonEmptyLine(value: string) {
+  return value.split(/\r?\n/).find((line) => line.trim().length > 0)?.trim() ?? "";
+}
+
+function shortValue(value: unknown, maxLength = 80) {
+  if (typeof value === "string") return truncateText(value, maxLength);
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (value == null) return "";
+  return truncateText(prettyJson(value), maxLength);
+}
+
+function hasUsefulJsonFields(record: Record<string, unknown>) {
+  return Object.entries(record).some(([key, value]) => key !== "type" && value != null && String(value).trim() !== "");
+}
+
+function buildAssistantInnerBlock(rawLine: string, outerId: string, index: number): AssistantInnerBlock | null {
+  const trimmed = rawLine.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith("{") && trimmed.endsWith("}")) {
+    try {
+      const parsed = JSON.parse(trimmed) as Record<string, unknown>;
+      const type = typeof parsed.type === "string" ? parsed.type : null;
+
+      if (!type) {
+        return hasUsefulJsonFields(parsed)
+          ? { id: `${outerId}-${index}-json`, kind: "unknown", title: "unknown", summary: "json", details: prettyJson(parsed), expandable: true }
+          : null;
+      }
+
+      if (type === "reasoning") {
+        const text = typeof parsed.text === "string" ? parsed.text.trim() : "";
+        if (!text) return null;
+        return {
+          id: `${outerId}-${index}-reasoning`,
+          kind: "reasoning",
+          title: "reasoning",
+          summary: truncateText(firstNonEmptyLine(text) || "Reasoning"),
+          details: text,
+          expandable: text.length > 120 || text.includes("\n"),
+        };
+      }
+
+      if (type === "tool") {
+        const tool = shortValue(parsed.tool, 48) || "tool";
+        const state = parsed.state as Record<string, unknown> | undefined;
+        const status = shortValue(state?.status, 32);
+        const callId = shortValue(parsed.callID, 40);
+        return {
+          id: `${outerId}-${index}-tool`,
+          kind: "tool",
+          title: "tool",
+          summary: [tool, status, callId].filter(Boolean).join(" · "),
+          details: prettyJson(parsed),
+          expandable: true,
+        };
+      }
+
+      if (type === "step-start") {
+        const snapshot = shortValue(parsed.snapshot, 48);
+        const id = shortValue(parsed.id, 40);
+        const sessionID = shortValue(parsed.sessionID, 40);
+        const messageID = shortValue(parsed.messageID, 40);
+        const summary = [snapshot ? `snapshot ${snapshot}` : "step-start", id ? `id ${id}` : "", sessionID ? `session ${sessionID}` : "", messageID ? `message ${messageID}` : ""].filter(Boolean).join(" · ") || "step-start";
+        return {
+          id: `${outerId}-${index}-step-start`,
+          kind: "step-start",
+          title: "step-start",
+          summary,
+          details: prettyJson(parsed),
+          expandable: true,
+        };
+      }
+
+      if (type === "step-finish") {
+        const reason = shortValue(parsed.reason, 40) || "step-finish";
+        const tokens = parsed.tokens as Record<string, unknown> | undefined;
+        const totalTokens = typeof tokens?.total === "number" ? `${tokens.total} tokens` : "";
+        const cost = typeof parsed.cost === "number" ? `$${parsed.cost.toFixed(6)}` : "";
+        return {
+          id: `${outerId}-${index}-step-finish`,
+          kind: "step-finish",
+          title: "step-finish",
+          summary: [reason, totalTokens, cost].filter(Boolean).join(" · "),
+          details: prettyJson(parsed),
+          expandable: true,
+        };
+      }
+
+      const summaryType = truncateText(type, 48);
+      return {
+        id: `${outerId}-${index}-unknown`,
+        kind: "unknown",
+        title: "unknown",
+        summary: summaryType ? `type: ${summaryType}` : "unknown",
+        details: prettyJson(parsed),
+        expandable: true,
+      };
+    } catch {
+      // Fall through to plain text rendering.
+    }
+  }
+
+  const summary = truncateText(trimmed);
+  return {
+    id: `${outerId}-${index}-text`,
+    kind: "text",
+    title: "text",
+    summary,
+    details: trimmed,
+    expandable: trimmed.length > summary.length || trimmed.includes("\n"),
+  };
+}
+
+function buildAssistantInnerBlocks(content: string, outerId: string) {
+  return content
+    .split(/\r?\n/)
+    .map((line, index) => buildAssistantInnerBlock(line, outerId, index))
+    .filter((block): block is AssistantInnerBlock => block !== null);
+}
+
+function buildConsoleBlocks(lines: string[]) {
+  const blocks: Array<{ role: ConsoleRole; lines: string[] }> = [];
+  const prefixPattern = /^\[(user|assistant)\]\s?(.*)$/;
+  let current: { role: ConsoleRole; lines: string[] } | null = null;
+
+  for (const line of lines) {
+    const match = line.match(prefixPattern);
+    if (match) {
+      const role = match[1] as ConsoleRole;
+      const text = match[2] ?? "";
+      if (!current || current.role !== role) {
+        if (current && current.lines.some((entry) => entry.trim().length > 0)) blocks.push(current);
+        current = { role, lines: text ? [text] : [] };
+      } else {
+        current.lines.push(text);
+      }
+      continue;
+    }
+
+    if (current) current.lines.push(line);
+  }
+
+  if (current && current.lines.some((entry) => entry.trim().length > 0)) blocks.push(current);
+
+  return blocks
+    .map((block, index): ConsoleBlock | null => {
+      const content = block.lines.join("\n").trim();
+      if (!content) return null;
+      return {
+        id: `${index}-${block.role}`,
+        role: block.role,
+        content,
+        expandable: content.length > 600 || content.split(/\r?\n/).length > 8,
+        innerBlocks: block.role === "assistant" ? buildAssistantInnerBlocks(content, `${index}-${block.role}`) : [],
+      };
+    })
+    .filter((block): block is ConsoleBlock => block !== null);
+}
+
 export default function App() {
   const links = getAppLinks();
   const embedParams = useMemo(() => readEmbedSearchParams(), []);
@@ -213,22 +404,22 @@ export default function App() {
   const [workspaceFiles, setWorkspaceFiles] = useState<WorkspaceFileEntry[]>([]);
   const [workspaceStats, setWorkspaceStats] = useState<{ fileCount: number; totalBytes: number } | null>(null);
   const [collapsedFolders, setCollapsedFolders] = useState<Set<string>>(() => new Set());
-  const logBottomRef = useRef<HTMLDivElement | null>(null);
-  const terminalBodyRef = useRef<HTMLDivElement | null>(null);
   const filesBodyRef = useRef<HTMLDivElement | null>(null);
-  const autoScrollRef = useRef(true);
-  const filesScrollRef = useRef(true);
   const socketRef = useRef<WebSocket | null>(null);
   const pollRef = useRef<number | null>(null);
   const filesPollRef = useRef<number | null>(null);
   const reconnectRef = useRef<number | null>(null);
   const connectSeqRef = useRef(0);
   const selectedIdRef = useRef<string | null>(null);
+  const [expandedConsoleBlocks, setExpandedConsoleBlocks] = useState<Set<string>>(() => new Set());
+  const [collapsedAssistantBlocks, setCollapsedAssistantBlocks] = useState<Set<string>>(() => new Set());
+  const [expandedInnerBlocks, setExpandedInnerBlocks] = useState<Set<string>>(() => new Set());
 
   const selected = useMemo(() => projects.find((project) => project.id === selectedId) ?? null, [projects, selectedId]);
   const execution = selectedExecution ?? (selected ? defaultExecution(selected.id) : null);
   const currentPhase = execution?.phase ?? (selected?.status === "running" ? "starting" : selected?.status === "completed" ? "completed" : selected?.status === "error" ? "error" : "idle");
   const workspaceTree = useMemo(() => buildWorkspaceTree(workspaceFiles), [workspaceFiles]);
+  const consoleBlocks = useMemo(() => buildConsoleBlocks(logs), [logs]);
 
   function clearReconnectTimer() {
     if (reconnectRef.current) {
@@ -268,9 +459,6 @@ export default function App() {
     const response = await api.getProjectFiles(projectId);
     setWorkspaceFiles(response.files);
     setWorkspaceStats(response.stats);
-    if (filesScrollRef.current) {
-      window.requestAnimationFrame(() => filesBodyRef.current?.scrollTo({ top: filesBodyRef.current.scrollHeight, behavior: "smooth" }));
-    }
     return response;
   }
 
@@ -388,8 +576,9 @@ export default function App() {
     setWorkspaceFiles([]);
     setWorkspaceStats(null);
     setCollapsedFolders(new Set());
-    autoScrollRef.current = true;
-    filesScrollRef.current = true;
+    setExpandedConsoleBlocks(new Set());
+    setCollapsedAssistantBlocks(new Set());
+    setExpandedInnerBlocks(new Set());
 
     connectProjectStream(selectedId);
     void syncSelectedStatus(selectedId).catch((error_) => setError((error_ as Error).message));
@@ -413,25 +602,6 @@ export default function App() {
       if (filesPollRef.current) window.clearInterval(filesPollRef.current);
     };
   }, [selectedId]);
-
-  useEffect(() => {
-    if (tab !== "console" || !autoScrollRef.current) return;
-    logBottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [logs, tab, selectedId]);
-
-  function handleTerminalScroll() {
-    const el = terminalBodyRef.current;
-    if (!el) return;
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    autoScrollRef.current = distanceFromBottom < 80;
-  }
-
-  function handleFilesScroll() {
-    const el = filesBodyRef.current;
-    if (!el) return;
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    filesScrollRef.current = distanceFromBottom < 80;
-  }
 
   function toggleFolder(path: string) {
     setCollapsedFolders((current) => {
@@ -584,6 +754,59 @@ export default function App() {
 
   const visibleTabs: Tab[] = embedParams.embed ? (["console", "result"] as Tab[]) : (["stories", "console", "result"] as Tab[]);
 
+  function isConsoleBlockExpanded(block: ConsoleBlock) {
+    if (block.role === "assistant") return !collapsedAssistantBlocks.has(block.id);
+    return expandedConsoleBlocks.has(block.id);
+  }
+
+  function toggleConsoleBlock(block: ConsoleBlock) {
+    if (block.role === "assistant") {
+      setCollapsedAssistantBlocks((current) => {
+        const next = new Set(current);
+        if (next.has(block.id)) next.delete(block.id);
+        else next.add(block.id);
+        return next;
+      });
+      return;
+    }
+
+    setExpandedConsoleBlocks((current) => {
+      const next = new Set(current);
+      if (next.has(block.id)) next.delete(block.id);
+      else next.add(block.id);
+      return next;
+    });
+  }
+
+  function toggleInnerBlock(blockId: string) {
+    setExpandedInnerBlocks((current) => {
+      const next = new Set(current);
+      if (next.has(blockId)) next.delete(blockId);
+      else next.add(blockId);
+      return next;
+    });
+  }
+
+  function renderInnerBlock(block: AssistantInnerBlock) {
+    const isExpanded = expandedInnerBlocks.has(block.id);
+    return (
+      <article key={block.id} className={`assistant-inner ${block.kind} ${isExpanded ? "expanded" : "collapsed"}`}>
+        <div className="assistant-inner-header">
+          <strong>{block.title}</strong>
+        </div>
+        <div className="assistant-inner-summary">{block.summary}</div>
+        {block.expandable && isExpanded && <pre className="assistant-inner-details">{block.details}</pre>}
+        {block.expandable && (
+          <div className="assistant-inner-footer">
+            <button type="button" className="assistant-inner-toggle" onClick={() => toggleInnerBlock(block.id)}>
+              {isExpanded ? "Show less" : "Click to see more"}
+            </button>
+          </div>
+        )}
+      </article>
+    );
+  }
+
   return (
     <div className="app-shell">
       {!embedParams.embed && (
@@ -713,9 +936,51 @@ export default function App() {
               {tab === "console" && (
                 <div className="console-grid">
                   <div className="terminal">
-                    <div className="terminal-body" ref={terminalBodyRef} onScroll={handleTerminalScroll}>
-                      {logs.length === 0 ? <p className="terminal-line muted">{phaseLabel(execution.phase)}...</p> : logs.map((line, index) => <p key={`${index}-${line}`} className="terminal-line">{line}</p>)}
-                      <div ref={logBottomRef} />
+                    <div className="terminal-body">
+                      {consoleBlocks.length === 0 ? (
+                        <p className="terminal-empty muted">{phaseLabel(execution.phase)}...</p>
+                      ) : (
+                        <div className="terminal-log-list">
+                          {consoleBlocks.map((block) => {
+                            const isExpanded = isConsoleBlockExpanded(block);
+                            const hasInnerBlocks = block.role === "assistant" && block.innerBlocks.length > 0;
+                            return (
+                              <article key={block.id} className={`console-message ${block.role} ${isExpanded ? "expanded" : "collapsed"}`}>
+                                {block.role === "assistant" ? (
+                                  <>
+                                    <div className="console-message-header console-message-header-assistant">
+                                      <strong>{block.role}</strong>
+                                      {block.expandable && (
+                                        <button type="button" className="console-message-toggle" onClick={() => toggleConsoleBlock(block)}>
+                                          {isExpanded ? "Show less" : "Click to see more"}
+                                        </button>
+                                      )}
+                                    </div>
+                                    {hasInnerBlocks ? (
+                                      <div className="assistant-inner-list">
+                                        {(isExpanded ? block.innerBlocks : block.innerBlocks.slice(0, 1)).map((innerBlock) => renderInnerBlock(innerBlock))}
+                                      </div>
+                                    ) : (
+                                      <pre className="console-message-body">{block.content}</pre>
+                                    )}
+                                  </>
+                                ) : (
+                                  <>
+                                    <pre className="console-message-body">{block.content}</pre>
+                                    {block.expandable && (
+                                      <div className="console-message-footer">
+                                        <button type="button" className="console-message-toggle" onClick={() => toggleConsoleBlock(block)}>
+                                          {isExpanded ? "Show less" : "Click to see more"}
+                                        </button>
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </article>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                     <div className="terminal-input">
                         <input className="field" value={consoleInput} onChange={(event) => setConsoleInput(event.target.value)} placeholder={execution?.sessionId ? "Escribe un mensaje para opencode..." : "Sin sesión activa"} disabled={!execution?.sessionId} />
@@ -733,7 +998,7 @@ export default function App() {
                         <span className="files-stat-pill">{workspaceStats ? formatBytes(workspaceStats.totalBytes) : "—"} aprox.</span>
                       </div>
                     </div>
-                    <div className="files-body" ref={filesBodyRef} onScroll={handleFilesScroll}>
+                    <div className="files-body" ref={filesBodyRef}>
                       {workspaceTree.length === 0 ? (
                         <p className="muted">Aún no hay archivos visibles en esta vista.</p>
                       ) : (
