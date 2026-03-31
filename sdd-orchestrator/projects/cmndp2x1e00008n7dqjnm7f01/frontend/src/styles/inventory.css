@@ -1,0 +1,16 @@
+.inventory-table {
+  background: #fff;
+}
+
+.inventory-table th,
+.inventory-table td {
+  vertical-align: middle;
+}
+
+.modal-backdrop {
+  z-index: 1040;
+}
+
+.modal.show {
+  z-index: 1050;
+}

@@ -17,7 +17,7 @@
 
 ## OpenCode workspace
 
-- Generated projects create OpenCode config under `.opencode/opencode.jsonc`.
+- Generated projects create OpenCode config at `.opencode.json` in the project root.
 - OpenSpec context and changes stay under `openspec/` and are referenced from the OpenCode config.
 - If generation fails with `ENOENT`, OpenCode is not installed or `OPENCODE_COMMAND` is misconfigured.
 

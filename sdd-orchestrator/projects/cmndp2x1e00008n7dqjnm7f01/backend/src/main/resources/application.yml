@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: inventario-david
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/inventario}
+    username: ${SPRING_DATASOURCE_USERNAME:inventario}
+    password: ${SPRING_DATASOURCE_PASSWORD:inventario}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+  mvc:
+    problemdetails:
+      enabled: true
+
+server:
+  port: 8080
+
+app:
+  cors:
+    allowed-origins: ${APP_CORS_ALLOWED_ORIGINS:http://localhost:5173,http://frontend:5173}

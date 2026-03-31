@@ -3,6 +3,12 @@ import path from "node:path";
 
 import { ensureDirSync, env } from "../env.js";
 
+const ignoredWorkspaceDirectories = new Set(["node_modules", "dist", ".git", ".opencode"]);
+
+function shouldIgnoreEntry(entry: fs.Dirent) {
+  return entry.isDirectory() && ignoredWorkspaceDirectories.has(entry.name);
+}
+
 export const workspacesRoot = path.resolve(env.rootDir, "projects");
 export const completedRoot = path.resolve(env.rootDir, "completed-projects");
 
@@ -29,6 +35,7 @@ export function countFilesRecursive(dir: string): number {
   let count = 0;
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
+    if (shouldIgnoreEntry(entry)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) count += countFilesRecursive(full);
     else count += 1;
@@ -41,6 +48,7 @@ export function sizeBytesRecursive(dir: string): number {
   let total = 0;
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   for (const entry of entries) {
+    if (shouldIgnoreEntry(entry)) continue;
     const full = path.join(dir, entry.name);
     if (entry.isDirectory()) total += sizeBytesRecursive(full);
     else total += fs.statSync(full).size;
@@ -55,10 +63,11 @@ export type WorkspaceFileEntry = {
   depth: number;
 };
 
-export function listWorkspaceFiles(dir: string, maxDepth = 4, currentDepth = 0, baseDir = dir): WorkspaceFileEntry[] {
+export function listWorkspaceFiles(dir: string, maxDepth = 6, currentDepth = 0, baseDir = dir): WorkspaceFileEntry[] {
   if (!fs.existsSync(dir) || currentDepth > maxDepth) return [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
   return entries.flatMap((entry) => {
+    if (shouldIgnoreEntry(entry)) return [];
     const full = path.join(dir, entry.name);
     const relative = path.relative(baseDir, full) || entry.name;
     const item: WorkspaceFileEntry = {

@@ -1,0 +1,11 @@
+version: 1
+project_name: "Todo full app"
+model: gpt-5.4-mini
+context: "openspec/context.md"
+guardrails:
+  - Keep the scope anchored to the provided user stories.
+  - Deliver a complete runnable application, not a stub.
+  - Install or create missing dependencies, scripts, and build files as needed.
+  - Prefer testable deltas, but do not stop before the app works end to end.
+  - Keep OpenCode and OpenSpec configuration separate.
+  - Do not change the target stack.

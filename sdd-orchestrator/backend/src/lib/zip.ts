@@ -15,7 +15,10 @@ export async function zipDirectory(sourceDir: string, outputPath: string) {
     archive.on("error", reject);
 
     archive.pipe(output);
-    archive.directory(sourceDir, false);
+    archive.glob("**/*", {
+      cwd: sourceDir,
+      dot: true,
+    });
     void archive.finalize();
   });
 }

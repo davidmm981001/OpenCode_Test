@@ -1,0 +1,28 @@
+:root {
+  color-scheme: light;
+}
+
+body {
+  background: #f8fafc;
+  color: #1f2937;
+}
+
+.app-shell main {
+  min-height: 0;
+}
+
+.navbar .nav-link.active {
+  color: #fff !important;
+  text-decoration: underline;
+}
+
+.footer {
+  background: #f8f9fa;
+}
+
+.page-section {
+  background: #fff;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.25rem 1rem rgba(15, 23, 42, 0.06);
+  padding: 1.5rem;
+}

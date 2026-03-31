@@ -513,7 +513,7 @@ export default function App() {
   }
 
   async function sendConsoleInput() {
-    if (!selectedId || !consoleInput.trim()) return;
+    if (!selectedId || !execution?.sessionId || !consoleInput.trim()) return;
     socketRef.current?.send(JSON.stringify({ type: "input", message: consoleInput.trim() }));
     setConsoleInput("");
   }
@@ -572,7 +572,6 @@ export default function App() {
     }
   }
 
-  const currentMessage = execution?.message ?? execution?.lastError ?? selected?.lastError ?? "Sin errores reportados";
   const storiesLocked = selected ? selected.status === "running" || selected.status === "completed" : false;
   const canStop = currentPhase !== "idle" && currentPhase !== "completed" && currentPhase !== "error";
   const stopButtonLabel = stopState === "stopping" ? "Deteniendo..." : stopState === "stopped" ? "Proceso detenido" : "Detener proceso";
@@ -580,7 +579,7 @@ export default function App() {
   const consoleCapacity = 5;
   const availableConsoles = Math.max(consoleCapacity - activeConsoleCount, 0);
   const usage = execution?.usage;
-  const consoleReady = Boolean(inputEnabled && execution?.sessionId);
+  const consoleReady = Boolean(execution?.sessionId);
   const consoleReadyLabel = consoleReady ? "Lista para escribir" : "Bloqueada";
 
   const visibleTabs: Tab[] = embedParams.embed ? (["console", "result"] as Tab[]) : (["stories", "console", "result"] as Tab[]);
@@ -691,7 +690,6 @@ export default function App() {
                     <div><div className="meta">Tokens</div><strong>{usage ? `${usage.inputTokens + usage.outputTokens + usage.reasoningTokens}` : "—"}</strong></div>
                     <div><div className="meta">Costo aprox.</div><strong>{usage?.estimatedCostUsd != null ? `$${usage.estimatedCostUsd.toFixed(6)}` : "—"}</strong></div>
                   </div>
-                  <div className="meta" style={{ marginTop: 10 }}>{currentMessage}</div>
                 </div>
               </div>
 
@@ -720,8 +718,8 @@ export default function App() {
                       <div ref={logBottomRef} />
                     </div>
                     <div className="terminal-input">
-                      <input className="field" value={consoleInput} onChange={(event) => setConsoleInput(event.target.value)} placeholder={inputEnabled ? "Escribe un mensaje para opencode..." : "El proceso debe estar esperando entrada"} disabled={!inputEnabled} />
-                      <button className="button secondary" onClick={sendConsoleInput} disabled={!inputEnabled || !consoleInput.trim()}>Enviar</button>
+                        <input className="field" value={consoleInput} onChange={(event) => setConsoleInput(event.target.value)} placeholder={execution?.sessionId ? "Escribe un mensaje para opencode..." : "Sin sesión activa"} disabled={!execution?.sessionId} />
+                        <button className="button secondary" onClick={sendConsoleInput} disabled={!execution?.sessionId || !consoleInput.trim()}>Enviar</button>
                       <button className="button" onClick={() => setCompletionPrompt("Confirma que deseas empaquetar el proyecto actual.")} disabled={currentPhase !== "running" && currentPhase !== "monitoring" && currentPhase !== "waiting_input"}>Marcar como Completado</button>
                       {stopState === "stopped" && <div className="meta">Proceso detenido</div>}
                     </div>
@@ -804,7 +802,7 @@ export default function App() {
         <Modal title="Nuevo Proyecto" onClose={() => setCreateOpen(false)}>
           <div className="stack">
             <input className="field" placeholder="Nombre del proyecto" value={projectForm.name} onChange={(event) => setProjectForm((current) => ({ ...current, name: event.target.value }))} />
-            <textarea className="field" placeholder="Pega aquí todas las historias de usuario" value={projectForm.userStories} onChange={(event) => setProjectForm((current) => ({ ...current, userStories: event.target.value }))} />
+            <textarea className="field stories-textarea" placeholder="Pega aquí todas las historias de usuario" value={projectForm.userStories} onChange={(event) => setProjectForm((current) => ({ ...current, userStories: event.target.value }))} />
             <div className="modal-actions">
               <button className="button secondary" onClick={() => setCreateOpen(false)}>Cancelar</button>
               <button className="button" onClick={createProject} disabled={busy === "create"}>Crear</button>

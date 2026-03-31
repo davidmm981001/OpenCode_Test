@@ -5,7 +5,6 @@ import { ProjectStatus } from "@prisma/client";
 
 import { env } from "../env.js";
 import { getPrisma } from "../prisma.js";
-import { judgeCompletion } from "./llm.js";
 import {
   createSession,
   getFreePort,
@@ -16,7 +15,7 @@ import {
   waitForHealth,
 } from "./opencode-client.js";
 import { countFilesRecursive, getProjectZipPath, removePathIfExists } from "./workspace.js";
-import { normalizeProjectWorkspace } from "./openSpec.js";
+import { createOpenCodeConfig, createOpenSpecWorkspace, normalizeProjectWorkspace } from "./openSpec.js";
 import { isActiveRuntimePhase } from "./project-runtime-policy.js";
 import { zipDirectory } from "./zip.js";
 
@@ -67,14 +66,12 @@ type ProjectRuntime = {
   lastOutputAt: number;
   listeners: Set<RuntimeListener>;
   inputEnabled: boolean;
-  monitorCycles: number;
-  monitorTimer?: NodeJS.Timeout;
+  transcriptSyncTimer?: NodeJS.Timeout;
   timeoutTimer?: NodeJS.Timeout;
   stopRequested: boolean;
-  lastMonitorMessage: string | null;
-  pendingCompletionMessage: string | null;
   lastError: string | null;
   usage: ProjectExecutionSnapshot["usage"];
+  seenSessionMessageSignatures: Map<string, string>;
 };
 
 const runtimes = new Map<string, ProjectRuntime>();
@@ -162,7 +159,7 @@ function snapshotFromRuntime(runtime: ProjectRuntime): ProjectExecutionSnapshot 
     sessionId: runtime.sessionId,
     port: runtime.port,
     lastError: runtime.lastError,
-    message: runtime.pendingCompletionMessage ?? runtime.lastMonitorMessage,
+    message: runtime.lines[runtime.lines.length - 1] ?? null,
     lastOutputAt: runtime.lastOutputAt,
     usage: runtime.usage ?? defaultSnapshot(runtime.projectId).usage,
   };
@@ -214,6 +211,29 @@ function addSystemLine(runtime: ProjectRuntime, line: string) {
   addLine(runtime, line, "system");
 }
 
+function buildInitialPrompt(userStories: string) {
+  return [
+    "Construye la aplicación completa usando el proyecto local y sus artefactos OpenSpec como punto de partida.",
+    "Antes de terminar, verifica el scaffold necesario, instala o completa dependencias faltantes, y deja el proyecto runnable.",
+    "No te detengas en un stub: implementa la funcionalidad completa, corrige errores y confirma build.",
+    "Si necesitas más contexto, usa los archivos OpenSpec del proyecto como fuente de verdad.",
+    "",
+    userStories.trim(),
+  ].join("\n");
+}
+
+function buildInitialSystemPrompt(projectName: string) {
+  return [
+    `Eres la instancia OpenCode del proyecto ${projectName}.`,
+    "Trabaja con SDD estricto usando el workspace local como fuente de verdad.",
+    "Usa opencode.json, AGENTS.md, .opencode/instructions/openspec-sdd.md, openspec/config.yaml, openspec/specs/* y openspec/changes/* para mantener el alcance estable.",
+    "Tu tarea es producir una aplicacion completa y funcional para las historias de usuario, no solo un stub o una pantalla minima.",
+    "Si faltan dependencias, scripts, archivos base o configuracion de build, crealos e instalalos antes de terminar.",
+    "Implementa, ejecuta y corrige hasta que el proyecto quede runnable y verificable localmente.",
+    "Si falta informacion critica, pregunta solo lo minimo necesario.",
+  ].join("\n");
+}
+
 function applyUsageFromEvent(runtime: ProjectRuntime, event: string, data: string) {
   try {
     const parsed = JSON.parse(data) as {
@@ -255,7 +275,7 @@ function formatOpenCodeSpawnError(error: unknown) {
 }
 
 function clearRuntimeTimers(runtime: ProjectRuntime) {
-  if (runtime.monitorTimer) clearInterval(runtime.monitorTimer);
+  if (runtime.transcriptSyncTimer) clearInterval(runtime.transcriptSyncTimer);
   if (runtime.timeoutTimer) clearTimeout(runtime.timeoutTimer);
 }
 
@@ -280,7 +300,7 @@ function releaseProjectPort(port: number) {
   reservedPorts.delete(port);
 }
 
-function formatSessionEntry(entry: { info?: { role?: string }; parts?: Array<{ type?: string; text?: string }> }) {
+function formatSessionEntry(entry: { info?: { role?: string; id?: string }; parts?: Array<{ type?: string; text?: string }> }) {
   const role = entry.info?.role ?? "message";
   const lines: string[] = [];
   for (const part of entry.parts ?? []) {
@@ -295,145 +315,76 @@ function formatSessionEntry(entry: { info?: { role?: string }; parts?: Array<{ t
   return lines.length > 0 ? lines : [`[${role}]`];
 }
 
-function eventMatchesSession(data: string, sessionId: string | null) {
-  if (!sessionId) return true;
-  try {
-    const parsed = JSON.parse(data) as { sessionID?: string; sessionId?: string; id?: string; session?: { id?: string } };
-    const ids = [parsed.sessionID, parsed.sessionId, parsed.id, parsed.session?.id].filter((value): value is string => Boolean(value));
-    return ids.length === 0 || ids.includes(sessionId);
-  } catch {
-    return true;
-  }
+function getSessionEntryId(entry: { info?: { id?: string }; parts?: Array<{ id?: string; type?: string; text?: string }> }) {
+  return entry.info?.id ?? entry.parts?.[0]?.id ?? null;
 }
 
-function formatSseLine(event: string, data: string) {
-  if (event === "server.connected" || event === "server.heartbeat" || event === "session.updated" || event === "session.diff") {
-    return null;
-  }
-  try {
-    const parsed = JSON.parse(data) as {
-      message?: string;
-      text?: string;
-      content?: string;
-      type?: string;
-      properties?: {
-        message?: string;
-        text?: string;
-        content?: string;
-        status?: { type?: string };
-        phase?: string;
-        info?: { role?: string };
-        part?: { type?: string; text?: string; delta?: string };
-      };
-    };
-    const props = parsed.properties;
-    const payload = props?.message ?? props?.text ?? props?.content ?? parsed.message ?? parsed.text ?? parsed.content;
-
-    if (event === "message.part.delta") {
-      const delta = props?.part?.delta;
-      return delta ? delta : null;
-    }
-
-    if (event === "message.part.updated") {
-      const text = props?.part?.text;
-      return text ? text : null;
-    }
-
-    if (event === "session.status") {
-      const status = props?.status?.type;
-      return status ? `[session] ${status}` : null;
-    }
-
-    if (event === "message.updated") {
-      const role = props?.info?.role;
-      return role ? `[${role}]` : null;
-    }
-
-    return typeof payload === "string" && payload.trim() ? `[${event}] ${payload}` : null;
-  } catch {
-    return data.trim() ? `[${event}] ${data}` : null;
-  }
+function getSessionEntrySignature(entry: { info?: { role?: string; id?: string }; parts?: Array<{ type?: string; text?: string }>; }) {
+  return JSON.stringify({ role: entry.info?.role ?? "message", parts: entry.parts ?? [] });
 }
 
-async function hydrateSessionTranscript(runtime: ProjectRuntime) {
+function appendTranscriptLines(runtime: ProjectRuntime, entries: Array<{ info?: { role?: string; id?: string }; parts?: Array<{ type?: string; text?: string }> }>) {
+  let appended = false;
+  for (const entry of entries) {
+    const entryId = getSessionEntryId(entry);
+    const signature = getSessionEntrySignature(entry);
+    if (entryId) {
+      const previousSignature = runtime.seenSessionMessageSignatures.get(entryId);
+      if (previousSignature === signature) continue;
+      runtime.seenSessionMessageSignatures.set(entryId, signature);
+    }
+    const lines = formatSessionEntry(entry);
+    for (const line of lines) {
+      addSystemLine(runtime, line);
+      appended = true;
+    }
+  }
+  return appended;
+}
+
+async function syncSessionTranscript(runtime: ProjectRuntime) {
   if (!runtime.sessionId) return;
-  const entries = await getSessionMessages(runtime.baseUrl, runtime.sessionId, 200);
-  const lines = entries.flatMap((entry) => formatSessionEntry(entry));
-  runtime.lines = lines.slice(-50000);
-  runtime.lastOutputAt = Date.now();
-  persistSnapshot(runtime);
-  broadcast(runtime.projectId, { type: "snapshot", ...snapshotFromRuntime(runtime) });
-}
-
-async function startMonitor(runtime: ProjectRuntime) {
-  runtime.monitorTimer = setInterval(async () => {
-    if (runtime.stopRequested || !runtime.sessionId) return;
-
-    const idleMs = Date.now() - runtime.lastOutputAt;
-    if (idleMs >= 10_000 && !runtime.inputEnabled) {
-      runtime.inputEnabled = true;
-      runtime.phase = "waiting_input";
-      persistSnapshot(runtime);
-      broadcast(runtime.projectId, { type: "input_enabled", inputEnabled: true });
-      broadcast(runtime.projectId, { type: "phase", phase: "waiting_input", message: "OpenCode está esperando entrada" });
-    }
-
-    if (runtime.lines.length === 0 || Date.now() - runtime.lastOutputAt < 30_000) return;
-    if (runtime.monitorCycles >= 100) {
-      addSystemLine(runtime, "[monitor] Se alcanzó el límite de ciclos; espera confirmación manual.");
-      return;
-    }
-
-    runtime.monitorCycles += 1;
-    try {
-      const decision = await judgeCompletion(runtime.lines.slice(-200));
-      if (runtime.stopRequested) return;
-
-      if (decision.finished) {
-        runtime.pendingCompletionMessage = decision.message || "El sistema detecta que el proyecto finalizó.";
-        runtime.phase = "waiting_input";
-        runtime.inputEnabled = false;
-        persistSnapshot(runtime);
-        broadcast(runtime.projectId, { type: "completion_ready", message: runtime.pendingCompletionMessage });
-        broadcast(runtime.projectId, { type: "phase", phase: "waiting_input", message: runtime.pendingCompletionMessage });
-        return;
-      }
-
-      if (decision.message.trim() && decision.message !== runtime.lastMonitorMessage) {
-        runtime.lastMonitorMessage = decision.message;
-        runtime.phase = "monitoring";
-        persistSnapshot(runtime);
-        await sendPrompt(runtime.baseUrl, runtime.sessionId, decision.message);
-        addSystemLine(runtime, `[monitor] ${decision.message}`);
-      }
-    } catch (error) {
-      const message = (error as Error).message;
-      runtime.lastError = message;
-      persistSnapshot(runtime);
-      addSystemLine(runtime, `[monitor error] ${message}`);
-    }
-  }, 30_000);
+  const entries = await getSessionMessages(runtime.baseUrl, runtime.sessionId, 500);
+  appendTranscriptLines(runtime, entries);
 }
 
 async function startSseBridge(runtime: ProjectRuntime) {
-  const response = await fetch(`${runtime.baseUrl}/event`);
-  if (!response.body) throw new Error("OpenCode event stream unavailable");
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let buffer = "";
+  let reconnectDelayMs = 1000;
 
   while (!runtime.stopRequested) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    buffer = parseSseLineBuffer(buffer, (event, data) => {
-      if (!data || event === "server.connected" || event === "server.heartbeat") return;
-      applyUsageFromEvent(runtime, event, data);
-      if (!eventMatchesSession(data, runtime.sessionId)) return;
-      const line = formatSseLine(event, data);
-      if (line) addSystemLine(runtime, line);
-    });
+    try {
+      const response = await fetch(`${runtime.baseUrl}/event`, { headers: { Accept: "text/event-stream" } });
+      if (!response.body) throw new Error("OpenCode event stream unavailable");
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      reconnectDelayMs = 1000;
+      while (!runtime.stopRequested) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        buffer = parseSseLineBuffer(buffer, (event, data) => {
+          if (!data || event === "server.connected" || event === "server.heartbeat") return;
+          applyUsageFromEvent(runtime, event, data);
+        });
+      }
+    } catch (error) {
+      if (runtime.stopRequested) return;
+      addSystemLine(runtime, `[stream] ${(error as Error).message}`);
+    }
+
+    if (runtime.stopRequested) return;
+
+    try {
+      await syncSessionTranscript(runtime);
+    } catch (error) {
+      addSystemLine(runtime, `[stream] Sync fallido: ${(error as Error).message}`);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, reconnectDelayMs));
+    reconnectDelayMs = Math.min(reconnectDelayMs * 2, 10000);
   }
 }
 
@@ -477,8 +428,6 @@ export async function stopProjectRuntime(projectId: string) {
   runtime.stopRequested = true;
   clearRuntimeTimers(runtime);
   runtime.inputEnabled = false;
-  runtime.pendingCompletionMessage = null;
-  runtime.lastMonitorMessage = null;
   runtime.phase = "stopping";
   runtime.status = ProjectStatus.running;
   runtime.lastError = null;
@@ -519,6 +468,8 @@ export async function startProjectGeneration(projectId: string, projectName: str
   normalizeProjectWorkspace(workspacePath);
 
   pendingGenerations.add(projectId);
+  createOpenSpecWorkspace(workspacePath, projectId, projectName, userStories);
+  createOpenCodeConfig(workspacePath, projectId, projectName, userStories);
   snapshotsByProject.set(projectId, {
     ...defaultSnapshot(projectId),
     phase: "preparing",
@@ -547,12 +498,10 @@ export async function startProjectGeneration(projectId: string, projectName: str
       lastOutputAt: Date.now(),
       listeners: ensureListeners(projectId),
       inputEnabled: false,
-      monitorCycles: 0,
       stopRequested: false,
-      lastMonitorMessage: null,
-      pendingCompletionMessage: null,
       lastError: null,
       usage: defaultSnapshot(projectId).usage,
+      seenSessionMessageSignatures: new Map<string, string>(),
     };
 
     pendingGenerations.delete(projectId);
@@ -615,12 +564,18 @@ export async function startProjectGeneration(projectId: string, projectName: str
     runtime.status = ProjectStatus.running;
     persistSnapshot(runtime);
     broadcast(projectId, { type: "status", status: ProjectStatus.running, phase: "running", message: "Sesión de OpenCode creada" });
-    await sendPrompt(baseUrl, session.id, userStories);
-    await hydrateSessionTranscript(runtime);
     void startSseBridge(runtime).catch((error) => {
       addSystemLine(runtime, `[stream error] ${(error as Error).message}`);
     });
-    void startMonitor(runtime);
+    await sendPrompt(baseUrl, session.id, buildInitialPrompt(userStories), { system: buildInitialSystemPrompt(projectName) });
+    void syncSessionTranscript(runtime).catch((error) => {
+      addSystemLine(runtime, `[sync error] ${(error as Error).message}`);
+    });
+    runtime.transcriptSyncTimer = setInterval(() => {
+      void syncSessionTranscript(runtime).catch((error) => {
+        addSystemLine(runtime, `[sync error] ${(error as Error).message}`);
+      });
+    }, 1500);
     return getRuntimeSnapshot(projectId);
   } catch (error) {
     pendingGenerations.delete(projectId);
@@ -658,14 +613,12 @@ export async function startProjectGeneration(projectId: string, projectName: str
 export async function sendProjectInput(projectId: string, message: string) {
   const runtime = runtimes.get(projectId);
   if (!runtime?.sessionId) throw new Error("El proyecto no está listo para recibir entrada");
-  if (!runtime.inputEnabled) throw new Error("OpenCode todavía está ejecutando; espera a que se habilite la entrada");
-  runtime.inputEnabled = false;
-  runtime.phase = "running";
   persistSnapshot(runtime);
-  broadcast(projectId, { type: "input_enabled", inputEnabled: false });
-  broadcast(projectId, { type: "phase", phase: "running", message: "Entrada enviada a la sesión activa" });
+  broadcast(projectId, { type: "phase", phase: runtime.phase === "idle" ? "running" : runtime.phase, message: "Entrada enviada a la sesión activa" });
   await sendPrompt(runtime.baseUrl, runtime.sessionId, message);
-  addSystemLine(runtime, `[user] ${message}`);
+  void syncSessionTranscript(runtime).catch((error) => {
+    addSystemLine(runtime, `[sync error] ${(error as Error).message}`);
+  });
 }
 
 export async function markProjectComplete(projectId: string, workspacePath: string) {

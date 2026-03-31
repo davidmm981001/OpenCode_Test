@@ -26,7 +26,7 @@ export async function createProject(name: string, userStories: string) {
   const workspacePath = getProjectWorkspacePath(project.id);
   await prisma.project.update({ where: { id: project.id }, data: { workspacePath } });
   createOpenSpecWorkspace(workspacePath, project.id, name, userStories);
-  createOpenCodeConfig(workspacePath, project.id, userStories);
+  createOpenCodeConfig(workspacePath, project.id, name, userStories);
 
   return prisma.project.findUniqueOrThrow({ where: { id: project.id } });
 }
@@ -40,7 +40,7 @@ export async function updateProject(id: string, patch: { name?: string; userStor
   const project = await prisma.project.update({ where: { id }, data: patch });
   if (patch.name || patch.userStories) {
     createOpenSpecWorkspace(project.workspacePath, project.id, project.name, project.userStories);
-    createOpenCodeConfig(project.workspacePath, project.id, project.userStories);
+    createOpenCodeConfig(project.workspacePath, project.id, project.name, project.userStories);
   }
   return project;
 }

@@ -1,0 +1,1 @@
+Como usuario quiero un saludo simple en pantalla para validar OpenCode.

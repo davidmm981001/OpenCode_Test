@@ -10,7 +10,7 @@ describe("workspace generation", () => {
   it("creates OpenSpec and opencode config files", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sdd-orchestrator-"));
     createOpenSpecWorkspace(tmp, "demo", "Demo Project", "As a user, I want tests.");
-    createOpenCodeConfig(tmp, "demo", "As a user, I want tests.");
+    createOpenCodeConfig(tmp, "demo", "Demo Project", "As a user, I want tests.");
 
     expect(fs.existsSync(path.join(tmp, "openspec", "config.yaml"))).toBe(true);
     expect(fs.existsSync(path.join(tmp, "openspec", "context.md"))).toBe(true);
@@ -39,13 +39,19 @@ describe("workspace generation", () => {
     const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "sdd-orchestrator-"));
     fs.mkdirSync(path.join(tmp, ".openspec"), { recursive: true });
     fs.mkdirSync(path.join(tmp, ".opencode"), { recursive: true });
+    fs.writeFileSync(path.join(tmp, ".opencode", "package.json"), "{}", "utf8");
+    fs.mkdirSync(path.join(tmp, ".opencode", "node_modules"), { recursive: true });
     fs.writeFileSync(path.join(tmp, ".opencode", "opencode.jsonc"), "{}", "utf8");
+    fs.writeFileSync(path.join(tmp, "opencode.json"), "{}", "utf8");
 
     normalizeProjectWorkspace(tmp);
 
     expect(fs.existsSync(path.join(tmp, "openspec"))).toBe(true);
     expect(fs.existsSync(path.join(tmp, ".openspec"))).toBe(false);
     expect(fs.existsSync(path.join(tmp, "opencode.json"))).toBe(true);
-    expect(fs.existsSync(path.join(tmp, ".opencode"))).toBe(false);
+    expect(fs.existsSync(path.join(tmp, ".opencode.json"))).toBe(false);
+    expect(fs.existsSync(path.join(tmp, ".opencode", "package.json"))).toBe(false);
+    expect(fs.existsSync(path.join(tmp, ".opencode", "node_modules"))).toBe(false);
+    expect(fs.existsSync(path.join(tmp, ".opencode", "opencode.jsonc"))).toBe(false);
   });
 });

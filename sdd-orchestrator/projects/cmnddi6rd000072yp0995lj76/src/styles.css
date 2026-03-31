@@ -1,0 +1,156 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #f5f7fb;
+  background:
+    radial-gradient(circle at top, rgba(79, 70, 229, 0.35), transparent 30%),
+    linear-gradient(180deg, #0f172a 0%, #111827 100%);
+  line-height: 1.5;
+  font-weight: 400;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+.app-shell {
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 56px;
+}
+
+.hero {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.eyebrow,
+.card-label,
+.section-title,
+.subtitle,
+.clock-date {
+  color: rgba(226, 232, 240, 0.82);
+}
+
+.eyebrow {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.24em;
+  font-size: 0.8rem;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1 {
+  font-size: clamp(2.4rem, 6vw, 4.8rem);
+  line-height: 0.95;
+}
+
+.subtitle {
+  max-width: 40rem;
+  font-size: 1.05rem;
+}
+
+.zone-picker {
+  display: grid;
+  gap: 8px;
+  max-width: 20rem;
+}
+
+.zone-picker span,
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.zone-picker select {
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  border-radius: 14px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #f8fafc;
+  padding: 14px 16px;
+}
+
+.featured-clock,
+.clock-card {
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 24px;
+  background: rgba(15, 23, 42, 0.76);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 60px rgba(15, 23, 42, 0.28);
+}
+
+.featured-clock {
+  padding: 28px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.clock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.clock-card {
+  padding: 20px;
+  display: grid;
+  gap: 8px;
+}
+
+.clock-card--active {
+  border-color: rgba(129, 140, 248, 0.85);
+  box-shadow: 0 0 0 1px rgba(129, 140, 248, 0.3), 0 18px 60px rgba(79, 70, 229, 0.18);
+}
+
+.clock-time {
+  font-size: clamp(2.6rem, 7vw, 5rem);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-weight: 800;
+}
+
+.clock-time--small {
+  font-size: 2.4rem;
+}
+
+.clock-date {
+  text-transform: capitalize;
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    width: min(100% - 20px, 1120px);
+    padding-top: 24px;
+  }
+
+  .featured-clock {
+    padding: 20px;
+  }
+}

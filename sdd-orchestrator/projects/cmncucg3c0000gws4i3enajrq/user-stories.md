@@ -1,0 +1,1 @@
+Como usuario quiero ver un saludo en pantalla para confirmar que el flujo de OpenCode funciona.

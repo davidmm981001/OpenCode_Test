@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile Invitees</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script defer src="app.js"></script>
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="profile-card" aria-labelledby="profile-title">
+        <div class="avatar" aria-hidden="true">AM</div>
+        <div>
+          <p class="eyebrow">Profile</p>
+          <h1 id="profile-title">Ava Morgan</h1>
+          <p class="muted">Event coordinator · ava.morgan@example.com</p>
+        </div>
+      </section>
+
+      <section class="invite-card" aria-labelledby="invitees-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Invitees</p>
+            <h2 id="invitees-title">Guest list</h2>
+          </div>
+          <span id="invitee-count" class="count-badge">0 invitees</span>
+        </div>
+
+        <form id="invite-form" class="invite-form">
+          <label>
+            Name
+            <input id="name-input" type="text" placeholder="Enter a name" required />
+          </label>
+          <label>
+            Email
+            <input id="email-input" type="email" placeholder="name@example.com" required />
+          </label>
+          <button type="submit">Add invitee</button>
+        </form>
+
+        <ul id="invitee-list" class="invitee-list" aria-live="polite"></ul>
+      </section>
+    </main>
+  </body>
+</html>

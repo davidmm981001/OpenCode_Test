@@ -1,0 +1,1 @@
+make a simple aplication that has a profile and lets you add users for a list of invitees.

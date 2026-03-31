@@ -74,12 +74,18 @@ export async function createSession(baseUrl: string, title: string) {
   return (await response.json()) as { id: string };
 }
 
-export async function sendPrompt(baseUrl: string, sessionId: string, prompt: string) {
+export async function sendPrompt(
+  baseUrl: string,
+  sessionId: string,
+  prompt: string,
+  options: { system?: string } = {},
+) {
   const response = await fetch(`${baseUrl}/session/${sessionId}/prompt_async`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       model: { providerID: "openai", modelID: "gpt-5.4-mini" },
+      ...(options.system ? { system: options.system } : {}),
       parts: [{ type: "text", text: prompt }],
     }),
   });

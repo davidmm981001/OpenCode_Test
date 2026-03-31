@@ -1,0 +1,12 @@
+version: 1
+project_name: "HU prueba simple"
+model: gpt-5.4-mini
+context:
+  user_stories_file: "user-stories.md"
+  change_dir: "openspec/changes/cmncucg3c0000gws4i3enajrq"
+  context_file: "openspec/context.md"
+guardrails:
+  - Keep the scope anchored to the provided user stories.
+  - Prefer small, testable deltas.
+  - Keep OpenCode and OpenSpec configuration separate.
+  - Do not change the target stack.
