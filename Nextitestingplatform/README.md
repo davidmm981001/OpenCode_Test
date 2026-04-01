@@ -3,11 +3,16 @@
 
   This is a code bundle for NEXTI Testing Platform. The original project is available at https://www.figma.com/design/E1DhAp4azKYaiWl0tl5NKk/NEXTI-Testing-Platform.
 
-  ## Running the code
+## Running the code
 
-  Run `npm i` to install the dependencies.
+Run `npm i` to install the dependencies.
 
-  Run `npm run dev` to start the development server.
+Run `npm run dev` to start the development server.
+
+### One-command startup
+
+- PowerShell: `./scripts/start-local.ps1`
+- Bash: `./scripts/start-local.sh`
 
   ## n8n workflows (BDD + scripts)
 

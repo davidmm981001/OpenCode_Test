@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "start:local": "node scripts/start-local.mjs",
     "deploy": "npm run build && firebase deploy --only hosting",
     "db:storage-policies": "psql \"$SUPABASE_DB_URL\" -v ON_ERROR_STOP=1 -f supabase/manual_storage_policies.sql",
     "db:push": "supabase db push",

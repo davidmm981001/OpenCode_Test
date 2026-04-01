@@ -1,1 +1,0 @@
-Como usuario quiero una aplicacion de tareas con agregar, marcar completada, eliminar y persistencia local para validar una entrega funcional completa.

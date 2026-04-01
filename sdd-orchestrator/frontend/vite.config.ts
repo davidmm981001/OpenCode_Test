@@ -7,5 +7,10 @@ export default defineConfig({
     port: 3002,
     host: "0.0.0.0",
     strictPort: true,
+    hmr: {
+      host: "localhost",
+      port: 3002,
+      clientPort: 3002,
+    },
   },
 });

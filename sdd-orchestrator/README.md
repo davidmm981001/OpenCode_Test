@@ -15,6 +15,11 @@
 5. Generate Prisma client: `cd backend && corepack pnpm prisma generate --schema prisma/schema.prisma`
 6. Start dev: `corepack pnpm dev`
 
+### One-command startup
+
+- PowerShell: `./scripts/start-local.ps1`
+- Bash: `./scripts/start-local.sh`
+
 ## OpenCode workspace
 
 - Generated projects create OpenCode config at `.opencode.json` in the project root.
