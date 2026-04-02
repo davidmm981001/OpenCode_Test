@@ -50,7 +50,7 @@ export function spawnOpenCodeServe(port: number, cwd: string) {
   return child;
 }
 
-export async function waitForHealth(baseUrl: string, timeoutMs = 60000) {
+export async function waitForHealth(baseUrl: string, timeoutMs = 180000) {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
     try {

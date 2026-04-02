@@ -69,6 +69,10 @@ function seedOpenCodeProjectFiles(projectDir: string, projectName: string, proje
   const opencodeAgentsDir = path.join(opencodeDir, "agents");
   const commandsDir = path.join(opencodeDir, "commands");
   const instructionsDir = path.join(opencodeDir, "instructions");
+  const backendDir = path.join(projectDir, "backend");
+  const backendSrcDir = path.join(backendDir, "src");
+  const backendSrcLibDir = path.join(backendSrcDir, "lib");
+  const backendCompatLibDir = path.join(backendDir, "lib");
   const openspecSpecsDir = path.join(projectDir, "openspec", "specs", "project-scope");
   const changeDir = path.join(projectDir, "openspec", "changes", projectId);
   const changeSpecsDir = path.join(changeDir, "specs", "project-scope");
@@ -77,8 +81,17 @@ function seedOpenCodeProjectFiles(projectDir: string, projectName: string, proje
   ensureDirSync(opencodeAgentsDir);
   ensureDirSync(commandsDir);
   ensureDirSync(instructionsDir);
+  ensureDirSync(backendSrcLibDir);
   ensureDirSync(openspecSpecsDir);
   ensureDirSync(changeSpecsDir);
+
+  if (!fs.existsSync(backendCompatLibDir)) {
+    try {
+      fs.symlinkSync(path.relative(backendDir, backendSrcLibDir) || "src/lib", backendCompatLibDir, "dir");
+    } catch {
+      ensureDirSync(backendCompatLibDir);
+    }
+  }
 
   writeFileIfMissing(
     path.join(projectDir, "AGENTS.md"),
@@ -404,9 +417,20 @@ export function createOpenCodeConfig(projectDir: string, projectId: string, proj
     permission: {
       bash: "allow",
       edit: "allow",
+      external_directory: "deny",
     },
     watcher: {
-      ignore: ["node_modules/**", "dist/**", ".git/**", "completed-projects/**", "openspec/changes/archive/**"],
+      ignore: [
+        "node_modules/**",
+        "dist/**",
+        "target/**",
+        "build/**",
+        "coverage/**",
+        ".idea/**",
+        ".git/**",
+        "completed-projects/**",
+        "openspec/changes/archive/**",
+      ],
     },
   };
 
