@@ -3,7 +3,7 @@ import { Navigate, useParams } from 'react-router';
 import { RefreshCw } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Button } from '../components/ui/button';
-import { buildSddUserStoriesBlob } from '../lib/sddUserStoriesBlob';
+import { buildSddUserStoriesBlob, getSddUserStoriesSourceRunId } from '../lib/sddUserStoriesBlob';
 import { isSddApiConfigured, sddPatchProject } from '../services/sddOrchestratorService';
 
 function getSddEmbedBase(): string {
@@ -23,7 +23,12 @@ export default function ProjectSddTabPage() {
     [userStories, projectId],
   );
 
-  const storiesBlob = useMemo(() => buildSddUserStoriesBlob(storiesForProject), [storiesForProject]);
+  const sourceRunId = useMemo(() => getSddUserStoriesSourceRunId(storiesForProject), [storiesForProject]);
+
+  const storiesBlob = useMemo(
+    () => buildSddUserStoriesBlob(storiesForProject, project ? { projectId: project.id, sourceRunId } : undefined),
+    [storiesForProject, project, sourceRunId],
+  );
 
   const embedBase = getSddEmbedBase();
   const apiOk = isSddApiConfigured();

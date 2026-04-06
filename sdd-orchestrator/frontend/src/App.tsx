@@ -1,8 +1,24 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
 import { api, getApiBase, getAppLinks } from "./api";
+import {
+  createGenerationCacheMetadata,
+  clearGenerationCacheProject,
+  getLatestGenerationCacheMetadata,
+  loadGenerationCacheSnapshot,
+  resolveGenerationCacheVersion,
+  saveGenerationCacheSnapshot,
+} from "./lib/generation-cache";
 import "./orchestrator-app.css";
-import type { ExecutionPhase, Project, ProjectExecutionSnapshot, ProjectStatus, TerminalPayload, WorkspaceFileEntry } from "./types";
+import type {
+  ExecutionPhase,
+  GenerationCacheMetadata,
+  Project,
+  ProjectExecutionSnapshot,
+  ProjectStatus,
+  TerminalPayload,
+  WorkspaceFileEntry,
+} from "./types";
 
 type Tab = "stories" | "console" | "result";
 type ConnectionState = "idle" | "connecting" | "open" | "reconnecting";
@@ -115,6 +131,29 @@ function defaultExecution(projectId: string): ProjectExecutionSnapshot {
       cacheWriteTokens: 0,
       estimatedCostUsd: null,
     },
+  };
+}
+
+function executionFromCacheMetadata(metadata: GenerationCacheMetadata): ProjectExecutionSnapshot {
+  return {
+    projectId: metadata.projectId,
+    phase: metadata.phase,
+    status: metadata.status,
+    lines: [],
+    inputEnabled: metadata.inputEnabled,
+    sessionId: metadata.sessionId,
+    port: null,
+    lastError: metadata.lastError,
+    message: metadata.message,
+    lastOutputAt: null,
+    usage: defaultExecution(metadata.projectId).usage,
+  };
+}
+
+function workspaceStatsFromCache(metadata: GenerationCacheMetadata) {
+  return {
+    fileCount: metadata.workspaceFileCount,
+    totalBytes: metadata.totalBytes,
   };
 }
 
@@ -402,10 +441,12 @@ export default function App() {
   const [connectionState, setConnectionState] = useState<ConnectionState>("idle");
   const [stopState, setStopState] = useState<StopState>("idle");
   const [workspaceFiles, setWorkspaceFiles] = useState<WorkspaceFileEntry[]>([]);
-  const [workspaceStats, setWorkspaceStats] = useState<{ fileCount: number; totalBytes: number } | null>(null);
+  const [workspaceStats, setWorkspaceStats] = useState<{ fileCount: number; totalBytes: number | null } | null>(null);
+  const [cacheStale, setCacheStale] = useState(false);
   const [collapsedFolders, setCollapsedFolders] = useState<Set<string>>(() => new Set());
   const filesBodyRef = useRef<HTMLDivElement | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
+  const hydrationVersionRef = useRef<string | null>(null);
   const pollRef = useRef<number | null>(null);
   const filesPollRef = useRef<number | null>(null);
   const reconnectRef = useRef<number | null>(null);
@@ -557,51 +598,171 @@ export default function App() {
 
   useEffect(() => {
     if (!embedParams.embed || !selected) return;
+    if (getLatestGenerationCacheMetadata(selected.id)) return;
     if (selected.status === "completed") setTab("result");
     else setTab("console");
   }, [embedParams.embed, selected?.id, selected?.status]);
+
+  useEffect(() => {
+    if (!selected || !selected.userStories) return;
+    const versionId = resolveGenerationCacheVersion(selected.userStories);
+    if (!versionId) return;
+    const cached = getLatestGenerationCacheMetadata(selected.id);
+    setCacheStale(Boolean(cached && cached.versionId !== versionId));
+  }, [selected?.id, selected?.userStories]);
 
   useEffect(() => {
     if (selected) setEditingName(selected.name);
   }, [selected?.id]);
 
   useEffect(() => {
+    if (!selected || !selectedExecution) return;
+    const versionId = resolveGenerationCacheVersion(selected.userStories);
+    if (!versionId) return;
+    if (hydrationVersionRef.current === versionId) return;
+
+    const metadata = createGenerationCacheMetadata({
+      projectId: selected.id,
+      versionId,
+      tab,
+      completed: selected.status === "completed",
+      status: selectedExecution.status,
+      phase: selectedExecution.phase,
+      sessionId: selectedExecution.sessionId,
+      inputEnabled: selectedExecution.inputEnabled,
+      zipPath: selected.zipPath,
+      workspaceFileCount: workspaceStats?.fileCount ?? workspaceFiles.length,
+      totalBytes: workspaceStats?.totalBytes ?? null,
+      consoleLineCount: logs.length,
+      zipSizeBytes: selected.zipSizeBytes,
+      completedAt: selected.completedAt,
+      lastError: selectedExecution.lastError,
+      message: selectedExecution.message,
+      updatedAt: new Date().toISOString(),
+    });
+
+    void saveGenerationCacheSnapshot({
+      metadata,
+      workspaceFiles,
+      consoleTranscriptChunks: logs,
+      zipBlob: null,
+    }).catch((error_) => setError((error_ as Error).message));
+  }, [
+    selected?.id,
+    selected?.status,
+    selected?.zipPath,
+    selected?.zipSizeBytes,
+    selected?.completedAt,
+    selectedExecution?.phase,
+    selectedExecution?.status,
+    selectedExecution?.sessionId,
+    selectedExecution?.inputEnabled,
+    selectedExecution?.lastError,
+    selectedExecution?.message,
+    workspaceFiles,
+    workspaceStats,
+    logs,
+    tab,
+  ]);
+
+  useEffect(() => {
     if (!selectedId) return;
+    let cancelled = false;
 
-    setLogs([]);
-    setInputEnabled(false);
-    setCompletionPrompt(null);
-    setSelectedExecution(null);
-    setStopState("idle");
-    setWorkspaceFiles([]);
-    setWorkspaceStats(null);
-    setCollapsedFolders(new Set());
-    setExpandedConsoleBlocks(new Set());
-    setCollapsedAssistantBlocks(new Set());
-    setExpandedInnerBlocks(new Set());
+    const hydrateAndConnect = async () => {
+      clearReconnectTimer();
+      setError(null);
+      setCacheStale(false);
 
-    connectProjectStream(selectedId);
-    void syncSelectedStatus(selectedId).catch((error_) => setError((error_ as Error).message));
-    void refreshProjectFiles(selectedId).catch((error_) => setError((error_ as Error).message));
+      const incomingVersionId = selected ? resolveGenerationCacheVersion(selected.userStories) : null;
 
-    if (pollRef.current) window.clearInterval(pollRef.current);
-    pollRef.current = window.setInterval(() => {
+      const cachedMetadata = getLatestGenerationCacheMetadata(selectedId);
+      if (cachedMetadata && incomingVersionId && cachedMetadata.versionId !== incomingVersionId) {
+        setCacheStale(true);
+      }
+
+      if (cachedMetadata && (!incomingVersionId || cachedMetadata.versionId === incomingVersionId)) {
+        hydrationVersionRef.current = cachedMetadata.versionId;
+        setCompletionPrompt(null);
+        setStopState("idle");
+        setSelectedExecution(executionFromCacheMetadata(cachedMetadata));
+        setInputEnabled(cachedMetadata.inputEnabled);
+        setLogs([]);
+        setWorkspaceFiles([]);
+        setWorkspaceStats(workspaceStatsFromCache(cachedMetadata));
+        setCollapsedFolders(new Set());
+        setExpandedConsoleBlocks(new Set());
+        setCollapsedAssistantBlocks(new Set());
+        setExpandedInnerBlocks(new Set());
+        setTab(cachedMetadata.tab);
+
+        const snapshot = await loadGenerationCacheSnapshot(selectedId, cachedMetadata.versionId);
+        if (cancelled) return;
+
+        if (snapshot) {
+          hydrationVersionRef.current = snapshot.metadata.versionId;
+          setSelectedExecution(executionFromCacheMetadata(snapshot.metadata));
+          setInputEnabled(snapshot.metadata.inputEnabled);
+          setLogs(snapshot.consoleTranscriptChunks);
+          setWorkspaceFiles(snapshot.workspaceFiles);
+          setWorkspaceStats(workspaceStatsFromCache(snapshot.metadata));
+          setTab(snapshot.metadata.tab);
+
+          void saveGenerationCacheSnapshot({
+            metadata: createGenerationCacheMetadata({
+              ...snapshot.metadata,
+              updatedAt: new Date().toISOString(),
+            }),
+            workspaceFiles: snapshot.workspaceFiles,
+            consoleTranscriptChunks: snapshot.consoleTranscriptChunks,
+            zipBlob: snapshot.zipBlob,
+          }).catch((error_) => setError((error_ as Error).message));
+        }
+
+        hydrationVersionRef.current = null;
+      } else {
+        hydrationVersionRef.current = null;
+        setLogs([]);
+        setInputEnabled(false);
+        setCompletionPrompt(null);
+        setSelectedExecution(null);
+        setStopState("idle");
+        setWorkspaceFiles([]);
+        setWorkspaceStats(null);
+        setCollapsedFolders(new Set());
+        setExpandedConsoleBlocks(new Set());
+        setCollapsedAssistantBlocks(new Set());
+        setExpandedInnerBlocks(new Set());
+      }
+
+      if (cancelled) return;
+
+      connectProjectStream(selectedId);
       void syncSelectedStatus(selectedId).catch((error_) => setError((error_ as Error).message));
-    }, 2000);
-
-    if (filesPollRef.current) window.clearInterval(filesPollRef.current);
-    filesPollRef.current = window.setInterval(() => {
       void refreshProjectFiles(selectedId).catch((error_) => setError((error_ as Error).message));
-    }, 5000);
+
+      if (pollRef.current) window.clearInterval(pollRef.current);
+      pollRef.current = window.setInterval(() => {
+        void syncSelectedStatus(selectedId).catch((error_) => setError((error_ as Error).message));
+      }, 2000);
+
+      if (filesPollRef.current) window.clearInterval(filesPollRef.current);
+      filesPollRef.current = window.setInterval(() => {
+        void refreshProjectFiles(selectedId).catch((error_) => setError((error_ as Error).message));
+      }, 5000);
+    };
+
+    void hydrateAndConnect();
 
     return () => {
+      cancelled = true;
       connectSeqRef.current += 1;
       clearReconnectTimer();
       socketRef.current?.close();
       if (pollRef.current) window.clearInterval(pollRef.current);
       if (filesPollRef.current) window.clearInterval(filesPollRef.current);
     };
-  }, [selectedId]);
+  }, [selectedId, selected?.userStories]);
 
   function toggleFolder(path: string) {
     setCollapsedFolders((current) => {
@@ -668,6 +829,26 @@ export default function App() {
 
   async function launchGeneration() {
     if (!selected) return;
+    const hasCachedState = Boolean(getLatestGenerationCacheMetadata(selected.id));
+    if (hasCachedState) {
+      const overwrite = window.confirm(
+        "Este proyecto ya tiene un estado generado guardado. Si continúas, se borrará solo la caché de este proyecto y se iniciará una nueva generación. ¿Deseas continuar?",
+      );
+      if (!overwrite) return;
+      await clearGenerationCacheProject(selected.id);
+      setCompletionPrompt(null);
+      setSelectedExecution(defaultExecution(selected.id));
+      setInputEnabled(false);
+      setLogs([]);
+      setWorkspaceFiles([]);
+      setWorkspaceStats(null);
+      setCollapsedFolders(new Set());
+      setExpandedConsoleBlocks(new Set());
+      setCollapsedAssistantBlocks(new Set());
+      setExpandedInnerBlocks(new Set());
+      setTab("console");
+    }
+
     setBusy("generate");
     setError(null);
     try {
@@ -872,6 +1053,11 @@ export default function App() {
                       <PhaseBadge phase={currentPhase} />
                     </div>
                   </div>
+                  {cacheStale && (
+                    <div className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+                      La caché guardada corresponde a una versión anterior de las historias generadas.
+                    </div>
+                  )}
                   {embedParams.embed && (
                     <p className="muted small" style={{ marginBottom: 10 }}>
                       Historias gestionadas en NexTI; use Generar cuando estén sincronizadas con el servicio de generación.

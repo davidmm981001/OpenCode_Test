@@ -59,6 +59,36 @@ export type WorkspaceFilesResponse = {
   };
 };
 
+export type GenerationCacheArtifactKind = "workspace-files" | "console-transcript-chunks" | "zip-blob";
+export type GenerationCacheTab = "stories" | "console" | "result";
+
+export type GenerationCacheMetadata = {
+  projectId: string;
+  versionId: string;
+  tab: GenerationCacheTab;
+  completed: boolean;
+  status: ProjectStatus;
+  phase: ExecutionPhase;
+  sessionId: string | null;
+  inputEnabled: boolean;
+  zipPath: string | null;
+  workspaceFileCount: number;
+  totalBytes: number | null;
+  consoleLineCount: number;
+  zipSizeBytes: number | null;
+  completedAt: string | null;
+  lastError: string | null;
+  message: string | null;
+  updatedAt: string;
+};
+
+export type GenerationCacheSnapshot = {
+  metadata: GenerationCacheMetadata;
+  workspaceFiles: WorkspaceFileEntry[];
+  consoleTranscriptChunks: string[];
+  zipBlob: Blob | null;
+};
+
 export type TerminalPayload =
   | { type: "snapshot"; projectId: string; phase: ExecutionPhase; status: ProjectStatus; lines: string[]; inputEnabled: boolean; sessionId: string | null; port: number | null; lastError: string | null; message: string | null; lastOutputAt: number | null; usage: ProjectExecutionSnapshot["usage"] }
   | { type: "line"; line: string; stream: "stdout" | "stderr" | "system" }
