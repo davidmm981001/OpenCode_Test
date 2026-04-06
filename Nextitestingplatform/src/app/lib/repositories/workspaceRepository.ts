@@ -202,6 +202,7 @@ export async function listProjects(ownerUserId: string): Promise<Project[]> {
         'api_testing',
         'framework_selection',
         'jira_config',
+        'sdd_project_id',
       ].join(','),
     )
     .eq('owner_user_id', ownerUserId)
@@ -721,4 +722,3 @@ export async function listScriptFilesByRunId(
     content: String(row.content ?? ''),
   }));
 }
-

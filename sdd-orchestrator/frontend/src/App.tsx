@@ -677,18 +677,12 @@ export default function App() {
       const incomingVersionId = selected ? resolveGenerationCacheVersion(selected.userStories) : null;
 
       const cachedMetadata = getLatestGenerationCacheMetadata(selectedId);
-      if (cachedMetadata && incomingVersionId && cachedMetadata.versionId !== incomingVersionId) {
-        setCacheStale(true);
-      }
-
-      if (cachedMetadata && (!incomingVersionId || cachedMetadata.versionId === incomingVersionId)) {
+      if (cachedMetadata) {
         hydrationVersionRef.current = cachedMetadata.versionId;
         setCompletionPrompt(null);
         setStopState("idle");
         setSelectedExecution(executionFromCacheMetadata(cachedMetadata));
         setInputEnabled(cachedMetadata.inputEnabled);
-        setLogs([]);
-        setWorkspaceFiles([]);
         setWorkspaceStats(workspaceStatsFromCache(cachedMetadata));
         setCollapsedFolders(new Set());
         setExpandedConsoleBlocks(new Set());
@@ -717,6 +711,10 @@ export default function App() {
             consoleTranscriptChunks: snapshot.consoleTranscriptChunks,
             zipBlob: snapshot.zipBlob,
           }).catch((error_) => setError((error_ as Error).message));
+        }
+
+        if (incomingVersionId && cachedMetadata.versionId !== incomingVersionId) {
+          setCacheStale(true);
         }
 
         hydrationVersionRef.current = null;
