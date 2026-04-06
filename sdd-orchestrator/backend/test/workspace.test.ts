@@ -22,7 +22,11 @@ describe("workspace generation", () => {
     expect(fs.existsSync(path.join(tmp, "user-stories.md"))).toBe(true);
 
     const opencodeConfig = JSON.parse(fs.readFileSync(path.join(tmp, "opencode.json"), "utf8")) as { instructions?: string[] };
-    expect((opencodeConfig as { permission?: { bash?: string; edit?: string } }).permission).toEqual({ bash: "allow", edit: "allow" });
+    expect((opencodeConfig as { permission?: { bash?: string; edit?: string; external_directory?: string } }).permission).toEqual({
+      bash: "allow",
+      edit: "allow",
+      external_directory: "deny",
+    });
     expect(opencodeConfig.instructions).toEqual(
       expect.arrayContaining([
         "openspec/config.yaml",

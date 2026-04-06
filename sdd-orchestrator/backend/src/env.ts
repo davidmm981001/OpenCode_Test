@@ -25,7 +25,7 @@ export const env = {
   opencodeSmallModel: process.env.OPENCODE_SMALL_MODEL ?? "openai/gpt-5.4-mini",
   opencodeServerHost: process.env.OPENCODE_SERVER_HOST ?? "127.0.0.1",
   opencodeServerPortBase: Number(process.env.OPENCODE_SERVER_PORT_BASE ?? "4900"),
-  maxConcurrentProcesses: Number(process.env.MAX_CONCURRENT_PROCESSES ?? "5"),
+  maxConcurrentProcesses: Number(process.env.MAX_CONCURRENT_PROCESSES ?? "2"),
   processTimeoutMinutes: Number(process.env.PROCESS_TIMEOUT_MINUTES ?? "90"),
   rootDir: path.resolve(process.cwd(), ".."),
   backendRoot: process.cwd(),

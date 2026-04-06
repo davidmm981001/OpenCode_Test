@@ -31,6 +31,11 @@ import {
   upsertDocumentationRun,
 } from '../lib/repositories/workspaceRepository';
 
+function createUniqueId(prefix: string) {
+  const token = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  return `${prefix}-${token}`;
+}
+
 
 const PROJECTS_STORAGE_KEY = 'nexti_projects_v1';
 const REQUIREMENTS_STORAGE_KEY = 'nexti_requirements_v1';
@@ -436,7 +441,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addProject = (project: Omit<Project, 'id'>) => {
     const newProject: Project = {
       ...project,
-      id: String(Date.now()),
+      id: createUniqueId('proj'),
     };
     setProjects(prev => [newProject, ...prev]);
 
@@ -469,7 +474,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addRole = (role: Omit<AIRole, 'id' | 'createdAt'>) => {
     const newRole: AIRole = {
       ...role,
-      id: String(Date.now()),
+      id: createUniqueId('role'),
       createdAt: new Date().toISOString().split('T')[0],
     };
     setAiRoles(prev => [...prev, newRole]);
@@ -488,7 +493,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const addProgrammingLanguage = (lang: Omit<ProgrammingLanguage, 'id' | 'createdAt'>) => {
     const newLang: ProgrammingLanguage = {
       ...lang,
-      id: `pl-${Date.now()}`,
+      id: createUniqueId('pl'),
       createdAt: new Date().toISOString().split('T')[0],
     };
     setProgrammingLanguages(prev => [...prev, newLang]);
@@ -511,7 +516,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const now = new Date().toISOString();
     const newRequirement: Requirement = {
       ...requirement,
-      id: String(Date.now()),
+      id: createUniqueId('req'),
       projectId,
       createdAt: now,
       updatedAt: now,
@@ -563,7 +568,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const now = new Date().toISOString();
     const newStories: UserStory[] = stories.map((story, idx) => ({
       ...story,
-      id: `US-${globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${idx}-${Math.random().toString(36).slice(2, 9)}`}`,
+      id: createUniqueId(`US-${idx + 1}`),
       projectId,
       jiraId: null,
       jiraSyncStatus: 'pending',
@@ -716,7 +721,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const now = new Date().toISOString();
     const created: TestCase[] = nextTestCases.map((tc, idx) => ({
       ...tc,
-      id: `TC-${Date.now()}-${idx}`,
+      id: createUniqueId(`TC-${idx + 1}`),
       projectId,
       automationStatus: 'pending',
       sourceRunId,
@@ -748,7 +753,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const saveDocumentationRun = (run: Omit<DocumentationRun, 'id' | 'createdAt'>) => {
     const created: DocumentationRun = {
       ...run,
-      id: `RUN-${Date.now()}`,
+      id: createUniqueId('RUN'),
       createdAt: new Date().toISOString(),
     };
     setDocumentationRuns(prev => [created, ...prev]);

@@ -1,0 +1,506 @@
+Construye la aplicación completa usando el proyecto local y sus artefactos OpenSpec como punto de partida.
+Antes de terminar, verifica el scaffold necesario, instala o completa dependencias faltantes, y deja el proyecto runnable.
+No te detengas en un stub: implementa la funcionalidad completa, corrige errores y confirma build.
+Si necesitas más contexto, usa los archivos OpenSpec del proyecto como fuente de verdad.
+## 1. Acceder al menu principal de seguridad y navegar a la opcion funcional seleccionada
+Módulo: seguridad-navegacion
+Como operador del modulo de seguridad, necesito visualizar un menu principal con las opciones habilitadas y poder navegar a la funcion correspondiente para iniciar la gestion de usuarios, menus, parametros, perfiles, recursos o procesos de reseteo. La evidencia surge del programa PRG000 y del mapa PRG00M1, donde se construye el encabezado con usuario, aplicacion, terminal, fecha y hora, se presenta el conjunto de opciones numericas visibles y se procesa una entrada numerica en el campo de opcion. El comportamiento observado incluye inicializacion de pantalla en el primer ingreso o al solicitar limpieza, cierre inmediato ante comando de salida, rechazo de teclas no permitidas, validacion de opcion numerica y transferencia a otro proceso segun la opcion elegida. Tambien se detecta manejo de errores de recepcion del formulario y de fallo en la derivacion interna cuando no se puede completar la navegacion. En la aplicacion objetivo esto debe traducirse a una pantalla React sobria con tarjetas o lista de opciones y un endpoint de bootstrap de menu que entregue metadatos de contexto. La navegacion debe preservar identidad autenticada, mostrar mensajes funcionales equivalentes y mantener el principio de no inventar opciones fuera de las nueve visibles en el origen.
+Actor: Operador de seguridad
+Flujo funcional:
+1. El usuario autenticado ingresa al modulo de seguridad y el sistema obtiene usuario, aplicacion, terminal, fecha y hora para renderizar el menu principal.
+2. El frontend muestra las 9 opciones disponibles del menu con su descripcion funcional y deja el foco en el selector de opcion.
+3. El usuario selecciona una opcion valida entre 1 y 9 y confirma la accion.
+4. El sistema valida que la opcion sea numerica y pertenezca al conjunto permitido.
+5. Si la opcion es valida, el sistema navega al modulo correspondiente; para la opcion 1 abre la consulta general de usuarios.
+6. Desviacion: si el usuario intenta enviar una tecla o accion no soportada, el sistema conserva la pantalla y muestra el mensaje equivalente a 'Tecla invalida'.
+7. Desviacion: si la opcion no es numerica, el sistema informa 'Ingrese un valor numerico'.
+8. Desviacion: si la opcion numerica no esta en el rango permitido, el sistema informa 'Opcion invalida'.
+9. Desviacion: si falla la carga o procesamiento del formulario, el sistema muestra un error de recepcion y no navega.
+10. Si el usuario solicita salir o limpiar, el sistema cierra o reinicia el estado segun la accion equivalente.
+Pantallas / superficies: Rutas React: /seguridad, /seguridad/usuarios, /seguridad/menus, /seguridad/parametros, /seguridad/perfiles-recursos, /seguridad/recursos-host, /seguridad/consulta-perfiles-ventana, /seguridad/consulta-perfiles-recursos, /seguridad/consulta-recursos-host, /seguridad/reseteo-claves
+Componentes: SecurityMainMenuPage, SecurityMenuCardList, SecurityHeader, SecurityOptionForm
+Endpoints Spring: GET /api/v1/seguridad/menu, POST /api/v1/seguridad/menu/seleccion
+Reglas de negocio:
+- El acceso requiere identidad autenticada; si no existe usuario autenticado no se debe construir el menu.
+- La pantalla debe inicializarse limpia cuando es la primera carga o cuando el usuario ejecuta una accion de limpieza.
+- Solo son validas opciones numericas.
+- Solo se permiten las opciones 1, 2, 3, 4, 5, 6, 7, 8 y 9; aunque la validacion fuente menciona 10, no existe mapeo funcional observable para 10, por lo que se restringe a las opciones efectivamente implementadas.
+- Las acciones equivalentes a teclas no permitidas deben responder con mensaje funcional sin cambiar de pantalla.
+- Si falla la recepcion o parseo del formulario, se informa error y no se procesa navegacion.
+- La cabecera debe mostrar usuario, aplicacion, terminal, fecha y hora de sesion.
+- La opcion 1 navega a administracion/consulta de usuarios; la 9 navega a reseteo de claves y modificacion de dominio/nodo; las demas rutas se exponen solo como destinos de menu ya existentes en el origen.
+Notas técnicas:
+Aplicar ARQUITECTURA, AUTH MASTER, UI/UX RULES y TECHNICAL QUALITY - DEFINITION OF DONE. Endpoint API: GET /api/v1/seguridad/menu -> response { usuarioId:string, aplicacionId:string, terminalId:string, fecha:string, hora:string, opciones:[{ codigo:number, titulo:string, ruta:string }] }. Endpoint API: POST /api/v1/seguridad/menu/seleccion -> request { opcion:number, requestId:string(req) } response { opcion:number, ruta:string, titulo:string }. Tabla DB: no requiere persistencia especifica para esta historia. Auth/Authz: JWT requerido, roles ROLE_ADMIN o ROLE_OPERADOR. Error mapping: 400 INVALID_OPTION cuando opcion no numerica o fuera de catalogo; 401 UNAUTHORIZED sin sesion; 422 INVALID_KEY_ACTION para accion no soportada; 500 MENU_PROCESSING_ERROR en fallo de carga. Estructura error { timestamp, status, code, message, details?, path }. Flyway reference: no aplica tabla propia. Paquetes sugeridos: com.coboltestapr3.seguridadnavegacion.{domain,application,infrastructure,api}. Limites transaccionales: sin transaccion de escritura; servicios read-only. Estrategia de cache/estado: React Query para GET /seguridad/menu con staleTime 5m; invalidacion al reautenticar; POST de seleccion sin cache persistente. confianza: media
+Criterios:
+  1. Scenario: Carga exitosa del menu principal
+Given un usuario autenticado con JWT valido y rol ROLE_OPERADOR
+When el frontend llama al endpoint GET /api/v1/seguridad/menu
+Then la respuesta es HTTP 200 y muestra las opciones 1, 2, 3, 4, 5, 6, 7, 8 y 9 con sus rutas de navegacion disponibles
+  2. Scenario: Validacion de opcion numerica
+Given que el usuario escribe "AB" como opcion
+When el frontend llama al endpoint POST /api/v1/seguridad/menu/seleccion
+Then la respuesta es HTTP 400 con code "INVALID_OPTION" y message "Ingrese un valor numerico"
+  3. Scenario: Validacion de opcion fuera de catalogo
+Given que el usuario envia la opcion 15
+When el frontend llama al endpoint POST /api/v1/seguridad/menu/seleccion
+Then la respuesta es HTTP 400 con code "INVALID_OPTION" y message "Opcion invalida"
+  4. Scenario: Contrato de API del menu
+Given que el frontend llama al endpoint GET /api/v1/seguridad/menu
+When la peticion es valida
+Then el cuerpo JSON de respuesta contiene exactamente los campos usuarioId, aplicacionId, terminalId, fecha, hora, opciones con tipos string, string, string, string, string, array, y en caso de error de validacion devuelve HTTP 400 con body {timestamp,status,code,message,details,path}
+  5. Scenario: Navegacion a consulta de usuarios
+Given que el usuario selecciona la opcion 1
+When el backend valida la opcion y responde exitosamente
+Then el frontend navega a /seguridad/usuarios y la vista objetivo queda visible sin recarga manual
+  6. Scenario: Idempotencia en seleccion de opcion
+Given que se reenvia la misma peticion con identificador unico y opcion 1
+When el backend la recibe por segunda vez
+Then no genera duplicados y devuelve el mismo estado HTTP 200 con datos coherentes
+  7. Scenario: Accion no soportada
+Given que el usuario intenta ejecutar una accion no permitida por la pantalla
+When el backend procesa la solicitud de accion
+Then la respuesta es HTTP 422 con code "INVALID_KEY_ACTION" y el frontend conserva la misma pantalla mostrando el mensaje funcional correspondiente
+---
+## 2. Consultar usuarios por empresa, centro, usuario, perfil o nombre con listado paginado
+Módulo: usuarios-consulta
+Como operador de seguridad, necesito consultar el universo de usuarios mediante diferentes criterios para localizar rapidamente registros y operar sobre ellos. La evidencia proviene del programa SSITP002 y del mapa SSIM002, donde se observa una pantalla de consulta general con filtros por empresa, centro, usuario, perfil, nombre y cantidad de registros, junto con un detalle repetitivo de 14 filas. El codigo prioriza el criterio de busqueda en este orden: empresa, luego centro, luego usuario, luego perfil y finalmente nombre, ejecutando una sola consulta por solicitud. Tambien implementa comodines sobre usuario, perfil y nombre reemplazando espacios por '%' para permitir busquedas parciales. El campo de cantidad de registros se usa como desplazamiento de paginacion; adicionalmente existe una accion de retroceso que resta 28 posiciones para volver al bloque previo y, si el desplazamiento resulta negativo, lo corrige a cero mostrando 'Inicio de los datos'. El resultado expone clave, nombre, perfil, empresa, centro, dominio, nodo y autorizador. Esta historia debe materializar una grilla SPA con filtros, prioridad de criterio, mensajes funcionales equivalentes y respuesta paginada moderna, preservando exactamente el comportamiento observable sin agregar combinaciones avanzadas que no aparecen en el codigo fuente.
+Actor: Operador de seguridad
+Flujo funcional:
+1. El usuario abre la consulta general de usuarios y visualiza filtros por empresa, centro, usuario, perfil, nombre y desplazamiento de registros.
+2. El usuario completa uno de los criterios y ejecuta la consulta.
+3. El sistema determina el primer criterio no vacio segun prioridad: empresa, centro, usuario, perfil, nombre.
+4. Si el criterio es usuario, perfil o nombre, el sistema transforma espacios no informados en comodines para busqueda parcial.
+5. El backend consulta la base de datos y devuelve hasta 14 filas a partir del desplazamiento solicitado.
+6. El frontend renderiza la grilla con columnas de seleccion, usuario, nombres, perfil, empresa, centro, dominio, nodo y autorizador.
+7. Si existen mas datos despues del bloque retornado, el sistema informa un mensaje equivalente a 'Existen mas Datos'; si no, informa 'No existen mas Datos'.
+8. Desviacion: si el usuario no informa ningun criterio, el sistema no consulta y muestra 'Ingrese Criterio Consulta'.
+9. Desviacion: si ocurre un error al abrir o ejecutar la consulta, el sistema devuelve un mensaje especifico por criterio o un error grave de tabla.
+10. Desviacion: si el usuario solicita pagina previa y el desplazamiento queda menor a cero, el sistema corrige a cero y muestra 'Inicio de los datos'.
+Pantallas / superficies: Rutas React: /seguridad/usuarios
+Componentes: UsuariosConsultaPage, UsuariosFiltroForm, UsuariosTable, UsuariosPaginationToolbar, UsuariosSelectionInput
+Endpoints Spring: GET /api/v1/usuarios, GET /api/v1/usuarios/{usrSiglo21Id}/resumen
+Reglas de negocio:
+- Solo se ejecuta un criterio por consulta, respetando prioridad fija: empresa > centro > usuario > perfil > nombre.
+- Si no se informa criterio alguno, debe mostrarse el mensaje 'Ingrese Criterio Consulta'.
+- La consulta devuelve maximo 14 registros por bloque.
+- El campo de numero de registros representa desplazamiento de paginacion, no tamano de pagina.
+- Si el desplazamiento no es numerico o viene vacio, se toma como 0.
+- En paginacion hacia atras se resta 28 al desplazamiento actual; si el resultado es menor a 0, se fija en 0 y se informa inicio de datos.
+- Para usuario y perfil, los espacios en blanco se convierten en comodin de busqueda parcial.
+- Para nombre, cada espacio no informado se convierte en comodin de busqueda parcial.
+- Los resultados deben incluir usuario, nombre, perfil, empresa, centro, nodo, dominio y autorizador.
+- Si se llena la pagina y existen mas registros, se informa 'Existen mas Datos'; en caso contrario 'No existen mas Datos'.
+- Los errores de apertura de cursor se informan por criterio: empresa, centro o usuarios.
+- Los errores de lectura de base se informan como error grave de tabla de usuarios.
+Notas técnicas:
+Aplicar ARQUITECTURA, API CONTRACTS MASTER, AUTH MASTER y UI/UX RULES. Endpoint API principal: GET /api/v1/usuarios?empresa={string(4)?}&centro={string(4)?}&usuario={string(8)?}&perfil={string(8)?}&nombre={string(40)?}&offset={integer,default:0}&direction={string,enum[forward,back],default:forward}. Response success: { criterioAplicado:string, offset:number, limit:number, hasMore:boolean, message:string, content:[{ seleccion:number, usrSiglo21Id:string, usrNombre:string, usrPerfil:string, usrEmpresa:string, usrCentro:string, usrDominio:string, usrNodo:string, usrAutoriza:string }], totalReturned:number }. Endpoint auxiliar: GET /api/v1/usuarios/{usrSiglo21Id}/resumen -> { usrSiglo21Id, usrNombre, usrPerfil, usrEmpresa, usrCentro, usrDominio, usrNodo, usrAutoriza }. Tabla DB: t95usu03-usuarios con columnas t95usu03_usr_siglo21_id char(8) PK, t95usu03_usr_nombre varchar(40) not null, t95usu03_usr_status char(1) not null, t95usu03_usr_cid varchar(10) not null, t95usu03_usr_offset varchar(8) not null, t95usu03_usr_cargo varchar(15) not null, t95usu03_usr_empresa_codigo char(4) not null, t95usu03_usr_centro_codigo char(4) not null, t95usu03_usr_perfil_codigo char(8) not null, t95usu03_usr_dominio_codigo char(4) not null, t95usu03_usr_nodo_codigo char(4) not null, t95usu03_usr_autoriza char(1) not null, t95usu03_usr_upd_fecha char(8) not null, t95usu03_usr_upd_hora char(6) not null, t95usu03_usr_upd_usuario char(8) not null, t95usu03_usr_upd_terminal char(4) not null, t95usu03_usr_fch_logon char(8) not null, t95usu03_usr_hora_logon char(6) not null, t95usu03_usr_token char(8) not null, t95usu03_usr_historia varchar(80) not null, t95usu03_usr_fch_newpass char(8) not null, t95usu03_usr_fch_cambio char(8) not null. FKs: empresa a t06tc005-empresas, centro compuesto a t06tc007-centros, perfil logico a t95par02-parametros. Indices: por empresa, centro, perfil, trigram para nombre, btree para usr_siglo21_id. Auth/Authz: JWT ROLE_ADMIN o ROLE_OPERADOR. Error mapping: 400 MISSING_SEARCH_CRITERIA, 400 INVALID_OFFSET, 404 NO_DATA_PAGE no aplica como error, se devuelve 200 con message, 500 USER_QUERY_ERROR. Flyway reference: V001__create_t95usu03-usuarios.sql. Paquetes: com.coboltestapr3.usuariosconsulta.{domain,application,infrastructure,api}. Limites transaccionales: @Transactional(readOnly=true). Cache/estado: React Query key ['usuarios', filtros]; invalidacion al volver desde alta/edicion/eliminacion; keepPreviousData para cambios de pagina. confianza: alta
+Criterios:
+  1. Scenario: Consulta por empresa con resultados
+Given un usuario autenticado y el filtro empresa "0001"
+When el frontend llama al endpoint GET /api/v1/usuarios?empresa=0001&offset=0&direction=forward
+Then la respuesta es HTTP 200 y devuelve como maximo 14 registros con criterioAplicado "empresa"
+  2. Scenario: Prioridad de criterios
+Given que el usuario informa empresa "0001", centro "0101" y usuario "JPEREZ"
+When ejecuta la consulta
+Then el sistema aplica solo el criterio empresa y no mezcla resultados de centro ni usuario
+  3. Scenario: Consulta sin criterios
+Given que todos los filtros empresa, centro, usuario, perfil y nombre estan vacios
+When el frontend llama al endpoint GET /api/v1/usuarios?offset=0
+Then la respuesta es HTTP 400 con code "MISSING_SEARCH_CRITERIA" y message "Ingrese Criterio Consulta"
+  4. Scenario: Paginacion hacia atras desde el inicio
+Given que el usuario solicita direction "back" con offset 10
+When el backend procesa la consulta
+Then ajusta el offset a 0 y responde HTTP 200 con message "Inicio de los datos"
+  5. Scenario: Actualizacion UI SPA tras volver de una operacion
+Given que el usuario regreso desde la edicion del registro "JPEREZ01"
+When React Query invalida la key ['usuarios', filtros] y reconsulta el listado
+Then la tabla refleja el estado persistido sin recarga manual mostrando los datos actualizados de "JPEREZ01"
+  6. Scenario: Contrato de API del listado
+Given que el frontend llama al endpoint GET /api/v1/usuarios
+When la peticion es valida
+Then el cuerpo JSON de respuesta contiene exactamente los campos criterioAplicado, offset, limit, hasMore, message, content, totalReturned con tipos string, number, number, boolean, string, array, number, y en caso de error de validacion devuelve HTTP 400 con body {timestamp,status,code,message,details,path}
+  7. Scenario: Esquema de base de datos de usuarios
+Given que se ejecutan las migraciones Flyway
+When se verifica la tabla t95usu03-usuarios
+Then existen las columnas t95usu03_usr_siglo21_id, t95usu03_usr_nombre, t95usu03_usr_status, t95usu03_usr_cid, t95usu03_usr_offset, t95usu03_usr_cargo, t95usu03_usr_empresa_codigo, t95usu03_usr_centro_codigo, t95usu03_usr_perfil_codigo, t95usu03_usr_dominio_codigo, t95usu03_usr_nodo_codigo, t95usu03_usr_autoriza, t95usu03_usr_upd_fecha, t95usu03_usr_upd_hora, t95usu03_usr_upd_usuario, t95usu03_usr_upd_terminal, t95usu03_usr_fch_logon, t95usu03_usr_hora_logon, t95usu03_usr_token, t95usu03_usr_historia, t95usu03_usr_fch_newpass, t95usu03_usr_fch_cambio con tipos PostgreSQL compatibles, constraint de primary key en t95usu03_usr_siglo21_id, y foreign keys a t06tc005-empresas y t06tc007-centros segun DDL en V001__create_t95usu03-usuarios.sql
+  8. Scenario: Idempotencia de consulta
+Given que se reenvia la misma peticion con identificador unico para empresa "0001" y offset 0
+When el backend la recibe por segunda vez
+Then no genera duplicados y devuelve el mismo estado HTTP 200 con datos coherentes
+---
+## 3. Crear usuarios con validacion integral de perfil, empresa, centro y datos asociados
+Módulo: usuarios-administracion
+Como administrador de seguridad, necesito registrar un nuevo usuario asegurando que todos los datos obligatorios y relaciones maestras sean validos antes de persistirlo. La evidencia se encuentra en SSITP007 y su mapa SSIM007, donde la accion de ingreso valida usuario, nombre, observaciones, perfil, empresa, centro, datos BANCS opcionales pero acoplados, oficina Swift informativa con valor permitido, autorizador binario y existencia de catalogos asociados. El flujo delega la persistencia principal a un servicio de negocio externo equivalente, setea metadata de actualizacion con usuario, terminal, fecha y hora, inicializa campos de logon para nuevos registros y luego complementa la informacion administrativa con observaciones y, si corresponde, con un registro asociado de BANCS. Tambien se resuelven descripciones de empresa, centro y perfil para pintar la pantalla tras un alta exitosa. El comportamiento muestra reglas muy concretas: si se informa usuario BANCS debe existir terminal BANCS y viceversa; el perfil debe existir tanto en parametros como en recursos; la empresa y el centro deben existir en sus tablas maestras; la observacion es obligatoria; y si el usuario BANCS ya existe en la tabla asociada se rechaza el ingreso. Esta historia migra el alta a una API REST transaccional con validaciones servidor/cliente equivalentes y respuesta lista para refrescar la SPA.
+Actor: Administrador de seguridad
+Flujo funcional:
+1. El administrador abre el formulario de alta de usuario.
+2. Completa usuario, nombres, cedula, empresa, centro, cargo, perfil, autorizador, oficina swift, observaciones y opcionalmente usuario/terminal BANCS.
+3. El frontend valida formato basico y envia la solicitud de creacion.
+4. El backend valida obligatoriedad, consistencia entre campos, existencia de perfil en catalogos, empresa y centro, y reglas de datos asociados.
+5. Si la validacion es correcta, el sistema crea el usuario principal con metadata de auditoria y estado inicial, inicializando fechas y horas de ultimo logon en cero.
+6. Si se enviaron usuario y terminal BANCS, el sistema crea el registro asociado con estado de proceso inicial de alta.
+7. El sistema registra o actualiza la observacion administrativa del usuario.
+8. El backend responde con el detalle persistido y descripciones resueltas de empresa, centro y perfil.
+9. Desviacion: si falta un campo obligatorio o una referencia maestra no existe, el sistema responde con error de validacion y marca el campo.
+10. Desviacion: si el usuario BANCS existe duplicado, el sistema rechaza la operacion.
+11. Desviacion: si falla la persistencia de observaciones o datos asociados, el sistema devuelve error y no deja el alta en estado inconsistente.
+Pantallas / superficies: Rutas React: /seguridad/usuarios/nuevo
+Componentes: UsuarioFormPage, UsuarioForm, UsuarioBancsSection, UsuarioAuditSummary, CatalogLookupBadge
+Endpoints Spring: POST /api/v1/usuarios
+Reglas de negocio:
+- Usuario principal es obligatorio.
+- Nombre de usuario es obligatorio.
+- Observaciones son obligatorias.
+- Perfil es obligatorio.
+- El perfil debe existir en catalogo de parametros con parametro GR.
+- El perfil debe existir en catalogo de recursos/permisos.
+- Empresa es obligatoria y debe existir en maestro de empresas.
+- Centro es obligatorio y debe existir para la empresa informada.
+- Cedula puede venir vacia o cero y en ese caso se persiste en cero.
+- Cargo puede venir vacio y se persiste como blanco.
+- Para altas, la fecha y hora de ultimo logon se inicializan en cero y otros campos de logon/no-siglo quedan vacios.
+- Autorizador solo admite 0 o 1; cualquier valor distinto de 1 se trata como 0.
+- Oficina Swift es opcional, pero si se informa debe ser exactamente 'MSQUTODO'.
+- Usuario BANCS y terminal BANCS son dependientes: si se informa uno, el otro es obligatorio.
+- Si se informa usuario BANCS y terminal BANCS validos, se crea registro asociado con estado de proceso 'TC'.
+- Si el usuario BANCS asociado esta duplicado, se rechaza el alta.
+- El estado del usuario principal se fija en 'N'.
+- Tras alta exitosa deben devolverse descripciones de empresa, centro y perfil.
+- La observacion administrativa debe insertarse o actualizarse ligada al usuario.
+Notas técnicas:
+Aplicar ARQUITECTURA, API CONTRACTS MASTER, DB SCHEMA MASTER, AUTH MASTER, UI/UX RULES y TECHNICAL QUALITY - DEFINITION OF DONE. Endpoint API: POST /api/v1/usuarios. Request schema: { usrSiglo21Id:'string(8,req)', usrNombre:'string(43,req)', usrCid:'string(10,opt)', usrEmpresaCodigo:'string(4,req)', usrCentroCodigo:'string(4,req)', usrCargo:'string(18,opt)', usrPerfilCodigo:'string(8,req)', usrDominioCodigo:'string(4,opt,readonlyPorDefectoResuelto)', usrNodoCodigo:'string(4,opt,readonlyPorDefectoResuelto)', usrAutoriza:'number(0|1,req)', usrOficinaSwift:'string(12,opt)', observacion:'string(50,req)', bancsUsuario:'string(8,opt)', bancsTerminal:'number(5,opt)', idempotencyKey:'string(req)' }. Response success: { id:'uuid', usrSiglo21Id:'string', usrNombre:'string', usrCid:'string', usrEmpresaCodigo:'string', usrEmpresaNombre:'string', usrCentroCodigo:'string', usrCentroNombre:'string', usrCargo:'string', usrPerfilCodigo:'string', usrPerfilDescripcion:'string', usrDominioCodigo:'string', usrNodoCodigo:'string', usrAutoriza:'number', usrOficinaSwift:'string|null', observacion:'string', bancs:{ usuario:'string|null', terminal:'number|null', estadoProceso:'string|null' }, auditoria:{ fecha:'string', hora:'string', usuario:'string', terminal:'string' }, ultimoLogon:{ fecha:'string', hora:'string', ip:'string|null' } }. Tablas DB: t95usu03-usuarios; t95obs04-observaciones_usuario con columnas t95obs04_cod_usuario char(8) PK FK->t95usu03-usuarios, t95obs04_cod_usuario_mod char(8) not null, t95obs04_fec_ult_obs timestamp not null, t95obs04_cmp_observacion varchar(100) not null; t95ban04-usuarios_bancs con columnas t95ban04_usr_siglo21_id char(8) PK FK->t95usu03-usuarios, t95ban04_usr_bancs char(8) unique not null, t95ban04_usr_nombre varchar(60) not null, t95ban04_branch_no char(4) not null, t95ban04_term_no integer not null, t95ban04_cod_empresa char(4) not null, t95ban04_est_proceso char(2) not null, t95ban04_observacion varchar(80) not null, t95ban04_fec_ult_cambio timestamp not null, t95ban04_usr_ult_cambio char(8) not null. Auth/Authz: JWT obligatorio, solo ROLE_ADMIN. Error mapping: 400 USER_REQUIRED, NAME_REQUIRED, OBSERVATION_REQUIRED, PROFILE_REQUIRED, SWIFT_INVALID, BANCS_TERMINAL_REQUIRED, BANCS_USER_REQUIRED, COMPANY_NOT_FOUND, CENTER_NOT_FOUND, PROFILE_NOT_FOUND, PROFILE_RESOURCE_NOT_FOUND; 409 USER_ALREADY_EXISTS, BANCS_USER_DUPLICATE; 500 USER_CREATE_ERROR, OBSERVATION_PERSIST_ERROR. Flyway references: V001__create_t95usu03-usuarios.sql, V002__create_t95obs04-observaciones_usuario.sql, V003__create_t95ban04-usuarios_bancs.sql. Paquetes: com.coboltestapr3.usuariosadministracion.{domain,application,infrastructure,api}. Limites transaccionales: @Transactional en capa application abarcando alta de usuario principal + observacion + registro bancs; rollback ante cualquier error. Cache/estado: invalidar React Query keys ['usuarios'], ['usuario', usrSiglo21Id]; navegar a detalle o mantener formulario con respuesta. confianza: alta
+Criterios:
+  1. Scenario: Alta exitosa sin datos BANCS
+Given un administrador autenticado con rol ROLE_ADMIN y payload valido para usrSiglo21Id "JPEREZ01", usrNombre "JUAN PEREZ", usrEmpresaCodigo "0001", usrCentroCodigo "0101", usrPerfilCodigo "OPER001", usrAutoriza 1 y observacion "ALTA INICIAL"
+When el frontend llama al endpoint POST /api/v1/usuarios
+Then la respuesta es HTTP 201 y devuelve el usuario creado con bancs.usuario null y bancs.terminal null
+  2. Scenario: Alta exitosa con datos BANCS
+Given un payload valido con bancsUsuario "12345678" y bancsTerminal 12345
+When el backend crea el usuario
+Then la respuesta es HTTP 201 y el objeto bancs contiene usuario "12345678", terminal 12345 y estadoProceso "TC"
+  3. Scenario: Validacion de dependencia BANCS
+Given un payload con bancsUsuario "12345678" y sin bancsTerminal
+When el backend valida la peticion
+Then la respuesta es HTTP 400 con code "BANCS_TERMINAL_REQUIRED" y message "Ingrese Terminal BANCS."
+  4. Scenario: Validacion de oficina Swift
+Given un payload con usrOficinaSwift "OTRAOFIC"
+When el backend valida la peticion de alta
+Then la respuesta es HTTP 400 con code "SWIFT_INVALID" y message "Of.Swift: MSQUTODO"
+  5. Scenario: Contrato de API de alta de usuario
+Given que el frontend llama al endpoint POST /api/v1/usuarios
+When la peticion es valida
+Then el cuerpo JSON de respuesta contiene exactamente los campos id, usrSiglo21Id, usrNombre, usrCid, usrEmpresaCodigo, usrEmpresaNombre, usrCentroCodigo, usrCentroNombre, usrCargo, usrPerfilCodigo, usrPerfilDescripcion, usrDominioCodigo, usrNodoCodigo, usrAutoriza, usrOficinaSwift, observacion, bancs, auditoria, ultimoLogon con tipos uuid/string/string/string/string/string/string/string/string/string/string/string/string/number/string|null/string/object/object/object, y en caso de error de validacion devuelve HTTP 400 con body {timestamp,status,code,message,details,path}
+  6. Scenario: Esquema de base de datos para alta de usuario
+Given que se ejecutan las migraciones Flyway
+When se verifica la tabla t95ban04-usuarios_bancs
+Then existen las columnas t95ban04_usr_siglo21_id, t95ban04_usr_bancs, t95ban04_usr_nombre, t95ban04_branch_no, t95ban04_term_no, t95ban04_cod_empresa, t95ban04_est_proceso, t95ban04_observacion, t95ban04_fec_ult_cambio, t95ban04_usr_ult_cambio con tipos PostgreSQL, constraint de primary key en t95ban04_usr_siglo21_id, y foreign keys a t95usu03-usuarios segun DDL en V003__create_t95ban04-usuarios_bancs.sql
+  7. Scenario: Actualizacion UI SPA despues del alta
+Given que el alta de "JPEREZ01" fue exitosa
+When React Query invalida las keys ['usuarios'] y ['usuario','JPEREZ01']
+Then el listado y el detalle reflejan el estado persistido sin recarga manual
+  8. Scenario: Idempotencia en alta
+Given que se reenvia la misma peticion con identificador unico para usrSiglo21Id "JPEREZ01"
+When el backend la recibe por segunda vez
+Then no genera duplicados y devuelve el mismo estado HTTP 201 con datos coherentes
+---
+## 4. Consultar el detalle administrativo de un usuario con datos maestros, observaciones y asociacion BANCS
+Módulo: usuarios-administracion
+Como administrador de seguridad, necesito recuperar el detalle completo de un usuario para revisarlo antes de modificarlo o eliminarlo. La evidencia se distribuye entre el flujo ENTER y la recepcion desde la grilla en SSITP007, junto con el mapa SSIM007. El programa consulta el registro principal del usuario, carga fecha y hora de actualizacion, usuario y terminal de mantenimiento, dominio, nodo, cargo, ultimo sign-on, perfil, oficina Swift, autorizador y, adicionalmente, resuelve descripciones de perfil, empresa y centro mediante consultas a catalogos. Tambien recupera la observacion administrativa desde una tabla separada y los datos asociados de BANCS desde otra tabla; si no existe registro asociado, responde con mensajes funcionales equivalentes y deja esos campos vacios. El flujo soporta consulta directa por codigo de usuario o apertura desde la seleccion de la consulta general. La migracion debe ofrecer un endpoint de detalle y una vista de formulario en modo consulta/edicion que preserve la composicion actual de datos, evitando mezclar metadatos internos con el payload de negocio y mostrando de forma clara cuando la informacion relacionada no existe.
+Actor: Administrador de seguridad
+Flujo funcional:
+1. El administrador accede al detalle de usuario desde el listado o ingresando manualmente el codigo.
+2. El sistema valida que se haya informado el usuario a consultar.
+3. El backend consulta el registro principal del usuario.
+4. Si el usuario existe, el sistema resuelve las descripciones de perfil, empresa y centro desde sus catalogos.
+5. Luego obtiene la observacion administrativa y la asociacion BANCS, si existen.
+6. El frontend muestra el formulario completo en modo detalle con campos editables segun permisos.
+7. Desviacion: si no se informa usuario, el sistema devuelve error de validacion.
+8. Desviacion: si no existe el usuario principal, el sistema informa respuesta funcional de no encontrado.
+9. Desviacion: si no existe registro BANCS o no existe observacion, la consulta principal sigue siendo exitosa y esos datos se presentan vacios o nulos.
+10. Desviacion: si falla la consulta a una tabla maestra, el sistema muestra un mensaje funcional de error de catalogo sin ocultar el resto del detalle disponible.
+Pantallas / superficies: Rutas React: /seguridad/usuarios/:usrSiglo21Id, /seguridad/usuarios/:usrSiglo21Id/editar
+Componentes: UsuarioDetailPage, UsuarioDetailForm, UsuarioBancsPanel, UsuarioObservacionPanel, UsuarioMasterDataBadges
+Endpoints Spring: GET /api/v1/usuarios/{usrSiglo21Id}
+Reglas de negocio:
+- El codigo de usuario es obligatorio para consulta de detalle.
+- Si falta el usuario, se informa 'Ingrese Usuario'.
+- La consulta principal debe devolver los campos del usuario incluso si no existe registro de observaciones o BANCS.
+- Si no existe observacion asociada, el campo observacion se presenta vacio.
+- Si no existe registro BANCS asociado, los campos de usuario y terminal BANCS se presentan vacios.
+- Deben resolverse descripcion de perfil usando parametro GR.
+- Debe resolverse nombre de empresa por codigo.
+- Debe resolverse nombre de centro por empresa y centro.
+- Si falla una consulta a catalogos, debe devolverse un texto funcional equivalente indicando inexistencia o error grave del catalogo.
+- El flujo puede originarse desde seleccion del listado o consulta manual directa.
+Notas técnicas:
+Endpoint API: GET /api/v1/usuarios/{usrSiglo21Id}. Response success: { usrSiglo21Id:'string', usrNombre:'string', usrCid:'string', usrEmpresaCodigo:'string', usrEmpresaNombre:'string', usrCentroCodigo:'string', usrCentroNombre:'string', usrCargo:'string', usrPerfilCodigo:'string', usrPerfilDescripcion:'string', usrDominioCodigo:'string', usrNodoCodigo:'string', usrAutoriza:'number', usrOficinaSwift:'string|null', observacion:'string|null', auditoria:{ fecha:'string', hora:'string', usuario:'string', terminal:'string' }, ultimoLogon:{ fecha:'string', hora:'string', ip:'string|null' }, bancs:{ usuario:'string|null', terminal:'number|null', estadoProceso:'string|null', observacion:'string|null' }, respuesta:'string' }. Tabla DB: lectura de t95usu03-usuarios, t95obs04-observaciones_usuario, t95ban04-usuarios_bancs, t95par02-parametros, t06tc005-empresas, t06tc007-centros. Auth/Authz: JWT ROLE_ADMIN o ROLE_OPERADOR; si el modo es edicion, el frontend debe requerir ROLE_ADMIN. Error mapping: 400 USER_REQUIRED, 404 USER_NOT_FOUND, 500 MASTER_DATA_ERROR, 500 USER_DETAIL_ERROR. Flyway reference: reutiliza V001, V002, V003. Paquetes: com.coboltestapr3.usuariosadministracion.{domain,application,infrastructure,api}. Limites transaccionales: @Transactional(readOnly=true). Cache/estado: React Query key ['usuario', usrSiglo21Id] con staleTime 1m; invalidar tras update/delete; prefetch desde listado. confianza: alta
+Criterios:
+  1. Scenario: Consulta exitosa de detalle
+Given un usuario existente con codigo "JPEREZ01"
+When el frontend llama al endpoint GET /api/v1/usuarios/JPEREZ01
+Then la respuesta es HTTP 200 y contiene el detalle del usuario con empresa, centro, perfil, observacion y datos BANCS resueltos
+  2. Scenario: Usuario obligatorio
+Given que la ruta no contiene un codigo de usuario valido
+When el backend procesa la solicitud de detalle
+Then la respuesta es HTTP 400 con code "USER_REQUIRED" y message "Ingrese Usuario"
+  3. Scenario: Usuario inexistente
+Given que se consulta el codigo "ZZZZ9999"
+When el backend busca el registro principal
+Then la respuesta es HTTP 404 con code "USER_NOT_FOUND"
+  4. Scenario: Ausencia de observacion asociada
+Given un usuario existente sin registro en t95obs04-observaciones_usuario
+When se consulta el detalle
+Then la respuesta es HTTP 200 y el campo observacion es null o cadena vacia
+  5. Scenario: Contrato de API del detalle
+Given que el frontend llama al endpoint GET /api/v1/usuarios/{usrSiglo21Id}
+When la peticion es valida
+Then el cuerpo JSON de respuesta contiene exactamente los campos usrSiglo21Id, usrNombre, usrCid, usrEmpresaCodigo, usrEmpresaNombre, usrCentroCodigo, usrCentroNombre, usrCargo, usrPerfilCodigo, usrPerfilDescripcion, usrDominioCodigo, usrNodoCodigo, usrAutoriza, usrOficinaSwift, observacion, auditoria, ultimoLogon, bancs, respuesta con tipos string, string, string, string, string, string, string, string, string, string, string, string, number, string|null, string|null, object, object, object, string, y en caso de error de validacion devuelve HTTP 400 con body {timestamp,status,code,message,details,path}
+  6. Scenario: Actualizacion UI SPA al volver desde edicion
+Given que el detalle de "JPEREZ01" esta abierto en pantalla
+When una modificacion exitosa invalida la key ['usuario','JPEREZ01']
+Then el formulario refleja el estado persistido sin recarga manual
+  7. Scenario: Idempotencia de consulta de detalle
+Given que se reenvia la misma peticion con identificador unico para el usuario "JPEREZ01"
+When el backend la recibe por segunda vez
+Then no genera duplicados y devuelve el mismo estado HTTP 200 con datos coherentes
+---
+## 5. Modificar usuarios preservando consistencia funcional y sincronizacion con datos asociados
+Módulo: usuarios-administracion
+Como administrador de seguridad, necesito actualizar un usuario existente para corregir sus datos funcionales, su perfil y su vinculacion complementaria sin romper la consistencia del sistema. La evidencia surge del flujo PF4 en SSITP007, que reutiliza la validacion de campos del alta, conserva valores previos de perfil, centro y autorizacion para trazabilidad, actualiza el registro principal a traves del servicio de negocio, mantiene o ajusta el estado del registro asociado de BANCS segun existencia previa y valores informados, y finalmente actualiza la observacion administrativa. El codigo indica que, al modificar, si existe relacion previa en BANCS se preserva su estado o se normaliza a 'TC' cuando estaba en 'TE'; si el usuario no informa nuevos datos BANCS pero habia asociacion previa, se reutilizan los datos existentes y la vista limpia los campos visibles. Tambien existe tratamiento explicito de duplicados de usuario BANCS. Tras la operacion, la pantalla se refresca con descripciones resueltas y metadata de ultima actualizacion. Esta historia debe implementarse como actualizacion transaccional REST con manejo de concurrencia funcional razonable, validaciones equivalentes a las del alta y refresco inmediato del estado en la SPA.
+Actor: Administrador de seguridad
+Flujo funcional:
+1. El administrador abre el detalle editable de un usuario existente.
+2. Modifica datos del usuario y opcionalmente ajusta informacion BANCS y observaciones.
+3. El frontend envia la solicitud de actualizacion con el identificador del usuario.
+4. El backend valida nuevamente todos los campos obligatorios, catalogos y reglas cruzadas.
+5. El sistema actualiza el registro principal con metadata de modificacion.
+6. El sistema actualiza o crea el registro asociado BANCS cuando corresponde; si existe y estaba marcado en estado de baja tecnica, lo normaliza a estado transaccional activo de cambio.
+7. El sistema actualiza la observacion administrativa, insertandola si no existia.
+8. El backend responde con el detalle actualizado y descripciones resueltas.
+9. Desviacion: si el usuario no existe o la peticion es invalida, se devuelve error sin persistir cambios.
+10. Desviacion: si el usuario BANCS es duplicado, se rechaza la modificacion.
+11. Desviacion: si un catalogo obligatorio ya no existe, se responde con error de negocio y se revierte toda la transaccion.
+Pantallas / superficies: Rutas React: /seguridad/usuarios/:usrSiglo21Id/editar
+Componentes: UsuarioEditPage, UsuarioForm, UsuarioBancsSection, ConfirmSaveDialog
+Endpoints Spring: PUT /api/v1/usuarios/{usrSiglo21Id}
+Reglas de negocio:
+- Se aplican todas las reglas de validacion del alta.
+- El usuario objetivo debe existir para ser modificado.
+- Si el perfil cambia, debe seguir existiendo en parametros y recursos.
+- Si empresa o centro cambian, deben existir en sus tablas maestras.
+- Si existe registro BANCS previo, su estado se conserva; si estaba en 'TE' y se reactiva por modificacion, pasa a 'TC'.
+- Si no se informan nuevos datos BANCS pero existia relacion previa, se pueden conservar los valores asociados existentes en backend.
+- Si se informa usuario BANCS y terminal BANCS, ambos siguen siendo obligatorios de forma conjunta.
+- Si el nuevo usuario BANCS produce duplicado, se rechaza la modificacion.
+- La observacion administrativa se actualiza; si no existia, se inserta.
+- Debe registrarse la trazabilidad del valor previo de perfil, centro y autorizacion en auditoria operacional.
+- El resultado debe incluir metadata de ultima actualizacion y descripciones resueltas.
+Notas técnicas:
+Endpoint API: PUT /api/v1/usuarios/{usrSiglo21Id}. Request schema: mismo contrato funcional de alta mas version optativa { usrNombre, usrCid, usrEmpresaCodigo, usrCentroCodigo, usrCargo, usrPerfilCodigo, usrAutoriza, usrOficinaSwift, observacion, bancsUsuario, bancsTerminal, version?:number, idempotencyKey:'string(req)' }. Response success: mismo schema de detalle de usuario. Tablas DB: t95usu03-usuarios, t95obs04-observaciones_usuario, t95ban04-usuarios_bancs y tablas maestras. Auth/Authz: JWT, solo ROLE_ADMIN. Error mapping: 400 VALIDATION_ERROR, PROFILE_NOT_FOUND, PROFILE_RESOURCE_NOT_FOUND, COMPANY_NOT_FOUND, CENTER_NOT_FOUND, BANCS_TERMINAL_REQUIRED, BANCS_USER_REQUIRED, SWIFT_INVALID; 404 USER_NOT_FOUND; 409 BANCS_USER_DUPLICATE, CONCURRENT_MODIFICATION si se implementa version; 500 USER_UPDATE_ERROR. Flyway references: V001__create_t95usu03-usuarios.sql, V002__create_t95obs04-observaciones_usuario.sql, V003__create_t95ban04-usuarios_bancs.sql. Paquetes: com.coboltestapr3.usuariosadministracion.{domain,application,infrastructure,api}. Limites transaccionales: @Transactional sobre usuario principal + sincronizacion BANCS + observacion + escritura de auditoria; rollback completo ante error. Cache/estado: invalidar ['usuarios'], ['usuario', usrSiglo21Id] y cualquier resumen relacionado; actualizacion optimista opcional con rollback de cliente. confianza: alta
+Criterios:
+  1. Scenario: Modificacion exitosa de usuario
+Given un usuario existente "JPEREZ01" con perfil "OPER001"
+When el frontend llama al endpoint PUT /api/v1/usuarios/JPEREZ01 con perfil "SUPV0001" y observacion "CAMBIO DE PERFIL"
+Then la respuesta es HTTP 200 y devuelve el detalle actualizado con usrPerfilCodigo "SUPV0001"
+  2. Scenario: Rechazo por centro inexistente
+Given un payload con usrEmpresaCodigo "0001" y usrCentroCodigo "9999"
+When el backend valida la modificacion
+Then la respuesta es HTTP 400 con code "CENTER_NOT_FOUND" y message "Centro no definido T06TC007"
+  3. Scenario: Duplicado de usuario BANCS en modificacion
+Given un payload para "JPEREZ01" con bancsUsuario ya asignado a otro usuario
+When el backend intenta actualizar t95ban04-usuarios_bancs
+Then la respuesta es HTTP 409 con code "BANCS_USER_DUPLICATE"
+  4. Scenario: Contrato de API de modificacion
+Given que el frontend llama al endpoint PUT /api/v1/usuarios/{usrSiglo21Id}
+When la peticion es valida
+Then el cuerpo JSON de respuesta contiene exactamente los campos usrSiglo21Id, usrNombre, usrCid, usrEmpresaCodigo, usrEmpresaNombre, usrCentroCodigo, usrCentroNombre, usrCargo, usrPerfilCodigo, usrPerfilDescripcion, usrDominioCodigo, usrNodoCodigo, usrAutoriza, usrOficinaSwift, observacion, auditoria, ultimoLogon, bancs, respuesta con tipos string, string, string, string, string, string, string, string, string, string, string, string, number, string|null, string|null, object, object, object, string, y en caso de error de validacion devuelve HTTP 400 con body {timestamp,status,code,message,details,path}
+  5. Scenario: Actualizacion UI SPA posterior a modificar
+Given que la respuesta de modificacion de "JPEREZ01" fue exitosa
+When React Query invalida ['usuarios'] y ['usuario','JPEREZ01']
+Then el listado y el detalle reflejan el estado persistido sin recarga manual
+  6. Scenario: Idempotencia en modificacion
+Given que se reenvia la misma peticion con identificador unico para "JPEREZ01"
+When el backend la recibe por segunda vez
+Then no genera duplicados y devuelve el mismo estado HTTP 200 con datos coherentes
+  7. Scenario: Persistencia de observacion en actualizacion
+Given un usuario existente sin observacion previa y payload con observacion "AJUSTE ADMINISTRATIVO"
+When se completa la modificacion
+Then se crea o actualiza el registro en t95obs04-observaciones_usuario y el detalle responde con observacion "AJUSTE ADMINISTRATIVO"
+---
+## 6. Eliminar usuarios con baja administrativa, limpieza de observaciones y actualizacion de estado asociado
+Módulo: usuarios-administracion
+Como administrador de seguridad, necesito eliminar un usuario de la administracion de seguridad dejando trazabilidad y gestionando correctamente sus datos complementarios. La evidencia se encuentra en el flujo PF5 de SSITP007. Antes de eliminar, el sistema exige observaciones obligatorias; luego procesa la baja del usuario principal por el servicio de negocio, y si el usuario tiene informacion asociada de BANCS informada en pantalla, actualiza el estado del registro asociado a 'TE' junto con la observacion en vez de borrarlo fisicamente. En paralelo elimina la observacion administrativa en la tabla complementaria y finalmente registra la operacion en auditoria. El comportamiento no muestra una eliminacion fisica directa de la tabla asociada BANCS en este flujo, sino una marcacion de estado, por lo que la migracion debe respetar esa semantica. La historia debe ofrecer una accion de eliminacion con confirmacion fuerte, validacion de observacion obligatoria, respuesta consistente para la SPA y conservacion de trazabilidad. No debe asumir una baja logica general mas alla de lo explícitamente observado para el registro asociado y la llamada de eliminacion sobre el usuario principal.
+Actor: Administrador de seguridad
+Flujo funcional:
+1. El administrador abre el detalle de un usuario existente y elige eliminar.
+2. El sistema solicita confirmacion y observacion obligatoria.
+3. El frontend envia la solicitud de eliminacion con la observacion.
+4. El backend valida que la observacion exista y que el usuario sea valido.
+5. El sistema ejecuta la baja del usuario principal en el servicio de negocio.
+6. Si existen datos BANCS informados, el sistema actualiza el registro asociado con estado 'TE' y la observacion de la baja.
+7. El sistema elimina la observacion administrativa del repositorio correspondiente.
+8. El sistema registra la operacion de eliminacion en la auditoria administrativa.
+9. El frontend actualiza el listado o redirige fuera del detalle.
+10. Desviacion: si falta la observacion, se rechaza la operacion.
+11. Desviacion: si falla la actualizacion de estado asociado o la limpieza de observaciones, la transaccion se revierte y se informa error.
+Pantallas / superficies: Rutas React: /seguridad/usuarios/:usrSiglo21Id, /seguridad/usuarios
+Componentes: UsuarioDetailPage, DeleteUsuarioDialog, UsuarioObservacionPanel
+Endpoints Spring: DELETE /api/v1/usuarios/{usrSiglo21Id}
+Reglas de negocio:
+- La observacion es obligatoria para eliminar.
+- El usuario debe existir para poder eliminarse.
+- La eliminacion del usuario principal se ejecuta via servicio de negocio principal.
+- Si existe relacion BANCS visible/informada, no se elimina fisicamente; se actualiza su estado a 'TE' y se guarda la observacion.
+- Tras la eliminacion se borran las observaciones administrativas del usuario.
+- La operacion debe quedar trazada en auditoria con tipo ELIMINACION.
+- Si falla cualquier paso critico de persistencia, no debe quedar estado parcial.
+- Tras eliminar, la pantalla ya no debe mostrar el detalle editable del usuario como vigente.
+Notas técnicas:
+Endpoint API: DELETE /api/v1/usuarios/{usrSiglo21Id}. Request schema: { observacion:'string(50,req)', idempotencyKey:'string(req)' }. Response success: { usrSiglo21Id:'string', resultado:'string', mensaje:'string', bancsEstadoProceso:'string|null', observacionEliminacion:'string', auditado:true }. Tablas DB: efecto sobre t95usu03-usuarios segun servicio de negocio; update sobre t95ban04-usuarios_bancs.t95ban04_est_proceso = 'TE' y t95ban04_observacion; delete en t95obs04-observaciones_usuario por FK de usuario. Auth/Authz: JWT solo ROLE_ADMIN. Error mapping: 400 OBSERVATION_REQUIRED, USER_REQUIRED; 404 USER_NOT_FOUND; 500 USER_DELETE_ERROR, BANCS_STATE_UPDATE_ERROR, OBSERVATION_DELETE_ERROR. Flyway references: V002__create_t95obs04-observaciones_usuario.sql, V003__create_t95ban04-usuarios_bancs.sql. Paquetes: com.coboltestapr3.usuariosadministracion.{domain,application,infrastructure,api}. Limites transaccionales: @Transactional que cubra baja principal + update BANCS + delete observacion + auditoria; rollback completo. Cache/estado: invalidar ['usuarios'], remover ['usuario', usrSiglo21Id]; redireccion a listado. confianza: alta
+Criterios:
+  1. Scenario: Eliminacion exitosa con actualizacion BANCS
+Given un usuario existente "JPEREZ01" con datos BANCS asociados
+When el frontend llama al endpoint DELETE /api/v1/usuarios/JPEREZ01 con observacion "BAJA POR CAMBIO DE FUNCION"
+Then la respuesta es HTTP 200 y el campo bancsEstadoProceso es "TE"
+  2. Scenario: Validacion de observacion obligatoria en eliminacion
+Given una solicitud de eliminacion sin observacion
+When el backend valida la peticion
+Then la respuesta es HTTP 400 con code "OBSERVATION_REQUIRED" y message "Ingrese Observaciones"
+  3. Scenario: Contrato de API de eliminacion
+Given que el frontend llama al endpoint DELETE /api/v1/usuarios/{usrSiglo21Id}
+When la peticion es valida
+Then el cuerpo JSON de respuesta contiene exactamente los campos usrSiglo21Id, resultado, mensaje, bancsEstadoProceso, observacionEliminacion, auditado con tipos string, string, string, string|null, string, boolean, y en caso de error de validacion devuelve HTTP 400 con body {timestamp,status,code,message,details,path}
+  4. Scenario: Eliminacion de observacion administrativa
+Given un usuario existente con registro en t95obs04-observaciones_usuario
+When la eliminacion finaliza exitosamente
+Then el registro de t95obs04-observaciones_usuario correspondiente al usuario ya no existe
+  5. Scenario: Actualizacion UI SPA tras eliminar
+Given que la eliminacion de "JPEREZ01" fue exitosa
+When React Query invalida ['usuarios'] y remueve ['usuario','JPEREZ01']
+Then el listado deja de mostrar el usuario o su estado vigente sin recarga manual y la vista redirige a /seguridad/usuarios
+  6. Scenario: Idempotencia en eliminacion
+Given que se reenvia la misma peticion con identificador unico para eliminar "JPEREZ01"
+When el backend la recibe por segunda vez
+Then no genera operaciones duplicadas y devuelve el mismo estado HTTP 200 con datos coherentes
+  7. Scenario: Reversion ante fallo parcial
+Given una solicitud valida de eliminacion para "JPEREZ01"
+When falla la actualizacion del estado asociado BANCS durante la transaccion
+Then la respuesta es HTTP 500 con code "BANCS_STATE_UPDATE_ERROR" y no se confirma la baja del usuario ni la eliminacion de observaciones
+---
+## 7. Registrar auditoria administrativa y observaciones de operaciones sobre usuarios
+Módulo: auditoria-operacion
+Como responsable de control, necesito que cada alta, modificacion y eliminacion de usuarios quede auditada con suficiente detalle para rastrear quien realizo la accion, sobre que usuario y con que observacion. La evidencia principal esta en WRITELOG, GETOBSER, INSERTA-OBSER, MODIFICA-OBSER y ELIMINA-OBSERVACION de SSITP007. El programa arma un mensaje de auditoria con identificador de usuario, nombre, perfil, centro, autorizador, valores anteriores en caso de modificacion, observacion y respuesta funcional de la operacion. Ademas mantiene una tabla separada para observaciones por usuario, que se consulta para mostrar en pantalla, se inserta si no existia, se actualiza en modificaciones posteriores y se elimina al eliminar el usuario. Esta historia separa la responsabilidad transversal de trazabilidad y administracion de observaciones, permitiendo implementar un servicio consistente en Spring que sea invocado por los casos de uso de alta, modificacion y baja. El alcance no agrega consultas analiticas avanzadas; solo formaliza el comportamiento probado por el codigo fuente y las estructuras de datos visibles.
+Actor: Administrador de seguridad
+Flujo funcional:
+1. Una operacion de alta, modificacion o eliminacion de usuario se ejecuta sobre el sistema.
+2. El servicio de usuarios invoca el componente de auditoria con el tipo de operacion y el contexto del cambio.
+3. El componente construye el mensaje de auditoria con usuario objetivo, nombre, perfil, centro, autorizador, observacion y resultado.
+4. Si la operacion fue modificacion, incluye tambien los valores previos de perfil, centro y autorizacion.
+5. En paralelo, el sistema inserta o actualiza la observacion administrativa del usuario; si se trata de una baja, la elimina.
+6. El backend confirma la operacion principal solo si la escritura de auditoria y observaciones completa satisfactoriamente.
+7. Desviacion: si falla la escritura de log, el sistema informa error operacional.
+8. Desviacion: si la actualizacion de observaciones falla, el sistema responde error especifico y evita estados parciales.
+9. Desviacion: si al actualizar observacion no existe registro previo, el sistema inserta uno nuevo automaticamente.
+Pantallas / superficies: N/A
+Endpoints Spring: GET /api/v1/usuarios/{usrSiglo21Id}/observacion, PUT /api/v1/usuarios/{usrSiglo21Id}/observacion
+Reglas de negocio:
+- Se auditan solo operaciones de alta, modificacion y eliminacion.
+- La transaccion auditada para usuarios es T95USU03 como referencia funcional de negocio.
+- El tipo de operacion se traduce a INGRESO, MODIFICACION o ELIMINACION.
+- El mensaje de auditoria contiene usuario, nombre, perfil, centro, autorizador, observacion y respuesta.
+- En modificacion tambien se registran valores anteriores de perfil, centro y autorizacion.
+- La observacion de usuario se consulta desde un repositorio separado.
+- Si una actualizacion de observacion no encuentra registro previo, se debe insertar.
+- Si la eliminacion del usuario es exitosa, la observacion asociada se elimina.
+- Si falla el mecanismo de auditoria, la operacion debe considerarse con error tecnico.
+- La observacion almacenada debe quedar disponible para la consulta de detalle del usuario.
+Notas técnicas:
+Endpoint API de apoyo 1: GET /api/v1/usuarios/{usrSiglo21Id}/observacion -> response { usrSiglo21Id:'string', observacion:'string|null', ultimaActualizacion:'string|null', usuarioModificador:'string|null' }. Endpoint API de apoyo 2: PUT /api/v1/usuarios/{usrSiglo21Id}/observacion -> request { observacion:'string(50,req)' } response { usrSiglo21Id:'string', observacion:'string', ultimaActualizacion:'string', usuarioModificador:'string' }. Persistencia: t95obs04-observaciones_usuario como tabla principal de observaciones y t95log01-auditoria_operaciones como nueva tabla moderna de auditoria con columnas t95log01_id uuid PK, t95log01_transaccion varchar(10) not null, t95log01_operacion varchar(15) not null, t95log01_usuario_objetivo char(8) not null, t95log01_mensajeria varchar(100) not null, t95log01_cmp_observacion varchar(100) not null, t95log01_usuario_mod char(8) not null, t95log01_terminal varchar(10) not null, t95log01_fecha_ingreso timestamp not null. Auth/Authz: JWT ROLE_ADMIN. Error mapping: 404 OBSERVATION_NOT_FOUND solo para GET explicito si se decide diferenciar, 500 AUDIT_WRITE_ERROR, 500 OBSERVATION_PERSIST_ERROR. Flyway reference: V002__create_t95obs04-observaciones_usuario.sql, V004__create_t95log01-auditoria_operaciones.sql. Paquetes: com.coboltestapr3.auditoriaoperacion.{domain,application,infrastructure,api}. Limites transaccionales: participa en transaccion llamadora REQUIRED; no confirmar audit trail fuera de la operacion principal. Cache/estado: invalidar ['usuario', usrSiglo21Id] tras PUT de observacion; sin cache prolongado para auditoria. confianza: media
+Criterios:
+  1. Scenario: Insercion automatica de observacion inexistente
+Given un usuario "JPEREZ01" sin registro en t95obs04-observaciones_usuario
+When el servicio actualiza la observacion con el texto "REVISION DE ACCESO"
+Then se crea un nuevo registro de observacion para "JPEREZ01"
+  2. Scenario: Actualizacion de observacion existente
+Given un usuario "JPEREZ01" con observacion previa "ALTA INICIAL"
+When el frontend llama al endpoint PUT /api/v1/usuarios/JPEREZ01/observacion con "CAMBIO AUTORIZADO"
+Then la respuesta es HTTP 200 y el campo observacion devuelve "CAMBIO AUTORIZADO"
+  3. Scenario: Consulta de observacion
+Given un usuario "JPEREZ01" con observacion registrada
+When el frontend llama al endpoint GET /api/v1/usuarios/JPEREZ01/observacion
+Then la respuesta es HTTP 200 con el texto persistido y los datos de ultima actualizacion
+  4. Scenario: Contrato de API de observacion
+Given que el frontend llama al endpoint GET /api/v1/usuarios/{usrSiglo21Id}/observacion
+When la peticion es valida
+Then el cuerpo JSON de respuesta contiene exactamente los campos usrSiglo21Id, observacion, ultimaActualizacion, usuarioModificador con tipos string, string|null, string|null, string|null, y en caso de error de validacion devuelve HTTP 400 con body {timestamp,status,code,message,details,path}
+  5. Scenario: Esquema de base de datos de auditoria
+Given que se ejecutan las migraciones Flyway
+When se verifica la tabla t95log01-auditoria_operaciones
+Then existen las columnas t95log01_id, t95log01_transaccion, t95log01_operacion, t95log01_usuario_objetivo, t95log01_mensajeria, t95log01_cmp_observacion, t95log01_usuario_mod, t95log01_terminal, t95log01_fecha_ingreso con tipos PostgreSQL, constraint de primary key en t95log01_id, y foreign keys a ninguna tabla obligatoria segun DDL en V004__create_t95log01-auditoria_operaciones.sql
+  6. Scenario: Actualizacion UI SPA de observacion
+Given que la observacion de "JPEREZ01" fue actualizada exitosamente
+When React Query invalida la key ['usuario','JPEREZ01']
+Then el detalle del usuario refleja la nueva observacion sin recarga manual
+  7. Scenario: Idempotencia en actualizacion de observacion
+Given que se reenvia la misma peticion con identificador unico para actualizar la observacion de "JPEREZ01"
+When el backend la recibe por segunda vez
+Then no genera duplicados y devuelve el mismo estado HTTP 200 con datos coherentes
+---
+## 8. Preparar la ejecucion local nativa del sistema de seguridad con dependencias automaticas, puertos dinamicos y documentacion completa
+Módulo: infraestructura-local
+Como equipo de desarrollo, necesitamos ejecutar la solucion modernizada en entorno local nativo con un solo comando, garantizando descarga automatica de dependencias, configuracion segura, base de datos inicializada, pruebas y mantenimiento de procesos activos para desarrollo continuo. Esta historia no proviene de un modulo funcional COBOL sino del marco obligatorio del proyecto y es necesaria para entregar una aplicacion lista para produccion local. Debe incluir scripts run.sh y run.ps1 como punto unico de entrada, deteccion y asignacion de puertos libres para backend, frontend y PostgreSQL, instalacion automatica de prerrequisitos del sistema usando variables de entorno seguras, ejecucion de migraciones Flyway y seed, arranque en background con tracking de PIDs, health checks, pruebas de integracion y E2E contra URLs reales, y permanencia de la aplicacion corriendo tras el exito. Tambien debe generarse README.md y DOCS.md con el nivel de detalle exigido, un .env.example completo y gestion de secretos que nunca se versionen. Esta historia asegura reproducibilidad, soporte operativo y calidad transversal para todos los modulos funcionales.
+Actor: Equipo de desarrollo
+Flujo funcional:
+1. El desarrollador ejecuta ./run.sh o .\run.ps1 desde la raiz del proyecto.
+2. El script verifica java, node, npm y cliente/servidor PostgreSQL; si faltan, los instala nativamente usando SUDO_AUTH de forma segura.
+3. El script descarga explicitamente todas las dependencias de backend y frontend antes de compilar o ejecutar.
+4. El script escanea puertos 8081, 3001 y 5433; si estan ocupados, asigna los siguientes consecutivos libres.
+5. Configura PostgreSQL local, crea base y usuario si faltan, ejecuta migraciones Flyway y datos seed.
+6. Inicia backend y frontend en background, guarda PIDs, espera health checks y publica URLs finales.
+7. Ejecuta pruebas unitarias, integracion y E2E usando los puertos reales detectados.
+8. Si todo es exitoso, mantiene la aplicacion corriendo activamente en background y muestra PIDs, puertos y estado.
+9. Desviacion: si falla la instalacion de prerrequisitos, detiene el flujo con mensaje claro.
+10. Desviacion: si falla una migracion o test critico, apaga procesos iniciados y devuelve error.
+11. Desviacion: si se recibe SIGINT o SIGTERM, libera puertos, mata PIDs y limpia temporales.
+Pantallas / superficies: N/A
+Artefactos: /run.sh, /run.ps1, /stop.sh, /.env.example, /README.md, /DOCS.md, /backend/pom.xml, /frontend/package.json
+Reglas de negocio:
+- La ejecucion debe ser 100% local nativa y no usar contenedores ni virtualizacion.
+- Todas las dependencias deben descargarse explicitamente antes de compilar o correr.
+- Los puertos por defecto son 8081, 3001 y 5433, con fallback automatico a puertos consecutivos libres.
+- Los secretos obligatorios no deben versionarse ni exponerse en logs.
+- SUDO_AUTH se usa solo para instalacion y gestion local, nunca en runtime de la aplicacion.
+- README.md debe describir ejecucion local, puertos dinamicos, variables de entorno, troubleshooting y seguridad.
+- DOCS.md debe ser la referencia tecnica unica del sistema.
+- Los procesos deben mantenerse corriendo tras una ejecucion exitosa.
+- Debe existir limpieza controlada de PIDs y recursos al detener la aplicacion.
+- Las suites de prueba deben apuntar a las URLs dinamicas reales asignadas durante la ejecucion.
+Notas técnicas:
+Aplicar ENV VARS MASTER, TEST STRATEGY MASTER y TECHNICAL QUALITY - DEFINITION OF DONE. Artefactos obligatorios: .env.example con DATABASE_URL, DATABASE_PORT, DATABASE_USER, DATABASE_PASSWORD, BACKEND_PORT, JWT_SECRET, JWT_EXPIRATION_MS, CORS_ALLOWED_ORIGINS, FRONTEND_PORT, REACT_APP_API_URL, SUDO_AUTH. Scripts: run.sh y run.ps1 deben ejecutar dependency:resolve clean install en backend y npm install o npm ci en frontend, crear .pids, exportar puertos dinamicos, iniciar Spring Boot con ${server.port} y frontend con puerto inyectado, ejecutar health checks y tests. Backend local en /backend con Java 17+, Spring Boot 3, HikariCP y perfiles dev/test/prod. Frontend en /frontend con React 18+, TypeScript estricto y React Query. DB PostgreSQL 15+ local con Flyway. Auth/Authz: .env.example debe declarar JWT_SECRET obligatorio y no versionar .env real. Error mapping: los scripts deben exponer mensajes operativos y codigo de salida distinto de cero en fallo. Flyway reference: todas las migraciones V001__create_t95usu03-usuarios.sql, V002__create_t95obs04-observaciones_usuario.sql, V003__create_t95ban04-usuarios_bancs.sql, V004__create_t95log01-auditoria_operaciones.sql, V999__seed_datos_iniciales.sql. Paquetes: estructura completa por modulo bajo com.coboltestapr3. Limites transaccionales: no aplica a nivel shell; validar orden secuencial de setup. Cache/estado: frontend debe tomar REACT_APP_API_URL o VITE_API_URL dinamica segun puerto asignado. confianza: alta
+Criterios:
+  1. Scenario: Ejecucion local integral obligatoria
+Given que se ejecuta el script ./run.sh o .\run.ps1 en entorno local sin Docker: (1) se descargan e instalan automaticamente TODAS las dependencias, librerias y paquetes necesarios desde repositorios oficiales (mvn clean install, npm install, drivers DB, etc.), (2) se detectan puertos 8081, 3001, 5433 y si estan en uso se asignan automaticamente puertos nuevos y consecutivos que NO tengan ningun proceso escuchando, (3) se aplica migracion y seed de DB nativa, (4) se inician backend y frontend vinculados estrictamente a estos puertos nuevos, (5) se ejecutan pruebas de integracion y E2E apuntando a las URLs dinamicas generadas, (6) tras validacion exitosa, la aplicacion SE MANTIENE CORRIENDO en background sin cerrar la terminal, (7) se muestran PIDs, puertos asignados, estado de salud y URLs finales accesibles
+  2. Scenario: Generacion de .env.example
+Given el repositorio inicial del proyecto
+When se revisa el archivo .env.example
+Then contiene exactamente las variables DATABASE_URL, DATABASE_PORT, DATABASE_USER, DATABASE_PASSWORD, BACKEND_PORT, JWT_SECRET, JWT_EXPIRATION_MS, CORS_ALLOWED_ORIGINS, FRONTEND_PORT, REACT_APP_API_URL y SUDO_AUTH documentadas
+  3. Scenario: README y DOCS obligatorios
+Given una ejecucion de build completada
+When se verifican los artefactos documentales en la raiz
+Then existen README.md y DOCS.md con instrucciones de setup local, puertos dinamicos, arquitectura, OpenAPI, modelo de datos, seguridad JWT y troubleshooting
+  4. Scenario: Puertos dinamicos libres
+Given que 8081, 3001 y 5433 ya estan ocupados por otros procesos
+When se ejecuta run.sh o run.ps1
+Then el sistema asigna por ejemplo 8082, 3002 y 5434 o los siguientes libres consecutivos y arranca correctamente sobre esos puertos
+  5. Scenario: Persistencia de procesos en background
+Given que backend y frontend iniciaron correctamente
+When finaliza la ejecucion exitosa del script principal
+Then los procesos siguen activos en background y los archivos .pids/backend.pid y .pids/frontend.pid existen con PIDs validos
+  6. Scenario: Pruebas locales obligatorias
+Given que los puertos finales fueron detectados dinamicamente
+When se ejecutan las suites mvn test y npm test mas integracion/E2E
+Then todas leen las variables de entorno en tiempo de ejecucion y apuntan a las URLs reales asignadas
+  7. Scenario: Detencion controlada
+Given que la aplicacion esta corriendo mediante run.sh o run.ps1
+When se ejecuta ./stop.sh o se captura SIGINT/SIGTERM
+Then se matan los PIDs guardados, se limpian temporales y no quedan procesos huerfanos asociados al proyecto

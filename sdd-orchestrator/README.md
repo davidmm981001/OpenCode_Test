@@ -19,6 +19,8 @@
 
 - PowerShell: `./scripts/start-local.ps1`
 - Bash: `./scripts/start-local.sh`
+- From repo root, PowerShell: `./scripts/start-sdd-orchestrator.ps1`
+- From repo root, Bash: `./scripts/start-sdd-orchestrator.sh`
 
 ## OpenCode workspace
 

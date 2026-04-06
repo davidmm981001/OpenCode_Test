@@ -80,6 +80,8 @@ const snapshotsByProject = new Map<string, ProjectExecutionSnapshot>();
 const pendingGenerations = new Set<string>();
 const reservedPorts = new Set<number>();
 let portReservationQueue = Promise.resolve();
+const maxRuntimeLines = 5000;
+const transcriptSyncIntervalMs = 5000;
 
 function phaseToStatus(phase: RuntimePhase): ProjectStatus {
   if (phase === "completed") return ProjectStatus.completed;
@@ -154,7 +156,7 @@ function snapshotFromRuntime(runtime: ProjectRuntime): ProjectExecutionSnapshot 
     projectId: runtime.projectId,
     phase: runtime.phase,
     status: runtime.status,
-    lines: runtime.lines.slice(-50000),
+    lines: runtime.lines.slice(-maxRuntimeLines),
     inputEnabled: runtime.inputEnabled,
     sessionId: runtime.sessionId,
     port: runtime.port,
@@ -201,7 +203,7 @@ function addLine(runtime: ProjectRuntime, line: string, stream: "stdout" | "stde
   const cleanLine = line.trimEnd();
   if (!cleanLine) return;
   runtime.lines.push(cleanLine);
-  if (runtime.lines.length > 50000) runtime.lines.splice(0, runtime.lines.length - 50000);
+  if (runtime.lines.length > maxRuntimeLines) runtime.lines.splice(0, runtime.lines.length - maxRuntimeLines);
   runtime.lastOutputAt = Date.now();
   persistSnapshot(runtime);
   broadcast(runtime.projectId, { type: "line", line: cleanLine, stream });
@@ -463,7 +465,7 @@ export function subscribe(projectId: string, listener: RuntimeListener) {
 
 export async function startProjectGeneration(projectId: string, projectName: string, userStories: string, workspacePath: string) {
   if (isActiveRuntime(projectId)) throw new Error("Ya existe un proceso activo para este proyecto");
-  if (getRunningCount() >= env.maxConcurrentProcesses) throw new Error("Se alcanzó el límite máximo de 5 procesos simultáneos. Espera a que termine alguno.");
+  if (getRunningCount() >= env.maxConcurrentProcesses) throw new Error(`Se alcanzó el límite máximo de ${env.maxConcurrentProcesses} procesos simultáneos. Espera a que termine alguno.`);
 
   normalizeProjectWorkspace(workspacePath);
 
@@ -575,7 +577,7 @@ export async function startProjectGeneration(projectId: string, projectName: str
       void syncSessionTranscript(runtime).catch((error) => {
         addSystemLine(runtime, `[sync error] ${(error as Error).message}`);
       });
-    }, 1500);
+    }, transcriptSyncIntervalMs);
     return getRuntimeSnapshot(projectId);
   } catch (error) {
     pendingGenerations.delete(projectId);
