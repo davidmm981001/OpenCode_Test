@@ -25,6 +25,8 @@ model Project {
   fileCount      Int?
   completedAt    DateTime?
   lastError      String?
+  executionSnapshot Json?
+  lastSnapshotAt DateTime?
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
 }

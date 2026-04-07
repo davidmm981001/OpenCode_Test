@@ -29,7 +29,7 @@ wss.on("connection", async (socket, request) => {
     return;
   }
 
-  const snapshot = getRuntimeSnapshot(projectId);
+  const snapshot = await getRuntimeSnapshot(projectId);
   if (snapshot) socket.send(JSON.stringify({ type: "snapshot", ...snapshot }));
 
   const unsubscribe = subscribe(projectId, (event) => socket.readyState === socket.OPEN && socket.send(JSON.stringify(event)));

@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Navigate, useNavigate, useParams } from 'react-router';
-import { Globe, Sparkles, Upload } from 'lucide-react';
+import { Globe, Loader2, Sparkles, Upload } from 'lucide-react';
 import { useApp } from '../context/AppContext';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -9,6 +9,7 @@ import { extractDocText } from '../lib/extractDocText';
 import { fetchOpenApiResource } from '../lib/openApiResource';
 import { readProjectZipsToCodeContext } from '../lib/projectZipCodeContext';
 import { readCodeFiles } from '../lib/readCodeFiles';
+import { saveFiles, loadFiles, clearFiles, type FileCategory } from '../lib/filePersistence';
 import type { ApiResource, CodeContextItem } from '../types/generation';
 import { generateUserStories } from '../services/userStoryGenerationService';
 
@@ -128,6 +129,7 @@ export default function ProjectDocumentationTabPage() {
   const [storyDocs, setStoryDocs] = useState<File[]>([]);
   const [codeDocs, setCodeDocs] = useState<File[]>([]);
   const [projectZips, setProjectZips] = useState<File[]>([]);
+  const [filesRestored, setFilesRestored] = useState(false);
   const [apiResources, setApiResources] = useState<ApiResource[]>(
     () => project?.apiResources ?? [{ id: crypto.randomUUID(), name: 'API principal', baseUrl: '', swaggerUrl: '' }],
   );
@@ -139,6 +141,47 @@ export default function ProjectDocumentationTabPage() {
   }
 
   const existingStoriesCount = userStories.filter((s) => s.projectId === project.id).length;
+
+  useEffect(() => {
+    let cancelled = false;
+    async function restore() {
+      const [req, story, code, zips] = await Promise.all([
+        loadFiles(project.id, 'reqDocs'),
+        loadFiles(project.id, 'storyDocs'),
+        loadFiles(project.id, 'codeDocs'),
+        loadFiles(project.id, 'projectZips'),
+      ]);
+      if (!cancelled) {
+        setReqDocs(req);
+        setStoryDocs(story);
+        setCodeDocs(code);
+        setProjectZips(zips);
+        setFilesRestored(true);
+      }
+    }
+    void restore();
+    return () => { cancelled = true; };
+  }, [project.id]);
+
+  useEffect(() => {
+    if (!filesRestored) return;
+    void saveFiles(project.id, 'reqDocs', reqDocs);
+  }, [reqDocs, project.id, filesRestored]);
+
+  useEffect(() => {
+    if (!filesRestored) return;
+    void saveFiles(project.id, 'storyDocs', storyDocs);
+  }, [storyDocs, project.id, filesRestored]);
+
+  useEffect(() => {
+    if (!filesRestored) return;
+    void saveFiles(project.id, 'codeDocs', codeDocs);
+  }, [codeDocs, project.id, filesRestored]);
+
+  useEffect(() => {
+    if (!filesRestored) return;
+    void saveFiles(project.id, 'projectZips', projectZips);
+  }, [projectZips, project.id, filesRestored]);
 
   const addFileNames =
     (fileSetter: React.Dispatch<React.SetStateAction<File[]>>) =>
@@ -319,7 +362,14 @@ export default function ProjectDocumentationTabPage() {
   };
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 space-y-4 relative">
+      {generating && (
+        <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-50 flex flex-col items-center justify-center">
+          <Loader2 size={40} className="animate-spin mb-4" style={{ color: '#58B888' }} />
+          <p className="text-sm font-medium text-foreground">Generando historias de usuario...</p>
+          <p className="text-xs text-muted-foreground mt-1">Esto puede tomar unos segundos</p>
+        </div>
+      )}
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-4">
         <UploadCard
           title="Requerimientos Funcionales"
@@ -473,8 +523,16 @@ export default function ProjectDocumentationTabPage() {
           Con la documentación cargada (RF, código COBOL/ESQL e historias base), la IA analizará el
           contexto para generar historias de usuario con criterios de aceptación detallados.
         </p>
-        <Button onClick={() => void handleGenerate()} disabled={generating}>
-          {generating ? 'Preparando contexto...' : 'Generar Historias de Usuario'}
+        <Button
+          onClick={() => void handleGenerate()}
+          disabled={generating}
+          className={existingStoriesCount > 0 ? 'bg-[#202950] hover:bg-[#2a3560] text-white' : ''}
+        >
+          {generating
+            ? 'Preparando contexto...'
+            : existingStoriesCount > 0
+              ? 'Generar Historias de Usuario nuevamente'
+              : 'Generar Historias de Usuario'}
         </Button>
         {error && <div className="mt-3 text-xs text-rose-600">{error}</div>}
       </div>

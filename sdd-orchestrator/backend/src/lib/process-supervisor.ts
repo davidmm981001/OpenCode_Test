@@ -453,7 +453,8 @@ export async function stopProjectRuntime(projectId: string) {
     message: "Proceso detenido",
   });
   broadcast(projectId, { type: "status", status: ProjectStatus.idle, phase: "idle", message: "Proceso detenido" });
-  broadcast(projectId, { type: "snapshot", ...getRuntimeSnapshot(projectId) });
+  const finalSnapshot = await getRuntimeSnapshot(projectId);
+  broadcast(projectId, { type: "snapshot", ...finalSnapshot });
   return true;
 }
 
@@ -578,7 +579,7 @@ export async function startProjectGeneration(projectId: string, projectName: str
         addSystemLine(runtime, `[sync error] ${(error as Error).message}`);
       });
     }, transcriptSyncIntervalMs);
-    return getRuntimeSnapshot(projectId);
+    return await getRuntimeSnapshot(projectId);
   } catch (error) {
     pendingGenerations.delete(projectId);
     const message = formatOpenCodeSpawnError(error);
@@ -626,7 +627,7 @@ export async function sendProjectInput(projectId: string, message: string) {
 export async function markProjectComplete(projectId: string, workspacePath: string) {
   const prisma = getPrisma();
   const runtime = runtimes.get(projectId);
-  const snapshotBeforePackaging = getRuntimeSnapshot(projectId);
+  const snapshotBeforePackaging = await getRuntimeSnapshot(projectId);
 
   if (runtime) {
     runtime.phase = "packaging";

@@ -49,7 +49,8 @@ projectsRouter.get("/:id/status", async (req, res, next) => {
   try {
     const project = await getProject(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });
-    res.json({ project: projectToJson(project), execution: getRuntimeSnapshot(project.id) });
+    const execution = await getRuntimeSnapshot(project.id);
+    res.json({ project: projectToJson(project), execution });
   } catch (error) {
     next(error);
   }
@@ -111,14 +112,14 @@ projectsRouter.post("/:id/generate", async (req, res, next) => {
   try {
     const project = await getProject(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });
-    const currentExecution = getRuntimeSnapshot(project.id);
+    const currentExecution = await getRuntimeSnapshot(project.id);
     if (!canStartProjectGeneration(project.status, currentExecution.phase)) {
       return res.status(409).json({ message: "Project already running" });
     }
     void startProjectGeneration(project.id, project.name, project.userStories, getProjectWorkspacePath(project.id)).catch((error) => {
       console.error("Project generation failed", error);
     });
-    const nextExecution = getRuntimeSnapshot(project.id);
+    const nextExecution = await getRuntimeSnapshot(project.id);
     res.status(202).json({ project: { ...projectToJson(project), status: nextExecution.status }, execution: nextExecution });
   } catch (error) {
     next(error);
@@ -129,7 +130,7 @@ projectsRouter.post("/:id/stop", async (req, res, next) => {
   try {
     const project = await getProject(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });
-    const currentExecution = getRuntimeSnapshot(project.id);
+    const currentExecution = await getRuntimeSnapshot(project.id);
     if (currentExecution.phase === "idle" || currentExecution.phase === "completed" || currentExecution.phase === "error") {
       return res.status(409).json({ message: "Project is not running" });
     }
@@ -139,7 +140,7 @@ projectsRouter.post("/:id/stop", async (req, res, next) => {
     void stopProjectRuntime(project.id).catch((error) => {
       console.error("Project stop failed", error);
     });
-    const nextExecution = getRuntimeSnapshot(project.id);
+    const nextExecution = await getRuntimeSnapshot(project.id);
     res.status(202).json({ project: projectToJson(project), execution: nextExecution });
   } catch (error) {
     next(error);
@@ -150,7 +151,7 @@ projectsRouter.post("/:id/complete", async (req, res, next) => {
   try {
     const project = await getProject(req.params.id);
     if (!project) return res.status(404).json({ message: "Project not found" });
-    const execution = getRuntimeSnapshot(project.id);
+    const execution = await getRuntimeSnapshot(project.id);
     const { confirmed } = req.body as { confirmed?: boolean };
     if (confirmed !== true) {
       return res.status(400).json({ message: "Completion confirmation is required" });
